@@ -4,10 +4,17 @@ clc; clear; close all;
 %% Convert .csv files to .mat format
 
 start = 4; % Starting folder from 3, ignoring '.' and '..' in the directory
+<<<<<<< HEAD:Code/Pipeline.m
 stop = 7; % final folder depends on the number of participants
 
 % This is where each participants' data are stored for this project
 cd ('C:\Users\Sahand\OneDrive - University of Waterloo\MT project\DataAnalysis\Pilot011\MT_pipeline')
+=======
+stop = start + 3; % final folder depends on the number of participants
+
+% This is where each participants' data are stored for this project
+cd ('C:\Users\s2ajami\OneDrive - University of Waterloo\MASc_research\MT_project\data_analysis\mt_pipeline')
+>>>>>>> a97a683d69201c4dc865d2cc130a778a91466ce8:Pipeline.m
 
 % This function loops in every participant's folder and makes a .mat copy
 % of their .csv data 
@@ -242,6 +249,70 @@ for i = 1:length(GroupNames)
         k = k + 1;
     end
 end
+
+%% Analysis: Trajectory smoothness
+
+JerkData = struct();
+
+GroupNames = fieldnames(KinematicData);
+% Where GroupNames is either "withHaptics" or "withoutHaptics"
+
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = KinematicData.(GroupNames{i});
+    % where the "Participants" is all the subjects in the i-th
+    % group.
+
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+
+        ParticipantNames = fieldnames(Participants);
+        Data = Participants.(ParticipantNames{j});
+
+        BaselineTrials = fieldnames(Data.LeftBaseline);
+        TestTrials = fieldnames(Data.LeftTest);
+
+        % Measuring the duration of each trial in baseline
+%         time_baseline = [];
+        for k = 1:length(BaselineTrials)
+
+            Trial = Data.LeftBaseline.(BaselineTrials{k});
+            if ~isempty(Trial.Time)
+                HERE FIND JERK
+                time_baseline(k) = Trial.Time(end) - Trial.Time(1);
+            end
+        end
+        time_baseline_mean = mean(time_baseline);
+        time_baseline_std = std(time_baseline);
+
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Baseline.time_vector = time_baseline;
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Baseline.time_mean = time_baseline_mean;
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Baseline.time_std = time_baseline_std;
+
+        % Measuring the duration of each trial in baseline
+%         time_test = [];
+        for k = 1:length(TestTrials)
+            
+            Trial = Data.LeftTest.(TestTrials{k});
+            
+            if ~isempty(Trial)
+                time_test(k) = Trial.Time(end) - Trial.Time(1);
+            end
+%             time_test(k) = Trial.Time(end) - Trial.Time(1);
+        end
+
+        time_test_mean = mean(time_test);
+        time_test_std = std(time_test);
+
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Test.time_vector = time_test;
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Test.time_mean = time_test_mean;
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Test.time_std = time_test_std;
+    end
+end
+
 %% Analysis: Score data
 
 %% Analysis: DropPos data

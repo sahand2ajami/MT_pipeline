@@ -7,6 +7,7 @@ function csv2mat(start, stop)
     for i = start:stop
         
         % go to the folder
+        folderName(i).name
         cd(folderName(i).name)
     
         % with'*.csv' dir will read csv files only
