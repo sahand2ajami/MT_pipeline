@@ -3,11 +3,11 @@ clc; clear; close all;
 
 %% Convert .csv files to .mat format
 
-start = 3; % Starting folder from 3, ignoring '.' and '..' in the directory
-stop = 6; % final folder depends on the number of participants
+start = 4; % Starting folder from 3, ignoring '.' and '..' in the directory
+stop = 7; % final folder depends on the number of participants
 
 % This is where each participants' data are stored for this project
-cd ('C:\Users\Sahand\\ - University of Waterloo\MT project\DataAnalysis\Pilot011')
+cd ('C:\Users\Sahand\OneDrive - University of Waterloo\MT project\DataAnalysis\Pilot011\MT_pipeline')
 
 % This function loops in every participant's folder and makes a .mat copy
 % of their .csv data 
