@@ -286,11 +286,12 @@ for i = 1:length(GroupNames)
         BaselineTrials = fieldnames(Data.LeftBaseline);
         TestTrials = fieldnames(Data.LeftTest);
 
+        BaselineTrials
         % Measuring the duration of each trial in baseline
         for k = 1:length(BaselineTrials)
 
             Trial = Data.LeftBaseline.(BaselineTrials{k});
-            
+            BaselineTrials{k}
             if ~isempty(Trial.Time)
                 t_seconds = seconds(Trial.Time);
 
@@ -370,6 +371,12 @@ for i = 1:length(GroupNames)
 
     end
 end
+%%
+global TrajectoryInfo;
+TrajectoryInfo = struct();
+TrajectoryInfo = JerkSaver(KinematicData, "Baseline");
+
+% [TrajectoryInfo, a] = JerkSaver(KinematicData, "Test");
 
 %% Analysis: Score data
 

@@ -1,6 +1,6 @@
 function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
 
-
+    global TrajectoryInfo
     subStructure = struct();
     GroupNames = fieldnames(KinematicData);
     % Where GroupNames is either "withHaptics" or "withoutHaptics"
@@ -61,45 +61,81 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     jerk_overall{k} = sqrt(jerk_x{k}.^2 + jerk_y{k}.^2 + jerk_z{k}.^2);
                     jerk_time{k} = t_seconds(4:end);
 
-                    velocity_x_mean{k} = mean(vel_x{k});
-                    velocity_x_std{k} = std(vel_x{k});
-        
-                    velocity_y_mean{k} = mean(vel_y{k});
-                    velocity_y_std{k} = std(vel_y{k});
-            
-                    velocity_z_mean{k} = mean(vel_z{k});
-                    velocity_z_std{k} = std(vel_z{k});
-            
-                    velocity_overall_mean{k} = mean(vel_overall{k});
-                    velocity_overall_std{k} = std(vel_overall{k});
-                    
-                    acceleration_x_mean{k} = mean(acc_x{k});
-                    acceleration_x_std{k} = std(acc_x{k});
-            
-                    acceleration_y_mean{k} = mean(acc_y{k});
-                    acceleration_y_std{k} = std(acc_y{k});
-            
-                    acceleration_z_mean{k} = mean(acc_z{k});
-                    acceleration_z_std{k} = std(acc_z{k});
-            
-                    acceleration_overall_mean{k} = mean(acc_overall{k});
-                    acceleration_overall_std{k} = std(acc_overall{k});
-            
-                    jerk_x_mean{k} = mean(jerk_x{k});
-                    jerk_x_std{k} = std(jerk_x{k});
-            
-                    jerk_y_mean{k} = mean(jerk_y{k});
-                    jerk_y_std{k} = std(jerk_y{k});
-            
-                    jerk_z_mean{k} = mean(jerk_z{k});
-                    jerk_z_std{k} = std(jerk_z{k});
-            
-                    jerk_overall_mean{k} = mean(jerk_overall{k});
-                    jerk_overall_std{k} = std(jerk_overall{k});
-
-                    subStructure.(Trials{k}).Velocity = timetable(vel_x{k}, vel_y{k}, vel_z{k}, vel_overall{k}, 'RowTimes', seconds(vel_time{k}), 'VariableNames',{'Vel_X','Vel_Y','Vel_Z', 'Velocity_Overall'});
-                    subStructure.(Trials{k}).Acceleration = timetable(acc_x{k}, acc_y{k}, acc_z{k}, acc_overall{k}, 'RowTimes', seconds(acc_time{k}), 'VariableNames',{'Acc_X','Acc_Y','Acc_Z', 'Acceleartion_Overall'});
-                    subStructure.(Trials{k}).Jerk = timetable(jerk_x{k}, jerk_y{k}, jerk_z{k}, jerk_overall{k}, 'RowTimes', seconds(jerk_time{k}), 'VariableNames',{'Jerk_X','Jerk_Y','Jerk_Z', 'Jerk_Overall'});
+%                     velocity_x_mean{k} = mean(vel_x{k});
+%                     velocity_x_std{k} = std(vel_x{k});
+%         
+%                     velocity_y_mean{k} = mean(vel_y{k});
+%                     velocity_y_std{k} = std(vel_y{k});
+%             
+%                     velocity_z_mean{k} = mean(vel_z{k});
+%                     velocity_z_std{k} = std(vel_z{k});
+%             
+%                     velocity_overall_mean{k} = mean(vel_overall{k});
+%                     velocity_overall_std{k} = std(vel_overall{k});
+%                     
+%                     acceleration_x_mean{k} = mean(acc_x{k});
+%                     acceleration_x_std{k} = std(acc_x{k});
+%             
+%                     acceleration_y_mean{k} = mean(acc_y{k});
+%                     acceleration_y_std{k} = std(acc_y{k});
+%             
+%                     acceleration_z_mean{k} = mean(acc_z{k});
+%                     acceleration_z_std{k} = std(acc_z{k});
+%             
+%                     acceleration_overall_mean{k} = mean(acc_overall{k});
+%                     acceleration_overall_std{k} = std(acc_overall{k});
+%             
+%                     jerk_x_mean{k} = mean(jerk_x{k});
+%                     jerk_x_std{k} = std(jerk_x{k});
+%             
+%                     jerk_y_mean{k} = mean(jerk_y{k});
+%                     jerk_y_std{k} = std(jerk_y{k});
+%             
+%                     jerk_z_mean{k} = mean(jerk_z{k});
+%                     jerk_z_std{k} = std(jerk_z{k});
+%             
+%                     jerk_overall_mean{k} = mean(jerk_overall{k});
+%                     jerk_overall_std{k} = std(jerk_overall{k});
+% 
+%                     subStructure.(Trials{k}).Velocity = timetable(vel_x{k}, vel_y{k}, vel_z{k}, vel_overall{k}, 'RowTimes', seconds(vel_time{k}), 'VariableNames',{'Vel_X','Vel_Y','Vel_Z', 'Velocity_Overall'});
+%                     subStructure.(Trials{k}).Acceleration = timetable(acc_x{k}, acc_y{k}, acc_z{k}, acc_overall{k}, 'RowTimes', seconds(acc_time{k}), 'VariableNames',{'Acc_X','Acc_Y','Acc_Z', 'Acceleartion_Overall'});
+%                     subStructure.(Trials{k}).Jerk = timetable(jerk_x{k}, jerk_y{k}, jerk_z{k}, jerk_overall{k}, 'RowTimes', seconds(jerk_time{k}), 'VariableNames',{'Jerk_X','Jerk_Y','Jerk_Z', 'Jerk_Overall'});
+% 
+%                     velocity_x_mean{k} = mean(vel_x{k});
+%                     velocity_x_std{k} = std(vel_x{k});
+%         
+%                     velocity_y_mean{k} = mean(vel_y{k});
+%                     velocity_y_std{k} = std(vel_y{k});
+%             
+%                     velocity_z_mean{k} = mean(vel_z{k});
+%                     velocity_z_std{k} = std(vel_z{k});
+%             
+%                     velocity_overall_mean{k} = mean(vel_overall{k});
+%                     velocity_overall_std{k} = std(vel_overall{k});
+%                     
+%                     acceleration_baseline_x_mean{k} = mean(acc_baseline_x{k});
+%                     acceleration_baseline_x_std{k} = std(acc_baseline_x{k});
+%             
+%                     acceleration_baseline_y_mean{k} = mean(acc_baseline_y{k});
+%                     acceleration_baseline_y_std{k} = std(acc_baseline_y{k});
+%             
+%                     acceleration_baseline_z_mean{k} = mean(acc_baseline_z{k});
+%                     acceleration_baseline_z_std{k} = std(acc_baseline_z{k});
+%             
+%                     acceleration_baseline_overall_mean{k} = mean(acc_baseline_overall{k});
+%                     acceleration_baseline_overall_std{k} = std(acc_baseline_overall{k});
+%             
+%                     jerk_baseline_x_mean{k} = mean(jerk_baseline_x{k});
+%                     jerk_baseline_x_std{k} = std(jerk_baseline_x{k});
+%             
+%                     jerk_baseline_y_mean{k} = mean(jerk_baseline_y{k});
+%                     jerk_baseline_y_std{k} = std(jerk_baseline_y{k});
+%             
+%                     jerk_baseline_z_mean{k} = mean(jerk_baseline_z{k});
+%                     jerk_baseline_z_std{k} = std(jerk_baseline_z{k});
+%             
+%                     jerk_baseline_overall_mean{k} = mean(jerk_baseline_overall{k});
+%                     jerk_baseline_overall_std{k} = std(jerk_baseline_overall{k});
 
                     TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString) = subStructure;
 

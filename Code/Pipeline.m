@@ -245,137 +245,138 @@ for i = 1:length(GroupNames)
 end
 
 %% Analysis: Trajectory smoothness
+% 
+% VelocityData = struct();
+% AccelerationData = struct();
+% JerkData = struct();
+% 
+% vel_baseline_x = {};
+% vel_baseline_y = {};
+% vel_baseline_z = {};
+% vel_baseline_overall = {};
+% 
+% acc_baseline_x = {};
+% acc_baseline_y = {};
+% acc_baseline_z = {};
+% acc_baseline_overall = {};
+% 
+% jerk_baseline_x = {};
+% jerk_baseline_y = {};
+% jerk_baseline_z = {};
+% jerk_baseline_overall = {};
+% 
+% GroupNames = fieldnames(KinematicData);
+% % Where GroupNames is either "withHaptics" or "withoutHaptics"
+% 
+% % This loops in the "withHaptics" and "withoutHaptics" groups
+% for i = 1:length(GroupNames)
+%     % i = 1 WithoutHaptics
+%     % i = 2 WithHaptics
+% 
+%     Participants = KinematicData.(GroupNames{i});
+%     % where the "Participants" is all the subjects in the i-th
+%     % group.
+% 
+%     % This loops in each participant of each group
+%     for j = 1:length(fieldnames(Participants))
+% 
+%         ParticipantNames = fieldnames(Participants);
+%         Data = Participants.(ParticipantNames{j});
+% 
+%         BaselineTrials = fieldnames(Data.LeftBaseline);
+%         TestTrials = fieldnames(Data.LeftTest);
+% 
+%         BaselineTrials
+%         % Measuring the duration of each trial in baseline
+%         for k = 1:length(BaselineTrials)
+% 
+%             Trial = Data.LeftBaseline.(BaselineTrials{k});
+%             BaselineTrials{k}
+%             if ~isempty(Trial.Time)
+%                 t_seconds = seconds(Trial.Time);
+% 
+%                 % Calculate velocity
+%                 vel_baseline_x{k} = diff(Trial.X) ./ diff(t_seconds); % Velocity in the x dimension
+%                 vel_baseline_y{k} = diff(Trial.Y) ./ diff(t_seconds); % Velocity in the y dimension
+%                 vel_baseline_z{k} = diff(Trial.Z) ./ diff(t_seconds); % Velocity in the z dimension
+%                 vel_baseline_overall{k} = sqrt(vel_baseline_x{k}.^2 + vel_baseline_y{k}.^2 + vel_baseline_z{k}.^2);
+% 
+%                 % Calculate acceleration
+%                 acc_baseline_x{k} = diff(vel_baseline_x{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the x dimension
+%                 acc_baseline_y{k} = diff(vel_baseline_y{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the y dimension
+%                 acc_baseline_z{k} = diff(vel_baseline_z{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the z dimension
+%                 acc_baseline_overall{k} = sqrt(acc_baseline_x{k}.^2 + acc_baseline_y{k}.^2 + acc_baseline_z{k}.^2);
+%            
+%                 % Calculate jerk
+%                 jerk_baseline_x{k} = diff(acc_baseline_x{k}) ./ diff(t_seconds(1:end-2)); % Jerk in the x dimension
+%                 jerk_baseline_y{k} = diff(acc_baseline_y{k}) ./ diff(t_seconds(1:end-2)); % Jerk in the y dimension
+%                 jerk_baseline_z{k} = diff(acc_baseline_z{k}) ./ diff(t_seconds(1:end-2)); % Jerk in the z dimension
+%                 jerk_baseline_overall{k} = sqrt(jerk_baseline_x{k}.^2 + jerk_baseline_y{k}.^2 + jerk_baseline_z{k}.^2);
+%             end
+%         end
+% 
+%         for k = 1:length(jerk_baseline_overall)
+%             velocity_baseline_x_mean{k} = mean(vel_baseline_x{k});
+%             velocity_baseline_x_std{k} = std(vel_baseline_x{k});
+% 
+%             velocity_baseline_y_mean{k} = mean(vel_baseline_y{k});
+%             velocity_baseline_y_std{k} = std(vel_baseline_y{k});
+%     
+%             velocity_baseline_z_mean{k} = mean(vel_baseline_z{k});
+%             velocity_baseline_z_std{k} = std(vel_baseline_z{k});
+%     
+%             velocity_baseline_overall_mean{k} = mean(vel_baseline_overall{k});
+%             velocity_Baseline_overall_std{k} = std(vel_baseline_overall{k});
+%             
+%             acceleration_baseline_x_mean{k} = mean(acc_baseline_x{k});
+%             acceleration_baseline_x_std{k} = std(acc_baseline_x{k});
+%     
+%             acceleration_baseline_y_mean{k} = mean(acc_baseline_y{k});
+%             acceleration_baseline_y_std{k} = std(acc_baseline_y{k});
+%     
+%             acceleration_baseline_z_mean{k} = mean(acc_baseline_z{k});
+%             acceleration_baseline_z_std{k} = std(acc_baseline_z{k});
+%     
+%             acceleration_baseline_overall_mean{k} = mean(acc_baseline_overall{k});
+%             acceleration_baseline_overall_std{k} = std(acc_baseline_overall{k});
+%     
+%             jerk_baseline_x_mean{k} = mean(jerk_baseline_x{k});
+%             jerk_baseline_x_std{k} = std(jerk_baseline_x{k});
+%     
+%             jerk_baseline_y_mean{k} = mean(jerk_baseline_y{k});
+%             jerk_baseline_y_std{k} = std(jerk_baseline_y{k});
+%     
+%             jerk_baseline_z_mean{k} = mean(jerk_baseline_z{k});
+%             jerk_baseline_z_std{k} = std(jerk_baseline_z{k});
+%     
+%             jerk_baseline_overall_mean{k} = mean(jerk_baseline_overall{k});
+%             jerk_baseline_overall_std{k} = std(jerk_baseline_overall{k});
+%         end
+% 
+% 
+%         vel_baseline_x = {};
+%         vel_baseline_y = {};
+%         vel_baseline_z = {};
+%         vel_baseline_overall = {};
+%         
+%         acc_baseline_x = {};
+%         acc_baseline_y = {};
+%         acc_baseline_z = {};
+%         acc_baseline_overall = {};
+%         
+%         jerk_baseline_x = {};
+%         jerk_baseline_y = {};
+%         jerk_baseline_z = {};
+%         jerk_baseline_overall = {};
+% 
+%     end
+% end
+%% Find Velocity, Acceleration and Jerk, and save them into TrajectoryInfo()
+global TrajectoryInfo;
 
-VelocityData = struct();
-AccelerationData = struct();
-JerkData = struct();
-
-vel_baseline_x = {};
-vel_baseline_y = {};
-vel_baseline_z = {};
-vel_baseline_overall = {};
-
-acc_baseline_x = {};
-acc_baseline_y = {};
-acc_baseline_z = {};
-acc_baseline_overall = {};
-
-jerk_baseline_x = {};
-jerk_baseline_y = {};
-jerk_baseline_z = {};
-jerk_baseline_overall = {};
-
-GroupNames = fieldnames(KinematicData);
-% Where GroupNames is either "withHaptics" or "withoutHaptics"
-
-% This loops in the "withHaptics" and "withoutHaptics" groups
-for i = 1:length(GroupNames)
-    % i = 1 WithoutHaptics
-    % i = 2 WithHaptics
-
-    Participants = KinematicData.(GroupNames{i});
-    % where the "Participants" is all the subjects in the i-th
-    % group.
-
-    % This loops in each participant of each group
-    for j = 1:length(fieldnames(Participants))
-
-        ParticipantNames = fieldnames(Participants);
-        Data = Participants.(ParticipantNames{j});
-
-        BaselineTrials = fieldnames(Data.LeftBaseline);
-        TestTrials = fieldnames(Data.LeftTest);
-
-        BaselineTrials
-        % Measuring the duration of each trial in baseline
-        for k = 1:length(BaselineTrials)
-
-            Trial = Data.LeftBaseline.(BaselineTrials{k});
-            BaselineTrials{k}
-            if ~isempty(Trial.Time)
-                t_seconds = seconds(Trial.Time);
-
-                % Calculate velocity
-                vel_baseline_x{k} = diff(Trial.X) ./ diff(t_seconds); % Velocity in the x dimension
-                vel_baseline_y{k} = diff(Trial.Y) ./ diff(t_seconds); % Velocity in the y dimension
-                vel_baseline_z{k} = diff(Trial.Z) ./ diff(t_seconds); % Velocity in the z dimension
-                vel_baseline_overall{k} = sqrt(vel_baseline_x{k}.^2 + vel_baseline_y{k}.^2 + vel_baseline_z{k}.^2);
-
-                % Calculate acceleration
-                acc_baseline_x{k} = diff(vel_baseline_x{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the x dimension
-                acc_baseline_y{k} = diff(vel_baseline_y{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the y dimension
-                acc_baseline_z{k} = diff(vel_baseline_z{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the z dimension
-                acc_baseline_overall{k} = sqrt(acc_baseline_x{k}.^2 + acc_baseline_y{k}.^2 + acc_baseline_z{k}.^2);
-           
-                % Calculate jerk
-                jerk_baseline_x{k} = diff(acc_baseline_x{k}) ./ diff(t_seconds(1:end-2)); % Jerk in the x dimension
-                jerk_baseline_y{k} = diff(acc_baseline_y{k}) ./ diff(t_seconds(1:end-2)); % Jerk in the y dimension
-                jerk_baseline_z{k} = diff(acc_baseline_z{k}) ./ diff(t_seconds(1:end-2)); % Jerk in the z dimension
-                jerk_baseline_overall{k} = sqrt(jerk_baseline_x{k}.^2 + jerk_baseline_y{k}.^2 + jerk_baseline_z{k}.^2);
-            end
-        end
-
-        for k = 1:length(jerk_baseline_overall)
-            velocity_baseline_x_mean{k} = mean(vel_baseline_x{k});
-            velocity_baseline_x_std{k} = std(vel_baseline_x{k});
-
-            velocity_baseline_y_mean{k} = mean(vel_baseline_y{k});
-            velocity_baseline_y_std{k} = std(vel_baseline_y{k});
-    
-            velocity_baseline_z_mean{k} = mean(vel_baseline_z{k});
-            velocity_baseline_z_std{k} = std(vel_baseline_z{k});
-    
-            velocity_baseline_overall_mean{k} = mean(vel_baseline_overall{k});
-            velocity_Baseline_overall_std{k} = std(vel_baseline_overall{k});
-            
-            acceleration_baseline_x_mean{k} = mean(acc_baseline_x{k});
-            acceleration_baseline_x_std{k} = std(acc_baseline_x{k});
-    
-            acceleration_baseline_y_mean{k} = mean(acc_baseline_y{k});
-            acceleration_baseline_y_std{k} = std(acc_baseline_y{k});
-    
-            acceleration_baseline_z_mean{k} = mean(acc_baseline_z{k});
-            acceleration_baseline_z_std{k} = std(acc_baseline_z{k});
-    
-            acceleration_baseline_overall_mean{k} = mean(acc_baseline_overall{k});
-            acceleration_baseline_overall_std{k} = std(acc_baseline_overall{k});
-    
-            jerk_baseline_x_mean{k} = mean(jerk_baseline_x{k});
-            jerk_baseline_x_std{k} = std(jerk_baseline_x{k});
-    
-            jerk_baseline_y_mean{k} = mean(jerk_baseline_y{k});
-            jerk_baseline_y_std{k} = std(jerk_baseline_y{k});
-    
-            jerk_baseline_z_mean{k} = mean(jerk_baseline_z{k});
-            jerk_baseline_z_std{k} = std(jerk_baseline_z{k});
-    
-            jerk_baseline_overall_mean{k} = mean(jerk_baseline_overall{k});
-            jerk_baseline_overall_std{k} = std(jerk_baseline_overall{k});
-        end
-
-
-        vel_baseline_x = {};
-        vel_baseline_y = {};
-        vel_baseline_z = {};
-        vel_baseline_overall = {};
-        
-        acc_baseline_x = {};
-        acc_baseline_y = {};
-        acc_baseline_z = {};
-        acc_baseline_overall = {};
-        
-        jerk_baseline_x = {};
-        jerk_baseline_y = {};
-        jerk_baseline_z = {};
-        jerk_baseline_overall = {};
-
-    end
-end
-%%
 TrajectoryInfo = struct();
 TrajectoryInfo = JerkSaver(KinematicData, "Baseline");
-
-% [TrajectoryInfo, a] = JerkSaver(KinematicData, "Test");
+TrajectoryInfo = JerkSaver(KinematicData, "Test");
 
 %% Analysis: Score data
 
