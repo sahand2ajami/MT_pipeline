@@ -373,8 +373,9 @@ for i = 1:length(GroupNames)
 end
 %%
 TrajectoryInfo = struct();
-[TrajectoryInfo] = JerkSaver(KinematicData, "Baseline");
-[TrajectoryInfo] = JerkSaver(KinematicData, "Test");
+TrajectoryInfo = JerkSaver(KinematicData, "Baseline");
+
+% [TrajectoryInfo, a] = JerkSaver(KinematicData, "Test");
 
 %% Analysis: Score data
 
