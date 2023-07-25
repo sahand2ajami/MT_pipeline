@@ -173,7 +173,6 @@ for i = 1:length(GroupNames)
 end
 
 % Plot the time
-close all
 
 GroupNames = fieldnames(TimeData);
 % DropPosErrorData = struct();
@@ -246,137 +245,85 @@ end
 
 %% Analysis: Trajectory smoothness
 
-VelocityData = struct();
-AccelerationData = struct();
-JerkData = struct();
+%%% Find Velocity, Acceleration and Jerk, and save them into TrajectoryInfo()
+global TrajectoryInfo;
 
-vel_baseline_x = {};
-vel_baseline_y = {};
-vel_baseline_z = {};
-vel_baseline_overall = {};
+TrajectoryInfo = struct();
+TrajectoryInfo = JerkSaver(KinematicData, "Baseline");
+TrajectoryInfo = JerkSaver(KinematicData, "Test");
 
-acc_baseline_x = {};
-acc_baseline_y = {};
-acc_baseline_z = {};
-acc_baseline_overall = {};
+%%% Plot the Velocity (mean and std)
+% Plot the time
 
-jerk_baseline_x = {};
-jerk_baseline_y = {};
-jerk_baseline_z = {};
-jerk_baseline_overall = {};
+GroupNames = fieldnames(TrajectoryInfo);
+% DropPosErrorData = struct();
 
-GroupNames = fieldnames(KinematicData);
-% Where GroupNames is either "withHaptics" or "withoutHaptics"
+k = 1;
+figure
+
+% Change the dimensions of the figure
+newWidth = 1000;  % New width in pixels
+newHeight = 800; % New height in pixels
+% set(gcf, 'Position', [100, 100, newWidth, newHeight]);
+set(gca, 'XTickLabel', {});
+set(gca, 'XTick', []);
 
 % This loops in the "withHaptics" and "withoutHaptics" groups
 for i = 1:length(GroupNames)
     % i = 1 WithoutHaptics
     % i = 2 WithHaptics
 
-    Participants = KinematicData.(GroupNames{i});
-    % where the "Participants" is all the subjects in the i-th
-    % group.
-
+    Participants = TimeData.(GroupNames{i});
+    
     % This loops in each participant of each group
     for j = 1:length(fieldnames(Participants))
-
         ParticipantNames = fieldnames(Participants);
+ 
         Data = Participants.(ParticipantNames{j});
 
-        BaselineTrials = fieldnames(Data.LeftBaseline);
-        TestTrials = fieldnames(Data.LeftTest);
-
-        BaselineTrials
-        % Measuring the duration of each trial in baseline
-        for k = 1:length(BaselineTrials)
-
-            Trial = Data.LeftBaseline.(BaselineTrials{k});
-            BaselineTrials{k}
-            if ~isempty(Trial.Time)
-                t_seconds = seconds(Trial.Time);
-
-                % Calculate velocity
-                vel_baseline_x{k} = diff(Trial.X) ./ diff(t_seconds); % Velocity in the x dimension
-                vel_baseline_y{k} = diff(Trial.Y) ./ diff(t_seconds); % Velocity in the y dimension
-                vel_baseline_z{k} = diff(Trial.Z) ./ diff(t_seconds); % Velocity in the z dimension
-                vel_baseline_overall{k} = sqrt(vel_baseline_x{k}.^2 + vel_baseline_y{k}.^2 + vel_baseline_z{k}.^2);
-
-                % Calculate acceleration
-                acc_baseline_x{k} = diff(vel_baseline_x{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the x dimension
-                acc_baseline_y{k} = diff(vel_baseline_y{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the y dimension
-                acc_baseline_z{k} = diff(vel_baseline_z{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the z dimension
-                acc_baseline_overall{k} = sqrt(acc_baseline_x{k}.^2 + acc_baseline_y{k}.^2 + acc_baseline_z{k}.^2);
-           
-                % Calculate jerk
-                jerk_baseline_x{k} = diff(acc_baseline_x{k}) ./ diff(t_seconds(1:end-2)); % Jerk in the x dimension
-                jerk_baseline_y{k} = diff(acc_baseline_y{k}) ./ diff(t_seconds(1:end-2)); % Jerk in the y dimension
-                jerk_baseline_z{k} = diff(acc_baseline_z{k}) ./ diff(t_seconds(1:end-2)); % Jerk in the z dimension
-                jerk_baseline_overall{k} = sqrt(jerk_baseline_x{k}.^2 + jerk_baseline_y{k}.^2 + jerk_baseline_z{k}.^2);
-            end
-        end
-
-        for k = 1:length(jerk_baseline_overall)
-            velocity_baseline_x_mean{k} = mean(vel_baseline_x{k});
-            velocity_baseline_x_std{k} = std(vel_baseline_x{k});
-
-            velocity_baseline_y_mean{k} = mean(vel_baseline_y{k});
-            velocity_baseline_y_std{k} = std(vel_baseline_y{k});
-    
-            velocity_baseline_z_mean{k} = mean(vel_baseline_z{k});
-            velocity_baseline_z_std{k} = std(vel_baseline_z{k});
-    
-            velocity_baseline_overall_mean{k} = mean(vel_baseline_overall{k});
-            velocity_Baseline_overall_std{k} = std(vel_baseline_overall{k});
-            
-            acceleration_baseline_x_mean{k} = mean(acc_baseline_x{k});
-            acceleration_baseline_x_std{k} = std(acc_baseline_x{k});
-    
-            acceleration_baseline_y_mean{k} = mean(acc_baseline_y{k});
-            acceleration_baseline_y_std{k} = std(acc_baseline_y{k});
-    
-            acceleration_baseline_z_mean{k} = mean(acc_baseline_z{k});
-            acceleration_baseline_z_std{k} = std(acc_baseline_z{k});
-    
-            acceleration_baseline_overall_mean{k} = mean(acc_baseline_overall{k});
-            acceleration_baseline_overall_std{k} = std(acc_baseline_overall{k});
-    
-            jerk_baseline_x_mean{k} = mean(jerk_baseline_x{k});
-            jerk_baseline_x_std{k} = std(jerk_baseline_x{k});
-    
-            jerk_baseline_y_mean{k} = mean(jerk_baseline_y{k});
-            jerk_baseline_y_std{k} = std(jerk_baseline_y{k});
-    
-            jerk_baseline_z_mean{k} = mean(jerk_baseline_z{k});
-            jerk_baseline_z_std{k} = std(jerk_baseline_z{k});
-    
-            jerk_baseline_overall_mean{k} = mean(jerk_baseline_overall{k});
-            jerk_baseline_overall_std{k} = std(jerk_baseline_overall{k});
-        end
-
-
-        vel_baseline_x = {};
-        vel_baseline_y = {};
-        vel_baseline_z = {};
-        vel_baseline_overall = {};
+        % Example data
+        data1 = Data.Baseline.time_vector;
+        data2 = Data.Test.time_vector(end-(length(data1) - 1):end);
         
-        acc_baseline_x = {};
-        acc_baseline_y = {};
-        acc_baseline_z = {};
-        acc_baseline_overall = {};
+        % Calculate mean and standard deviation
+        mean1 = mean(data1);
+        std1 = std(data1);
+        mean2 = mean(data2);
+        std2 = std(data2);
         
-        jerk_baseline_x = {};
-        jerk_baseline_y = {};
-        jerk_baseline_z = {};
-        jerk_baseline_overall = {};
+        % Create a figure
+        subplot(length(GroupNames), length(fieldnames(Participants)), k)
 
+        % Set the position of each bar chart
+        barPositions = 0;
+        barWidth = 0.3;
+        set(gca, 'XTick', []);
+        % Plot the first bar chart
+        bar(barPositions, mean1, barWidth);
+        hold on;
+        bar(barPositions + barWidth, mean2, barWidth);
+        
+        errorbar(barPositions, mean1, std1, 'k.', 'LineWidth', 1);
+        
+        % Plot the second bar chart
+        
+        errorbar(barPositions + barWidth, mean2, std2, 'k.', 'LineWidth', 1);
+        
+        % Customize the chart
+%         xlabel(["Baseline", "Test"]);
+        ylabel('Duration [sec]');
+        legend('Baseline', 'Test', 'Location','bestoutside');
+        title(strcat(GroupNames{i}, ' - P', num2str(j)));
+        
+        % Adjust the x-axis limits
+        xlim([min(barPositions)-barWidth, max(barPositions)+2*barWidth]);
+        
+        % Adjust the x-axis tick labels
+        xticks([]);
+        k = k + 1;
     end
 end
-%%
-global TrajectoryInfo;
-TrajectoryInfo = struct();
-TrajectoryInfo = JerkSaver(KinematicData, "Baseline");
 
-% [TrajectoryInfo, a] = JerkSaver(KinematicData, "Test");
 
 %% Analysis: Score data
 
@@ -564,76 +511,6 @@ end
 %% Step 3: Plot the data
 %%% Step2: Save the error data as data structure
 
-% close all
-
-GroupNames = fieldnames(DropPosErrorData);
-% DropPosErrorData = struct();
-
-k = 1;
-figure
-
-% Change the dimensions of the figure
-newWidth = 1000;  % New width in pixels
-newHeight = 800; % New height in pixels
-% set(gcf, 'Position', [100, 100, newWidth, newHeight]);
-set(gca, 'XTickLabel', {});
-set(gca, 'XTick', []);
-
-% This loops in the "withHaptics" and "withoutHaptics" groups
-for i = 1:length(GroupNames)
-    % i = 1 WithoutHaptics
-    % i = 2 WithHaptics
-
-    Participants = DropPosErrorData.(GroupNames{i});
-    
-    % This loops in each participant of each group
-    for j = 1:length(fieldnames(Participants))
-        ParticipantNames = fieldnames(Participants);
- 
-        Data = Participants.(ParticipantNames{j});
-
-        % Example data
-        data1 = Data.error_baseline;
-        data2 = Data.error_test(end-4:end);
-%         data2 = Data.error_test(1:end);
-        
-        % Calculate mean and standard deviation
-        mean1 = mean(data1);
-        std1 = std(data1);
-        mean2 = mean(data2);
-        std2 = std(data2);
-        
-        % Create a figure
-        subplot(length(GroupNames), length(fieldnames(Participants)), k)
-
-        % Set the position of each bar chart
-        barPositions = 0;
-        barWidth = 0.3;
-        set(gca, 'XTick', []);
-        % Plot the first bar chart
-        bar(barPositions, mean1, barWidth);
-        hold on;
-        bar(barPositions + barWidth, mean2, barWidth);
-        
-        errorbar(barPositions, mean1, std1, 'k.', 'LineWidth', 1);
-        
-        % Plot the second bar chart
-        
-        errorbar(barPositions + barWidth, mean2, std2, 'k.', 'LineWidth', 1);
-        
-        % Customize the chart
-%         xlabel(["Baseline", "Test"]);
-        ylabel('Error [m]');
-        legend('Baseline', 'Test', 'Location','bestoutside');
-        title(strcat(GroupNames{i}, ' - P', num2str(j)));
-        
-        % Adjust the x-axis limits
-        xlim([min(barPositions)-barWidth, max(barPositions)+2*barWidth]);
-        
-        % Adjust the x-axis tick labels
-        xticks([]);
-        k = k + 1;
-    end
-end
+PlotData(DropPosErrorData)
 
 %% Analysis: EMG data
