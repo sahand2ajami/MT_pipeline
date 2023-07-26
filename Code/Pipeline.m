@@ -614,10 +614,11 @@ for i = 1:length(GroupNames)
 
     end 
 end
+%%
+%%% Step 3: Plot the DropPos Error Data - subject specific
+PlotErrorData_subjectSpecific(DropPosErrorData)
 
-%% Step 3: Plot the data
-%%% Step2: Save the error data as data structure
-
-PlotData(DropPosErrorData)
-
+%%
+%%% Step 4: Plot the DropPos Error Data - Group specific
+PlotErrorData_groupSpecific(DropPosErrorData)
 %% Analysis: EMG data

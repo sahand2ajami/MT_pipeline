@@ -1,4 +1,4 @@
-function PlotData(Data)
+function PlotErrorData_subjectSpecific(Data)
     
     GroupNames = fieldnames(Data);
     % DropPosErrorData = struct();
