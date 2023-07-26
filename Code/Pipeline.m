@@ -287,9 +287,9 @@ for i = 1:length(GroupNames)
     end
 end
 
-%%% Plot Score data
+%%% Plot Score data (Participant specific)
+
 GroupNames = fieldnames(ScoreData);
-% DropPosErrorData = struct();
 
 k = 1;
 figure
@@ -355,6 +355,84 @@ for i = 1:length(GroupNames)
         xticks([]);
         k = k + 1;
     end
+end
+
+
+%%% Plot The score data (By each group)
+GroupNames = fieldnames(ScoreData);
+
+k = 1;
+figure
+
+BaselineData = {};
+TrainData = {};
+TestData = {};
+
+% Change the dimensions of the figure
+newWidth = 600;  % New width in pixels
+newHeight = 800; % New height in pixels
+set(gcf, 'Position', [100, 100, newWidth, newHeight]);
+set(gca, 'XTickLabel', {});
+set(gca, 'XTick', []);
+
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = ScoreData.(GroupNames{i});
+    
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+        ParticipantNames = fieldnames(Participants);
+ 
+        Data = Participants.(ParticipantNames{j});
+
+        BaselineData{i, j} = Data.Baseline;
+        TrainData{i, j} = Data.Train;
+        TestData{i, j} = Data.Test;
+    end
+
+        % Example data
+        data1 = [BaselineData{i, :}];
+        data2 = [TestData{i, :}];
+        
+        % Calculate mean and standard deviation
+        mean1 = mean(data1);
+        std1 = std(data1);
+        mean2 = mean(data2);
+        std2 = std(data2);
+        
+        % Create a figure
+        subplot(length(GroupNames), 1, i)
+
+        % Set the position of each bar chart
+        barPositions = 0;
+        barWidth = 0.3;
+        set(gca, 'XTick', []);
+        % Plot the first bar chart
+        bar(barPositions, mean1, barWidth);
+        hold on;
+        bar(barPositions + barWidth, mean2, barWidth);
+        
+        errorbar(barPositions, mean1, std1, 'k.', 'LineWidth', 1);
+        
+        % Plot the second bar chart
+        
+        errorbar(barPositions + barWidth, mean2, std2, 'k.', 'LineWidth', 1);
+        
+        % Customize the chart
+%         xlabel(["Baseline", "Test"]);
+        ylabel('Score Percentage [%]');
+        legend('Baseline', 'Test', 'Location','bestoutside');
+        title(strcat(GroupNames{i}));
+        
+        % Adjust the x-axis limits
+        xlim([min(barPositions)-barWidth, max(barPositions)+2*barWidth]);
+        
+        % Adjust the x-axis tick labels
+        xticks([]);
+
 end
 %% Analysis: DropPos data
 
