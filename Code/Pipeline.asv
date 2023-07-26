@@ -7,7 +7,7 @@ start = 3; % Starting folder from 3, ignoring '.' and '..' in the directory
 stop = start + 3; % final folder depends on the number of participants
 
 % This is where each participants' data are stored for this project
-cd ('C:\Users\Sahand\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Data\Pilot1')
+cd ('C:\Users\s2ajami\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Data\Pilot1')
 
 
 % This function loops in every participant's folder and makes a .mat copy
@@ -253,9 +253,42 @@ TrajectoryInfo = JerkSaver(KinematicData, "Baseline");
 TrajectoryInfo = JerkSaver(KinematicData, "Test");
 
 %%% Plot the Velocity (mean and std)
-% Plot the time
 
-GroupNames = fieldnames(TrajectoryInfo);
+%% Analysis: Score data
+
+ScoreData = struct();
+
+GroupNames = fieldnames(SubjectData);
+% Where GroupNames is either "withHaptics" or "withoutHaptics"
+
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = SubjectData.(GroupNames{i});
+    % where the "Participants" is all the subjects in the i-th
+    % group.
+
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+
+        ParticipantNames = fieldnames(Participants);
+        Data = Participants.(ParticipantNames{j}).Score;
+
+        BaselineScore = (Data.Baseline.data(1)) / (Data.Baseline.data(end)) * 100;
+        TrainScore = (Data.Train.data(1)) / (Data.Train.data(end)) * 100;
+        TestScore = (Data.Test.data(1)) / (Data.Test.data(end)) * 100;
+        
+
+        ScoreData.(GroupNames{i}).(strcat('S', num2str(j))).Baseline = BaselineScore;
+        ScoreData.(GroupNames{i}).(strcat('S', num2str(j))).Train = TrainScore;
+        ScoreData.(GroupNames{i}).(strcat('S', num2str(j))).Test = TestScore;
+    end
+end
+
+%%% Plot Score data
+GroupNames = fieldnames(ScoreData);
 % DropPosErrorData = struct();
 
 k = 1;
@@ -273,7 +306,7 @@ for i = 1:length(GroupNames)
     % i = 1 WithoutHaptics
     % i = 2 WithHaptics
 
-    Participants = TimeData.(GroupNames{i});
+    Participants = ScoreData.(GroupNames{i});
     
     % This loops in each participant of each group
     for j = 1:length(fieldnames(Participants))
@@ -282,8 +315,8 @@ for i = 1:length(GroupNames)
         Data = Participants.(ParticipantNames{j});
 
         % Example data
-        data1 = Data.Baseline.time_vector;
-        data2 = Data.Test.time_vector(end-(length(data1) - 1):end);
+        data1 = Data.Baseline;
+        data2 = Data.Test;
         
         % Calculate mean and standard deviation
         mean1 = mean(data1);
@@ -323,10 +356,6 @@ for i = 1:length(GroupNames)
         k = k + 1;
     end
 end
-
-
-%% Analysis: Score data
-
 %% Analysis: DropPos data
 
 %%% Step1: Clean the data and store them in DropPosData

@@ -256,6 +256,106 @@ TrajectoryInfo = JerkSaver(KinematicData, "Test");
 
 %% Analysis: Score data
 
+ScoreData = struct();
+
+GroupNames = fieldnames(SubjectData);
+% Where GroupNames is either "withHaptics" or "withoutHaptics"
+
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = SubjectData.(GroupNames{i});
+    % where the "Participants" is all the subjects in the i-th
+    % group.
+
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+
+        ParticipantNames = fieldnames(Participants);
+        Data = Participants.(ParticipantNames{j}).Score;
+
+        BaselineScore = (Data.Baseline.data(1)) / (Data.Baseline.data(end)) * 100;
+        TrainScore = (Data.Train.data(1)) / (Data.Train.data(end)) * 100;
+        TestScore = (Data.Test.data(1)) / (Data.Test.data(end)) * 100;
+        
+
+        ScoreData.(GroupNames{i}).(strcat('S', num2str(j))).Baseline = BaselineScore;
+        ScoreData.(GroupNames{i}).(strcat('S', num2str(j))).Train = TrainScore;
+        ScoreData.(GroupNames{i}).(strcat('S', num2str(j))).Test = TestScore;
+    end
+end
+
+%%% Plot Score data
+GroupNames = fieldnames(ScoreData);
+% DropPosErrorData = struct();
+
+k = 1;
+figure
+
+% Change the dimensions of the figure
+newWidth = 1000;  % New width in pixels
+newHeight = 800; % New height in pixels
+% set(gcf, 'Position', [100, 100, newWidth, newHeight]);
+set(gca, 'XTickLabel', {});
+set(gca, 'XTick', []);
+
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = ScoreData.(GroupNames{i});
+    
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+        ParticipantNames = fieldnames(Participants);
+ 
+        Data = Participants.(ParticipantNames{j});
+
+        % Example data
+        data1 = Data.Baseline;
+        data2 = Data.Test;
+        
+        % Calculate mean and standard deviation
+        mean1 = mean(data1);
+        std1 = std(data1);
+        mean2 = mean(data2);
+        std2 = std(data2);
+        
+        % Create a figure
+        subplot(length(GroupNames), length(fieldnames(Participants)), k)
+
+        % Set the position of each bar chart
+        barPositions = 0;
+        barWidth = 0.3;
+        set(gca, 'XTick', []);
+        % Plot the first bar chart
+        bar(barPositions, mean1, barWidth);
+        hold on;
+        bar(barPositions + barWidth, mean2, barWidth);
+        
+        errorbar(barPositions, mean1, std1, 'k.', 'LineWidth', 1);
+        
+        % Plot the second bar chart
+        
+        errorbar(barPositions + barWidth, mean2, std2, 'k.', 'LineWidth', 1);
+        
+        % Customize the chart
+%         xlabel(["Baseline", "Test"]);
+        ylabel('Duration [sec]');
+        legend('Baseline', 'Test', 'Location','bestoutside');
+        title(strcat(GroupNames{i}, ' - P', num2str(j)));
+        
+        % Adjust the x-axis limits
+        xlim([min(barPositions)-barWidth, max(barPositions)+2*barWidth]);
+        
+        % Adjust the x-axis tick labels
+        xticks([]);
+        k = k + 1;
+    end
+end
 %% Analysis: DropPos data
 
 %%% Step1: Clean the data and store them in DropPosData
