@@ -7,7 +7,7 @@ start = 3; % Starting folder from 3, ignoring '.' and '..' in the directory
 stop = start + 3; % final folder depends on the number of participants
 
 % This is where each participants' data are stored for this project
-cd ('C:\Users\s2ajami\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Data\Pilot1')
+cd ('C:\Users\Sahand\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Data\Pilot1')
 
 
 % This function loops in every participant's folder and makes a .mat copy
@@ -278,11 +278,12 @@ for i = 1:length(GroupNames)
         Data = Participants.(ParticipantNames{j});
 
         BaselineTrials = Data.Baseline;
+        field_names = fieldnames(BaselineTrials);
 
         for k = 1:length(fieldnames(BaselineTrials))
             VEL_baseline{i, j, k} = BaselineTrials.(field_names{k}).Velocity;
-            ACC_baseline{k} = BaselineTrials.(field_names{k}).Acceleration;
-            JRK_baseline{k} = BaselineTrials.(field_names{k}).Jerk;
+            ACC_baseline{i, j, k} = BaselineTrials.(field_names{k}).Acceleration;
+            JRK_baseline{i, j, k} = BaselineTrials.(field_names{k}).Jerk;
         end
 
         for kk = 1:size(VEL_baseline, 3)
@@ -294,8 +295,65 @@ for i = 1:length(GroupNames)
         VEL_baseline_subjectmean{i, j} = mean([VEL_baseline_trialmean{i, j, :}]);
         ACC_baseline_subjectmean{i, j} = mean([ACC_baseline_trialmean{i, j, :}]);
         JRK_baseline_subjectmean{i, j} = mean([JRK_baseline_trialmean{i, j, :}]);
+
+        TestTrials = Data.Test;
+        field_names = fieldnames(TestTrials);
+
+        for k = 1:length(fieldnames(TestTrials))
+            VEL_test{i, j, k} = TestTrials.(field_names{k}).Velocity;
+            ACC_test{i, j, k} = TestTrials.(field_names{k}).Acceleration;
+            JRK_test{i, j, k} = TestTrials.(field_names{k}).Jerk;
+        end
+
+        for kk = 1:size(VEL_baseline, 3)
+            VEL_test_trialmean{i, j, kk} = mean(VEL_test{i, j, kk}.Velocity_Overall);
+            ACC_test_trialmean{i, j, kk} = mean(ACC_test{i, j, kk}.Acceleration_Overall);
+            JRK_test_trialmean{i, j, kk} = mean(JRK_test{i, j, kk}.Jerk_Overall);
+        end
+
+        VEL_test_subjectmean{i, j} = mean([VEL_test_trialmean{i, j, :}]);
+        ACC_test_subjectmean{i, j} = mean([ACC_test_trialmean{i, j, :}]);
+        JRK_test_subjectmean{i, j} = mean([JRK_test_trialmean{i, j, :}]);
+
     end
 end
+
+figure
+for i = 1:length(GroupNames)
+    % Plot velocity - group specific
+    data1 = [VEL_baseline_subjectmean{i, :}];
+    data2 = [VEL_test_subjectmean{i, :}];
+    % Create a figure
+    
+    subplot(length(GroupNames), 1, i)
+    PlotTrajInfo(data1, data2, 'Velocity [m/s]', strcat(GroupNames{i}))
+end
+
+figure
+for i=1:length(GroupNames)
+
+    % Plot acceleration - group specific
+    data1 = [ACC_baseline_subjectmean{i, :}];
+    data2 = [ACC_test_subjectmean{i, :}];
+    % Create a figure
+    
+    subplot(length(GroupNames), 1, i)
+    PlotTrajInfo(data1, data2, 'Acceleration [m/s^2]', strcat(GroupNames{i}))
+end
+
+figure
+for i=1:length(GroupNames)
+
+    % Plot acceleration - group specific
+    data1 = [JRK_baseline_subjectmean{i, :}];
+    data2 = [JRK_test_subjectmean{i, :}];
+    % Create a figure
+    
+    subplot(length(GroupNames), 1, i)
+    PlotTrajInfo(data1, data2, 'Jerk [m/s^3]', strcat(GroupNames{i}))
+end
+
+
 
 
 %% Analysis: Score data

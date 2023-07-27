@@ -7,7 +7,7 @@ start = 3; % Starting folder from 3, ignoring '.' and '..' in the directory
 stop = start + 3; % final folder depends on the number of participants
 
 % This is where each participants' data are stored for this project
-cd ('C:\Users\s2ajami\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Data\Pilot1')
+cd ('C:\Users\Sahand\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Data\Pilot1')
 
 
 % This function loops in every participant's folder and makes a .mat copy
@@ -278,25 +278,86 @@ for i = 1:length(GroupNames)
         Data = Participants.(ParticipantNames{j});
 
         BaselineTrials = Data.Baseline;
+        field_names = fieldnames(BaselineTrials);
 
         for k = 1:length(fieldnames(BaselineTrials))
             VEL_baseline{i, j, k} = BaselineTrials.(field_names{k}).Velocity;
-            Acc_baseline{k} = BaselineTrials.(field_names{k}).Acceleration;
-            Jrk_baseline{k} = BaselineTrials.(field_names{k}).Jerk;
+            ACC_baseline{k} = BaselineTrials.(field_names{k}).Acceleration;
+            JRK_baseline{k} = BaselineTrials.(field_names{k}).Jerk;
         end
 
         for kk = 1:size(VEL_baseline, 3)
             VEL_baseline_trialmean{i, j, kk} = mean(VEL_baseline{i, j, kk}.Velocity_Overall);
+%             ACC_baseline_trialmean{i, j, kk} = mean(ACC_baseline{i, j, kk}.Acceleration_Overall);
+%             JRK_baseline_trialmean{i, j, kk} = mean(JRK_baseline{i, j, kk}.Jerk_Overall);
         end
 
         VEL_baseline_subjectmean{i, j} = mean([VEL_baseline_trialmean{i, j, :}]);
+%         ACC_baseline_subjectmean{i, j} = mean([ACC_baseline_trialmean{i, j, :}]);
+%         JRK_baseline_subjectmean{i, j} = mean([JRK_baseline_trialmean{i, j, :}]);
+
+        TestTrials = Data.Test;
+        field_names = fieldnames(TestTrials);
+
+        for k = 1:length(fieldnames(TestTrials))
+            VEL_test{i, j, k} = TestTrials.(field_names{k}).Velocity;
+            ACC_test{i, j, k} = BaselineTrials.(field_names{k}).Acceleration;
+            JRK_baseline{i, j, k} = BaselineTrials.(field_names{k}).Jerk;
+        end
+
+        for kk = 1:size(VEL_baseline, 3)
+            VEL_test_trialmean{i, j, kk} = mean(VEL_test{i, j, kk}.Velocity_Overall);
+            ACC_baseline_trialmean{i, j, kk} = mean(ACC_baseline{i, j, kk}.Acceleration_Overall);
+            JRK_baseline_trialmean{i, j, kk} = mean(JRK_baseline{i, j, kk}.Jerk_Overall);
+        end
+
+        VEL_test_subjectmean{i, j} = mean([VEL_test_trialmean{i, j, :}]);
+        ACC_test_subjectmean{i, j} = mean([ACC_baseline_trialmean{i, j, :}]);
+        JRK_test_subjectmean{i, j} = mean([JRK_baseline_trialmean{i, j, :}]);
+
     end
+
+    data1 = [VEL_baseline_subjectmean{i, :}];
+    data2 = [VEL_test_subjectmean{i, :}];
+
+     % Calculate mean and standard deviation
+    mean1 = mean(data1);
+    std1 = std(data1);
+    mean2 = mean(data2);
+    std2 = std(data2);
+        
+    % Create a figure
+    subplot(length(GroupNames), 1, i)
+
+    % Set the position of each bar chart
+    barPositions = 0;
+    barWidth = 0.3;
+    set(gca, 'XTick', []);
+    % Plot the first bar chart
+    bar(barPositions, mean1, barWidth);
+    hold on;
+    bar(barPositions + barWidth, mean2, barWidth);
     
+    errorbar(barPositions, mean1, std1, 'k.', 'LineWidth', 1);
+    
+    % Plot the second bar chart
+    
+    errorbar(barPositions + barWidth, mean2, std2, 'k.', 'LineWidth', 1);
+    
+    % Customize the chart
+%         xlabel(["Baseline", "Test"]);
+    ylabel('Velocity [m/s]');
+    legend('Baseline', 'Test', 'Location','bestoutside');
+    title(strcat(GroupNames{i}));
+    
+    % Adjust the x-axis limits
+    xlim([min(barPositions)-barWidth, max(barPositions)+2*barWidth]);
+    
+    % Adjust the x-axis tick labels
+    xticks([]);
 end
 
-%%% Plot the acc (mean and std)
 
-%%% Plot the Jerk (mean and std)
 
 %% Analysis: Score data
 

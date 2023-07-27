@@ -169,7 +169,7 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
 
                     
                     TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Velocity = timetable(vel_x{k}, vel_y{k}, vel_z{k}, vel_overall{k}, 'RowTimes', seconds(vel_time{k}), 'VariableNames',{'Vel_X','Vel_Y','Vel_Z', 'Velocity_Overall'});
-                    TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Acceleration = timetable(acc_x{k}, acc_y{k}, acc_z{k}, acc_overall{k}, 'RowTimes', seconds(acc_time{k}), 'VariableNames',{'Acc_X','Acc_Y','Acc_Z', 'Acceleartion_Overall'});
+                    TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Acceleration = timetable(acc_x{k}, acc_y{k}, acc_z{k}, acc_overall{k}, 'RowTimes', seconds(acc_time{k}), 'VariableNames',{'Acc_X','Acc_Y','Acc_Z', 'Acceleration_Overall'});
                     TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Jerk = timetable(jerk_x{k}, jerk_y{k}, jerk_z{k}, jerk_overall{k}, 'RowTimes', seconds(jerk_time{k}), 'VariableNames',{'Jerk_X','Jerk_Y','Jerk_Z', 'Jerk_Overall'});
                     vel_x = {};
                     vel_y = {};
