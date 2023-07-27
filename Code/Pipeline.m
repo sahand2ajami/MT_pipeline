@@ -133,13 +133,12 @@ for i = 1:length(GroupNames)
     for j = 1:length(fieldnames(Participants))
 
         ParticipantNames = fieldnames(Participants);
-        Data = Participants.(ParticipantNames{j})
+        Data = Participants.(ParticipantNames{j});
 
         BaselineTrials = fieldnames(Data.LeftBaseline);
         TestTrials = fieldnames(Data.LeftTest);
 
         % Measuring the duration of each trial in baseline
-%         time_baseline = [];
         for k = 1:length(BaselineTrials)
 
             Trial = Data.LeftBaseline.(BaselineTrials{k});
@@ -247,15 +246,57 @@ for i = 1:length(GroupNames)
 end
 
 %% Analysis: Trajectory smoothness
-
+VEL = {};
 %%% Find Velocity, Acceleration and Jerk, and save them into TrajectoryInfo()
 global TrajectoryInfo;
 
 TrajectoryInfo = struct();
+
+
+    % Note that in the JerkSaver function, the for calculating the derivatives 
+    % of trajectory, the data is downsampled by 1/3 times.
 TrajectoryInfo = JerkSaver(KinematicData, "Baseline");
 TrajectoryInfo = JerkSaver(KinematicData, "Test");
 
-%%% Plot the Velocity (mean and std)
+%%% Find mean and std of each trial for velocity
+GroupNames = fieldnames(TrajectoryInfo);
+% Where GroupNames is either "withHaptics" or "withoutHaptics"
+
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = TrajectoryInfo.(GroupNames{i});
+    % where the "Participants" is all the subjects in the i-th
+    % group.
+
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+
+        ParticipantNames = fieldnames(Participants);
+        Data = Participants.(ParticipantNames{j});
+
+        BaselineTrials = Data.Baseline;
+
+        for k = 1:length(fieldnames(BaselineTrials))
+            VEL_baseline{i, j, k} = BaselineTrials.(field_names{k}).Velocity;
+            ACC_baseline{k} = BaselineTrials.(field_names{k}).Acceleration;
+            JRK_baseline{k} = BaselineTrials.(field_names{k}).Jerk;
+        end
+
+        for kk = 1:size(VEL_baseline, 3)
+            VEL_baseline_trialmean{i, j, kk} = mean(VEL_baseline{i, j, kk}.Velocity_Overall);
+            ACC_baseline_trialmean{i, j, kk} = mean(ACC_baseline{i, j, kk}.Acceleration_Overall);
+            JRK_baseline_trialmean{i, j, kk} = mean(JRK_baseline{i, j, kk}.Jerk_Overall);
+        end
+
+        VEL_baseline_subjectmean{i, j} = mean([VEL_baseline_trialmean{i, j, :}]);
+        ACC_baseline_subjectmean{i, j} = mean([ACC_baseline_trialmean{i, j, :}]);
+        JRK_baseline_subjectmean{i, j} = mean([JRK_baseline_trialmean{i, j, :}]);
+    end
+end
+
 
 %% Analysis: Score data
 

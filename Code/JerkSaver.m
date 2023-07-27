@@ -1,11 +1,9 @@
 function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
 
     % Apply Savitzky-Golay filter to remove drift
-    window_size = 35;   % Must be an odd integer (larger values for more smoothing, but avoid excessive smoothing)
+    window_size = 7;   % Must be an odd integer (larger values for more smoothing, but avoid excessive smoothing)
     polynomial_order = 5;  % The order of the polynomial to fit
 
-%     % Apply Savitzky-Golay filter using 'sgolayfilt'
-%     filtered_signal = sgolayfilt(signal_with_drift, polynomial_order, window_size);
     global TrajectoryInfo
     subStructure = struct();
     GroupNames = fieldnames(KinematicData);
@@ -52,15 +50,33 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     traj_y{k} = Trial.Y;
                     traj_z{k} = Trial.Z;
                     
+                    traj_x{k} = downsample(traj_x{k}, 3);
+                    traj_y{k} = downsample(traj_y{k}, 3);
+                    traj_z{k} = downsample(traj_z{k}, 3);
+                    t_seconds = downsample(t_seconds, 3);
+
                     % Filter trajectories
                     filtered_traj_x{k} = sgolayfilt(traj_x{k}, polynomial_order, window_size);
                     filtered_traj_y{k} = sgolayfilt(traj_y{k}, polynomial_order, window_size);
                     filtered_traj_z{k} = sgolayfilt(traj_z{k}, polynomial_order, window_size);
                    
+
+                    %% CLEAN THIS PART
+%                     vel_notFiltered = diff(traj_x{k}) ./ diff(t_seconds);
+%                     vel_Filtered = diff(filtered_traj_x{k}) ./ diff(t_seconds);
+% 
+%                     if i == 1 && j == 1
+%                         figure
+%                         plot(t_seconds(1: end-1), vel_notFiltered)
+%                         hold on
+%                         plot(t_seconds(1: end-1), vel_Filtered)
+%                         legend("No Filter", "Yes Filter")
+%                     end
+%%
                     % Calculate velocity
-                    vel_x{k} = diff(filtered_traj_x{k}) ./ diff(t_seconds); % Velocity in the x dimension
-                    vel_y{k} = diff(filtered_traj_y{k}) ./ diff(t_seconds); % Velocity in the y dimension
-                    vel_z{k} = diff(filtered_traj_z{k}) ./ diff(t_seconds); % Velocity in the z dimension
+                    vel_x{k} = diff(traj_x{k}) ./ diff(t_seconds); % Velocity in the x dimension
+                    vel_y{k} = diff(traj_y{k}) ./ diff(t_seconds); % Velocity in the y dimension
+                    vel_z{k} = diff(traj_z{k}) ./ diff(t_seconds); % Velocity in the z dimension
                     
                     vel_overall{k} = sqrt(vel_x{k}.^2 + vel_y{k}.^2 + vel_z{k}.^2);
                     vel_time{k} = t_seconds(2:end);
@@ -69,15 +85,27 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     filtered_vel_x{k} = sgolayfilt(vel_x{k}, polynomial_order, window_size);
                     filtered_vel_y{k} = sgolayfilt(vel_y{k}, polynomial_order, window_size);
                     filtered_vel_z{k} = sgolayfilt(vel_z{k}, polynomial_order, window_size);
-                    
-                    if k == 1
-                    figure
-                    
-                    plot(Trial.Time, Trial.X)
-                    hold on
-                    plot(t_seconds(1: end-1), vel_x{k})
-                    
-                    end
+
+%                     %% CLEAN THIS PART
+%                     acc_notFiltered = diff(vel_x{k}) ./ diff(t_seconds(1:end-1));
+%                     acc_Filtered = diff(filtered_vel_x{k}) ./ diff(t_seconds(1:end-1));
+% 
+%                     if i == 1 && j == 1
+%                         figure
+%                         plot(t_seconds(1: end-2), acc_notFiltered)
+%                         hold on
+%                         plot(t_seconds(1: end-2), acc_Filtered)
+%                         legend("No Filter", "Yes Filter")
+%                     end
+%%
+%                     if k == 1
+%                         figure
+%                         
+%                         plot(Trial.Time, Trial.X)
+%                         hold on
+%                         plot(t_seconds(1: end-1), vel_x{k})
+%                         length(Trial.Time)
+%                     end
                     % Calculate acceleration
                     acc_x{k} = diff(filtered_vel_x{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the x dimension
                     acc_y{k} = diff(filtered_vel_y{k}) ./ diff(t_seconds(1:end-1)); % Acceleration in the y dimension
@@ -143,26 +171,22 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Velocity = timetable(vel_x{k}, vel_y{k}, vel_z{k}, vel_overall{k}, 'RowTimes', seconds(vel_time{k}), 'VariableNames',{'Vel_X','Vel_Y','Vel_Z', 'Velocity_Overall'});
                     TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Acceleration = timetable(acc_x{k}, acc_y{k}, acc_z{k}, acc_overall{k}, 'RowTimes', seconds(acc_time{k}), 'VariableNames',{'Acc_X','Acc_Y','Acc_Z', 'Acceleartion_Overall'});
                     TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Jerk = timetable(jerk_x{k}, jerk_y{k}, jerk_z{k}, jerk_overall{k}, 'RowTimes', seconds(jerk_time{k}), 'VariableNames',{'Jerk_X','Jerk_Y','Jerk_Z', 'Jerk_Overall'});
-                            vel_x = {};
-            vel_y = {};
-            vel_z = {};
-            vel_overall = {};
-            
-            acc_x = {};
-            acc_y = {};
-            acc_z = {};
-            acc_overall = {};
-            
-            jerk_x = {};
-            jerk_y = {};
-            jerk_z = {};
-            jerk_overall = {};
+                    vel_x = {};
+                    vel_y = {};
+                    vel_z = {};
+                    vel_overall = {};
+                    
+                    acc_x = {};
+                    acc_y = {};
+                    acc_z = {};
+                    acc_overall = {};
+                    
+                    jerk_x = {};
+                    jerk_y = {};
+                    jerk_z = {};
+                    jerk_overall = {};
                 end
-
             end
-
-
-              
         end
     end
 end
