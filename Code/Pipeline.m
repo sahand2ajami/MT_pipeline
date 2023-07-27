@@ -73,28 +73,16 @@ for i = 1:length(GroupNames)
         maxima_min_peak_distance = 0.5;
         minima_min_peak_distance = 0.5;
 
-%         figure
-%         findpeaks(-smoothedLeftBaseline, "MinPeakProminence", minima_prominence, "MinPeakDistance", minima_mean_peak_distance);
-%         findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_mean_peak_distance);
-        [maxima, maximaIndices] = findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", minima_min_peak_distance);
-        [minima, minimaIndices] = findpeaks(-smoothedLeftBaseline, "MinPeakProminence", minima_prominence, "MinPeakDistance", maxima_min_peak_distance);
+        [maxima, maximaIndices] = findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
+        [minima, minimaIndices] = findpeaks(-smoothedLeftBaseline, "MinPeakProminence", minima_prominence, "MinPeakDistance", minima_min_peak_distance);
 
         for kk = 1:min(length(minimaIndices), length(maximaIndices))
             prospective_minima_indices = minimaIndices(minimaIndices > maximaIndices(kk));
             if ~isempty (prospective_minima_indices)
                 exact_minima_index = prospective_minima_indices(1);
             end
-
-%             if i == 2 && j == 1
-%                 figure
-%                 plot(LeftBaseline(maximaIndices(kk): exact_minima_index, :).Time, LeftBaseline(maximaIndices(kk): exact_minima_index, :).X)
-%             end
             
             KinematicData.(GroupNames{i}).(strcat('S', num2str(j))).LeftBaseline.(strcat('Trial', num2str(kk))) = LeftBaseline(maximaIndices(kk): exact_minima_index, :);
-
-%             figure
-%             plot(LeftBaseline(maximaIndices(kk): exact_minima_index, :).Time, LeftBaseline(maximaIndices(kk): exact_minima_index, :).X)
-%             plot(LeftBaseline(maximaIndices(kk): exact_minima_index, :))
         end
 
         % Smooth the trajectory and find the local minima and maxima
@@ -108,19 +96,11 @@ for i = 1:length(GroupNames)
         maxima_prominence = 0.02;
         minima_prominence = 0.05;
 
-%         maxima_min_peak_distance = 0.5;
-%         minima_min_peak_distance = 0.0; 
+        maxima_min_peak_distance = 0.5;
+        minima_min_peak_distance = 0.0; 
 
-%         figure
-%         yyaxis left
-%         findpeaks(-smoothedLeftTest, "MinPeakProminence", minima_prominence)
-%         hold on
-%         yyaxis right
-%         findpeaks(smoothedLeftTest, "MinPeakProminence", maxima_prominence)
-        
-%         ylabel 
-        [maxima, maximaIndices] = findpeaks(smoothedLeftTest, "MinPeakProminence", maxima_prominence);
-        [minima, minimaIndices] = findpeaks(-smoothedLeftTest, "MinPeakProminence", maxima_prominence);
+        [maxima, maximaIndices] = findpeaks(smoothedLeftTest, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
+        [minima, minimaIndices] = findpeaks(-smoothedLeftTest, "MinPeakProminence", maxima_prominence, "MinPeakDistance", minima_min_peak_distance);
 
         % This block finds the exact local exterma after the current
         % exterma to extract the trial's trajectory
@@ -129,10 +109,7 @@ for i = 1:length(GroupNames)
             if ~isempty (prospective_minima_indices)
                 exact_minima_index = prospective_minima_indices(1);
             end
-
-            figure
-            plot(LeftTest(maximaIndices(kk): exact_minima_index, :).Time, LeftTest(maximaIndices(kk): exact_minima_index, :).X)
-            KinematicData.(GroupNames{i}).(strcat('S', num2str(j))).LeftTest.(strcat('Trial', num2str(kk))) = LeftTest(maximaIndices(kk): exact_minima_index, :);
+                KinematicData.(GroupNames{i}).(strcat('S', num2str(j))).LeftTest.(strcat('Trial', num2str(kk))) = LeftTest(maximaIndices(kk): exact_minima_index, :);
         end
     end
 end
