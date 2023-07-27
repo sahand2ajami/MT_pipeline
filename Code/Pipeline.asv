@@ -70,20 +70,31 @@ for i = 1:length(GroupNames)
         maxima_prominence = 0.002;
         minima_prominence = 0.003;
 
-        [maxima, maximaIndices] = findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence);
-        [minima, minimaIndices] = findpeaks(-smoothedLeftBaseline, "MinPeakProminence", minima_prominence);
+        maxima_min_peak_distance = 0.5;
+        minima_min_peak_distance = 0.5;
+
+%         figure
+%         findpeaks(-smoothedLeftBaseline, "MinPeakProminence", minima_prominence, "MinPeakDistance", minima_mean_peak_distance);
+%         findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_mean_peak_distance);
+        [maxima, maximaIndices] = findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", minima_min_peak_distance);
+        [minima, minimaIndices] = findpeaks(-smoothedLeftBaseline, "MinPeakProminence", minima_prominence, "MinPeakDistance", maxima_min_peak_distance);
 
         for kk = 1:min(length(minimaIndices), length(maximaIndices))
             prospective_minima_indices = minimaIndices(minimaIndices > maximaIndices(kk));
             if ~isempty (prospective_minima_indices)
                 exact_minima_index = prospective_minima_indices(1);
             end
-            if i == 2 && j == 1
-                figure
-                plot(LeftBaseline(maximaIndices(kk): exact_minima_index, :).Time, LeftBaseline(maximaIndices(kk): exact_minima_index, :).X)
-            end
+
+%             if i == 2 && j == 1
+%                 figure
+%                 plot(LeftBaseline(maximaIndices(kk): exact_minima_index, :).Time, LeftBaseline(maximaIndices(kk): exact_minima_index, :).X)
+%             end
             
             KinematicData.(GroupNames{i}).(strcat('S', num2str(j))).LeftBaseline.(strcat('Trial', num2str(kk))) = LeftBaseline(maximaIndices(kk): exact_minima_index, :);
+
+            figure
+            plot(LeftBaseline(maximaIndices(kk): exact_minima_index, :).Time, LeftBaseline(maximaIndices(kk): exact_minima_index, :).X)
+%             plot(LeftBaseline(maximaIndices(kk): exact_minima_index, :))
         end
 
         % Smooth the trajectory and find the local minima and maxima
@@ -94,9 +105,20 @@ for i = 1:length(GroupNames)
         %%% DOUBLE CHECK THIS PART %%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Hyperparameters tuned by trial and error 
-        maxima_prominence = 0.03;
-        minima_prominence = 0.09;
+        maxima_prominence = 0.02;
+        minima_prominence = 0.05;
 
+%         maxima_min_peak_distance = 0.5;
+%         minima_min_peak_distance = 0.0; 
+
+%         figure
+%         yyaxis left
+%         findpeaks(-smoothedLeftTest, "MinPeakProminence", minima_prominence)
+%         hold on
+%         yyaxis right
+%         findpeaks(smoothedLeftTest, "MinPeakProminence", maxima_prominence)
+        
+%         ylabel 
         [maxima, maximaIndices] = findpeaks(smoothedLeftTest, "MinPeakProminence", maxima_prominence);
         [minima, minimaIndices] = findpeaks(-smoothedLeftTest, "MinPeakProminence", maxima_prominence);
 
@@ -105,7 +127,8 @@ for i = 1:length(GroupNames)
             if ~isempty (prospective_minima_indices)
                 exact_minima_index = prospective_minima_indices(1);
             end
-           
+            
+            plot(LeftTest(maximaIndices(kk): exact_minima_index, :).Time, LeftTest(maximaIndices(kk): exact_minima_index, :).X)
             KinematicData.(GroupNames{i}).(strcat('S', num2str(j))).LeftTest.(strcat('Trial', num2str(kk))) = LeftTest(maximaIndices(kk): exact_minima_index, :);
         end
     end
@@ -130,7 +153,7 @@ for i = 1:length(GroupNames)
     for j = 1:length(fieldnames(Participants))
 
         ParticipantNames = fieldnames(Participants);
-        Data = Participants.(ParticipantNames{j});
+        Data = Participants.(ParticipantNames{j})
 
         BaselineTrials = fieldnames(Data.LeftBaseline);
         TestTrials = fieldnames(Data.LeftTest);
@@ -369,9 +392,9 @@ TrainData = {};
 TestData = {};
 
 % Change the dimensions of the figure
-newWidth = 1000;  % New width in pixels
+newWidth = 600;  % New width in pixels
 newHeight = 800; % New height in pixels
-% set(gcf, 'Position', [100, 100, newWidth, newHeight]);
+set(gcf, 'Position', [100, 100, newWidth, newHeight]);
 set(gca, 'XTickLabel', {});
 set(gca, 'XTick', []);
 
@@ -391,11 +414,11 @@ for i = 1:length(GroupNames)
         BaselineData{i, j} = Data.Baseline;
         TrainData{i, j} = Data.Train;
         TestData{i, j} = Data.Test;
-
+    end
 
         % Example data
-        data1 = Data.Baseline;
-        data2 = Data.Test;
+        data1 = [BaselineData{i, :}];
+        data2 = [TestData{i, :}];
         
         % Calculate mean and standard deviation
         mean1 = mean(data1);
@@ -404,7 +427,7 @@ for i = 1:length(GroupNames)
         std2 = std(data2);
         
         % Create a figure
-        subplot(length(GroupNames), length(fieldnames(Participants)), k)
+        subplot(length(GroupNames), 1, i)
 
         % Set the position of each bar chart
         barPositions = 0;
@@ -423,17 +446,16 @@ for i = 1:length(GroupNames)
         
         % Customize the chart
 %         xlabel(["Baseline", "Test"]);
-        ylabel('Duration [sec]');
+        ylabel('Score Percentage [%]');
         legend('Baseline', 'Test', 'Location','bestoutside');
-        title(strcat(GroupNames{i}, ' - P', num2str(j)));
+        title(strcat(GroupNames{i}));
         
         % Adjust the x-axis limits
         xlim([min(barPositions)-barWidth, max(barPositions)+2*barWidth]);
         
         % Adjust the x-axis tick labels
         xticks([]);
-        k = k + 1;
-    end
+
 end
 %% Analysis: DropPos data
 
@@ -615,10 +637,11 @@ for i = 1:length(GroupNames)
 
     end 
 end
+%%
+%%% Step 3: Plot the DropPos Error Data - subject specific
+PlotErrorData_subjectSpecific(DropPosErrorData)
 
-%% Step 3: Plot the data
-%%% Step2: Save the error data as data structure
-
-PlotData(DropPosErrorData)
-
+%%
+%%% Step 4: Plot the DropPos Error Data - Group specific
+PlotErrorData_groupSpecific(DropPosErrorData)
 %% Analysis: EMG data

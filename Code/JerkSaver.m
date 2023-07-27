@@ -99,10 +99,10 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
 
 %                     vel_x{k}
                     % find the mean and std of each trial
-                    velocity_x_mean = mean(vel_x{k})
+                    velocity_x_mean = mean(vel_x{k});
                     if velocity_x_mean == inf
-                        k
-                        vel_x{k}
+                        k;
+                        vel_x{k};
                     end
                     velocity_x_std{k} = std(vel_x{k});
         
