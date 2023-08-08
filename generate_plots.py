@@ -90,12 +90,12 @@ def main(participant_id, experiment_block):
     pp = pprint.PrettyPrinter(indent=3)
 
     print(f'Found {count} participant(s) under WithHaptics.')
-    print(f'Presence:')
-    pp.pprint(presence_responses)
-    print(f'TLX:')
-    pp.pprint(tlx_responses)
-    print(f'Embodiment:')
-    pp.pprint(embodiment_responses)
+    # print(f'Presence:')
+    # pp.pprint(presence_responses)
+    # print(f'TLX:')
+    # pp.pprint(tlx_responses)
+    # print(f'Embodiment:')
+    # pp.pprint(embodiment_responses)
 
     # create dictionaries to store questions and their score lists for each questionnaire
     presence_responses_no = [{}, {}, {}]
@@ -143,12 +143,26 @@ def main(participant_id, experiment_block):
     pp = pprint.PrettyPrinter(indent=3)
 
     print(f'Found {count} participant(s) under WithoutHaptics.')
-    print(f'Presence:')
-    pp.pprint(presence_responses_no)
-    print(f'TLX:')
-    pp.pprint(tlx_responses_no)
-    print(f'Embodiment:')
-    pp.pprint(embodiment_responses_no)
+    # print(f'Presence:')
+    # pp.pprint(presence_responses_no)
+    # print(f'TLX:')
+    # pp.pprint(tlx_responses_no)
+    # print(f'Embodiment:')
+    # pp.pprint(embodiment_responses_no)
+
+    print(f'Generating plots...')
+    sns.set_style(style='whitegrid')
+
+    # move all data to pandas dataframes
+    df_presence = pd.DataFrame(presence_responses).dropna()
+    df_tlx = pd.DataFrame(tlx_responses).dropna()
+    df_embodiment = pd.DataFrame(embodiment_responses).dropna()
+    df_presence_no = pd.DataFrame(presence_responses_no[0]).dropna()
+    df_tlx_no = pd.DataFrame(tlx_responses_no).dropna()
+    df_embodiment_no = pd.DataFrame(embodiment_responses_no).dropna()
+    sns.boxplot(data=df_presence_no)
+    plt.show()
+
     
 
 
