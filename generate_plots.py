@@ -188,16 +188,20 @@ def main(participant_id, experiment_block):
     ownership_score, agency_score, tactile_score, location_score, appearance_score = compute_embodiment_scores(presence_responses, presence_responses_no, experiment_block)
 
     # move all data to pandas dataframes
-    df_presence = pd.DataFrame(presence_responses).dropna()
-    df_tlx = pd.DataFrame(tlx_responses).dropna()
-    df_embodiment = pd.DataFrame(embodiment_responses).dropna()
-    df_presence_no = pd.DataFrame(presence_responses_no[0]).dropna()
-    df_tlx_no = pd.DataFrame(tlx_responses_no).dropna()
-    df_embodiment_no = pd.DataFrame(embodiment_responses_no).dropna()
+    # df_presence = pd.DataFrame(presence_responses).dropna()
+    # df_tlx = pd.DataFrame(tlx_responses).dropna()
+    # df_embodiment = pd.DataFrame(embodiment_responses).dropna()
+    # df_presence_no = pd.DataFrame(presence_responses_no[0]).dropna()
+    # df_tlx_no = pd.DataFrame(tlx_responses_no).dropna()
+    # df_embodiment_no = pd.DataFrame(embodiment_responses_no).dropna()
 
-    df_ownership_score = pd.DataFrame(ownership_score[0]['with_haptics'])
+    df_ownership_score_with = pd.DataFrame({'with_haptics': ownership_score[0]['with_haptics']})
+    df_ownership_score_without = pd.DataFrame({'without_haptics': ownership_score[0]['without_haptics']})
+    df_ownership_score = pd.concat([df_ownership_score_with, df_ownership_score_without])
 
     sns.boxplot(data=df_ownership_score)
+
+
     plt.show()
 
     
