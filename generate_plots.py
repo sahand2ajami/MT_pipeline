@@ -1,5 +1,5 @@
 # module imports
-import os
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -19,6 +19,38 @@ NUM_QUESTIONS_EMBODIMENT_AGENCY = 4
 NUM_QUESTIONS_EMBODIMENT_TACTILE = 4
 NUM_QUESTIONS_EMBODIMENT_LOCATION = 3
 NUM_QUESTIONS_EMBODIMENT_APPEARANCE = 4
+
+def compute_embodiment_scores(with_haptics, without_haptics, experiment_block):
+    # Scoring key: 
+    # Ownership = Q1 - Q2 - Q3
+    # Agency = Q4 + Q5 + Q6 - Q7
+    # Tactile = Q8 - Q9 + Q10 + Q11
+    # Location = Q12 (- Q13) + Q14
+    # Appearance = Q15 + Q16 + Q17 + Q18
+
+    # compute PCA scores for individual criteria
+    ownership_score = [{'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}]
+    agency_score = [{'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}]
+    tactile_score = [{'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}]
+    location_score = [{'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}]
+    appearance_score = [{'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}, {'with_haptics': None, 'without_haptics': None}]
+
+    for block_id in range(experiment_block):
+        # with_haptics
+        ownership_score[block_id]['with_haptics'] = np.array(with_haptics[block_id]['Q1']) - np.array(with_haptics[block_id]['Q2']) - np.array(with_haptics[block_id]['Q3'])
+        agency_score[block_id]['with_haptics'] = np.array(with_haptics[block_id]['Q4']) + np.array(with_haptics[block_id]['Q5']) + np.array(with_haptics[block_id]['Q6']) - np.array(with_haptics[block_id]['Q7'])
+        tactile_score[block_id]['with_haptics'] = np.array(with_haptics[block_id]['Q8']) - np.array(with_haptics[block_id]['Q9']) + np.array(with_haptics[block_id]['Q10']) + np.array(with_haptics[block_id]['Q11'])
+        location_score[block_id]['with_haptics'] = np.array(with_haptics[block_id]['Q12']) + np.array(with_haptics[block_id]['Q14'])
+        appearance_score[block_id]['with_haptics'] = np.array(with_haptics[block_id]['Q15']) + np.array(with_haptics[block_id]['Q16']) + np.array(with_haptics[block_id]['Q17']) + np.array(with_haptics[block_id]['Q18'])
+        # without_haptics
+        ownership_score[block_id]['without_haptics'] = np.array(without_haptics[block_id]['Q1']) - np.array(without_haptics[block_id]['Q2']) - np.array(without_haptics[block_id]['Q3'])
+        agency_score[block_id]['without_haptics'] = np.array(without_haptics[block_id]['Q4']) + np.array(without_haptics[block_id]['Q5']) + np.array(without_haptics[block_id]['Q6']) - np.array(without_haptics[block_id]['Q7'])
+        tactile_score[block_id]['without_haptics'] = np.array(without_haptics[block_id]['Q8']) - np.array(without_haptics[block_id]['Q9']) + np.array(without_haptics[block_id]['Q10']) + np.array(without_haptics[block_id]['Q11'])
+        location_score[block_id]['without_haptics'] = np.array(without_haptics[block_id]['Q12']) + np.array(without_haptics[block_id]['Q14'])
+        appearance_score[block_id]['without_haptics'] = np.array(without_haptics[block_id]['Q15']) + np.array(without_haptics[block_id]['Q16']) + np.array(without_haptics[block_id]['Q17']) +  np.array(without_haptics[block_id]['Q18'])
+        
+    return ownership_score, agency_score, tactile_score, location_score, appearance_score 
+
 
 def main(participant_id, experiment_block):
     # read the excel file for the questionnaire data
@@ -150,8 +182,10 @@ def main(participant_id, experiment_block):
     # print(f'Embodiment:')
     # pp.pprint(embodiment_responses_no)
 
-    print(f'Generating plots...')
+    print(f'Generating plots for Presence PCA...')
     sns.set_style(style='whitegrid')
+
+    ownership_score, agency_score, tactile_score, location_score, appearance_score = compute_embodiment_scores(presence_responses, presence_responses_no, experiment_block)
 
     # move all data to pandas dataframes
     df_presence = pd.DataFrame(presence_responses).dropna()
@@ -160,7 +194,10 @@ def main(participant_id, experiment_block):
     df_presence_no = pd.DataFrame(presence_responses_no[0]).dropna()
     df_tlx_no = pd.DataFrame(tlx_responses_no).dropna()
     df_embodiment_no = pd.DataFrame(embodiment_responses_no).dropna()
-    sns.boxplot(data=df_presence_no)
+
+    df_ownership_score = pd.DataFrame(ownership_score[0]['with_haptics'])
+
+    sns.boxplot(data=df_ownership_score)
     plt.show()
 
     
