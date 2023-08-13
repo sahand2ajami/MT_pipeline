@@ -20,6 +20,10 @@ NUM_QUESTIONS_EMBODIMENT_TACTILE = 4
 NUM_QUESTIONS_EMBODIMENT_LOCATION = 3
 NUM_QUESTIONS_EMBODIMENT_APPEARANCE = 4
 
+BASELINE = 0
+TRAIN = 1
+TEST = 2
+
 def compute_embodiment_scores(with_haptics, without_haptics, experiment_block):
     # Scoring key: 
     # Ownership = Q1 - Q2 - Q3
@@ -195,11 +199,11 @@ def main(participant_id, experiment_block):
     # df_tlx_no = pd.DataFrame(tlx_responses_no).dropna()
     # df_embodiment_no = pd.DataFrame(embodiment_responses_no).dropna()
 
-    df_ownership_score_with = pd.DataFrame({'with_haptics': ownership_score[0]['with_haptics']})
-    df_ownership_score_without = pd.DataFrame({'without_haptics': ownership_score[0]['without_haptics']})
-    df_ownership_score = pd.concat([df_ownership_score_with, df_ownership_score_without])
+    df_appearance_score_with = pd.DataFrame({'with_haptics': appearance_score[TEST]['with_haptics']})
+    df_appearance_score_without = pd.DataFrame({'without_haptics': appearance_score[TEST]['without_haptics']})
+    df_appearance_score = pd.concat([df_appearance_score_with, df_appearance_score_without])
 
-    sns.boxplot(data=df_ownership_score)
+    sns.boxplot(data=df_appearance_score)
 
 
     plt.show()
