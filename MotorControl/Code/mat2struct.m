@@ -42,6 +42,9 @@ SubjectData = struct();
 % i starts fom 3 because folderName first two elements are '.' and '..'
 % which are to be ignored
 for i = start:stop % Loop in the participants' folder
+    if i == 3 || i == 22 || i == 5
+        continue
+    else
 
     % go to the folder
     cd(folderName(i).name)
@@ -68,7 +71,7 @@ for i = start:stop % Loop in the participants' folder
     end
 
     % Clustering all data into "WithHaptics" and "WithoutHaptics" categories
-    indices = strfind(folderName(i).name, 'no haptics');
+    indices = strfind(folderName(i).name, 'without haptics');
     if isempty(indices)
         SubjectData.WithHaptics.(strcat('S', num2str(YesHapticsCounter), '_', folderName(i).name(1:2))).Kinematics = data.Kinematics;
         SubjectData.WithHaptics.(strcat('S', num2str(YesHapticsCounter), '_', folderName(i).name(1:2))).Score = data.Score;
@@ -86,4 +89,5 @@ for i = start:stop % Loop in the participants' folder
     
     % go back to the main folder
     cd ..
+    end
 end

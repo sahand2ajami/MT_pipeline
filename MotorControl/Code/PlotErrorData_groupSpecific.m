@@ -33,14 +33,15 @@ function PlotErrorData_groupSpecific(Data)
             Test_errorData = myData.error_test;
 
             BaselineData{i, j} = mean(Baseline_errorData(1:end));
-            TestData{i, j} = mean(Test_errorData(end - (length(Baseline_errorData) - 1):end));
+            TestData{i, j} = mean(Test_errorData(1:end));
+%             TestData{i, j} = mean(Test_errorData(end - (length(Baseline_errorData) - 1):end));
         end
 
         
             % Example data
             data1 = [BaselineData{i, :}];
-            i
-            data2 = [TestData{i, :}]
+            i;
+            data2 = [TestData{i, :}];
     %         data2 = Data.error_test(1:end);
             
             % Calculate mean and standard deviation

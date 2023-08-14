@@ -1,5 +1,6 @@
 function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
-
+    
+    downsample_ratio = 1;
     % Apply Savitzky-Golay filter to remove drift
     window_size = 7;   % Must be an odd integer (larger values for more smoothing, but avoid excessive smoothing)
     polynomial_order = 5;  % The order of the polynomial to fit
@@ -50,12 +51,13 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     traj_y{k} = Trial.Y;
                     traj_z{k} = Trial.Z;
                     
-                    traj_x{k} = downsample(traj_x{k}, 3);
-                    traj_y{k} = downsample(traj_y{k}, 3);
-                    traj_z{k} = downsample(traj_z{k}, 3);
-                    t_seconds = downsample(t_seconds, 3);
+                    traj_x{k} = downsample(traj_x{k}, downsample_ratio);
+                    traj_y{k} = downsample(traj_y{k}, downsample_ratio);
+                    traj_z{k} = downsample(traj_z{k}, downsample_ratio);
+                    t_seconds = downsample(t_seconds, downsample_ratio);
 
                     % Filter trajectories
+                    length(traj_x{k})
                     filtered_traj_x{k} = sgolayfilt(traj_x{k}, polynomial_order, window_size);
                     filtered_traj_y{k} = sgolayfilt(traj_y{k}, polynomial_order, window_size);
                     filtered_traj_z{k} = sgolayfilt(traj_z{k}, polynomial_order, window_size);
