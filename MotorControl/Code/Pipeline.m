@@ -56,8 +56,10 @@ for i = 1:length(GroupNames)
 
         ParticipantNames = fieldnames(Participants);
         Data = Participants.(ParticipantNames{j}).Kinematics;
+        
         LeftBaseline = Data.BaselineLeftPalm.data;
         RightBaseline = Data.BaselineRightPalm.data;
+        RightTrain = Data.TrainRightPalm.data;
         LeftTest = Data.TestLeftPalm.data;
         RightTest = Data.TestRightPalm.data;
 
@@ -76,9 +78,17 @@ for i = 1:length(GroupNames)
         minima_min_peak_distance = 0.5;
 
         [maxima, maximaIndices] = findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
-        [minima, minimaIndices] = findpeaks(-smoothedLeftBaseline, "MinPeakProminence", minima_prominence, "MinPeakDistance", minima_min_peak_distance);
+        [minima, minimaIndices] = findpeaks(-smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", minima_min_peak_distance);
 
-        
+%         figure
+%         yyaxis left
+%         findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
+%         yyaxis right
+%         findpeaks(-smoothedLeftBaseline, "MinPeakProminence", minima_prominence, "MinPeakDistance", minima_min_peak_distance);
+%         legend("max", "min")
+
+%       end
+% end      
 
 
         for kk = 1:min(length(minimaIndices), length(maximaIndices))
@@ -90,6 +100,46 @@ for i = 1:length(GroupNames)
             KinematicData.(GroupNames{i}).(strcat('S', num2str(j))).LeftBaseline.(strcat('Trial', num2str(kk))) = LeftBaseline(maximaIndices(kk): exact_minima_index, :);
         end
 
+        
+        %%% THIS IS FOR RIGHT TRAIN
+        % Smooth the trajectory and find the local minima and maxima
+        window_size = 100;
+        smoothedRightTrain = movmean(RightTrain.X, window_size);
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%% DOUBLE CHECK THIS PART %%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Hyperparameters tuned by trial and error 
+        maxima_prominence = 0.05;
+        minima_prominence = 0.05;
+
+        maxima_min_peak_distance = 0.5;
+        minima_min_peak_distance = 0.5;
+
+        [maxima, maximaIndices] = findpeaks(smoothedRightTrain, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
+        [minima, minimaIndices] = findpeaks(-smoothedRightTrain, "MinPeakProminence", maxima_prominence, "MinPeakDistance", minima_min_peak_distance);
+
+%         figure
+%         yyaxis left
+%         findpeaks(smoothedRightTrain, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
+%         yyaxis right
+%         findpeaks(-smoothedRightTrain, "MinPeakProminence", minima_prominence, "MinPeakDistance", minima_min_peak_distance);
+%         legend("max", "min")
+
+%       end
+% end      
+
+
+        for kk = 1:min(length(minimaIndices), length(maximaIndices))
+            prospective_maxima_indices = maximaIndices(maximaIndices > minimaIndices(kk));
+            if ~isempty (prospective_maxima_indices)
+                exact_maxima_index = prospective_maxima_indices(1);
+            end
+            
+            KinematicData.(GroupNames{i}).(strcat('S', num2str(j))).RightTrain.(strcat('Trial', num2str(kk))) = RightTrain(minimaIndices(kk): exact_maxima_index, :);
+        end
+        
+        
         % Smooth the trajectory and find the local minima and maxima
         window_size = 100;
         smoothedLeftTest = movmean(LeftTest.X, window_size);
@@ -141,6 +191,7 @@ for i = 1:length(GroupNames)
         Data = Participants.(ParticipantNames{j});
 
         BaselineTrials = fieldnames(Data.LeftBaseline);
+        TrainTrials = fieldnames(Data.RightTrain);
         TestTrials = fieldnames(Data.LeftTest);
 
         % Measuring the duration of each trial in baseline
@@ -154,11 +205,26 @@ for i = 1:length(GroupNames)
         time_baseline_mean = mean(time_baseline);
         time_baseline_std = std(time_baseline);
 
-        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Baseline.time_vector = time_baseline;
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Baseline.time_vector = time_baseline';
         TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Baseline.time_mean = time_baseline_mean;
         TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Baseline.time_std = time_baseline_std;
 
-        % Measuring the duration of each trial in baseline
+        % Measuring the duration of each trial in train
+        for k = 1:length(TrainTrials)
+
+            Trial = Data.RightTrain.(TrainTrials{k});
+            if ~isempty(Trial.Time)
+                time_train(k) = Trial.Time(end) - Trial.Time(1);
+            end
+        end
+        time_train_mean = mean(time_train);
+        time_train_std = std(time_train);
+
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Train.time_vector = time_train';
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Train.time_mean = time_train_mean;
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Train.time_std = time_train_std;
+        
+        % Measuring the duration of each trial in test
 %         time_test = [];
         for k = 1:length(TestTrials)
             
@@ -173,12 +239,213 @@ for i = 1:length(GroupNames)
         time_test_mean = mean(time_test);
         time_test_std = std(time_test);
 
-        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Test.time_vector = time_test;
+        TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Test.time_vector = time_test';
         TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Test.time_mean = time_test_mean;
         TimeData.(GroupNames{i}).(strcat('S', num2str(j))).Test.time_std = time_test_std;
     end
 end
+%%
 
+%%% Step 4: Plot the Time Data - Group specific
+% make a timetable for boxplot
+GroupNames = fieldnames(TimeData);
+
+timeData = [];
+variable_names = {'Group', 'Condition', 'Time'};
+condition_temp = {};
+TimeTable = table({}, {}, timeData, 'VariableNames', variable_names);
+% DropPosBoxPlotTable = ;
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = TimeData.(GroupNames{i});
+
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+        ParticipantNames = fieldnames(Participants);
+
+        myData = Participants.(ParticipantNames{j});
+
+%         Baseline_timeData = myData.Baseline.time_vector;
+%         Train_timeData = myData.Baseline.time_vector;
+%         Test_timeData = myData.Test.time_vector;
+        Baseline_timeData = myData.Baseline.time_mean;
+        Train_timeData = myData.Train.time_mean;
+        Test_timeData = myData.Test.time_mean;
+        
+        min_size = min([length(Baseline_timeData), length(Train_timeData), length(Test_timeData)]);
+        
+        % Make the error size consistent among the conditions
+        Baseline_timeData = Baseline_timeData(end - (min_size - 1):end);
+        Train_timeData = Train_timeData(end - (min_size - 1):end);
+        Test_timeData = Test_timeData(end - (min_size - 1):end);
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        for k=1:min_size
+            condition_temp = [condition_temp; 'Baseline'];
+            groupname_temp = [groupname_temp; GroupNames{i}];
+        end
+        
+        % Make the table to have data of all conditions together
+        newTable = table(groupname_temp, condition_temp, Baseline_timeData, ...
+            'VariableNames', variable_names);
+        
+        TimeTable = [TimeTable; newTable];
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        for k=1:min_size
+            condition_temp = [condition_temp; 'Train'];
+            groupname_temp = [groupname_temp; GroupNames{i}];
+        end
+
+        % Make the table to have data of all conditions together
+        newTable = table(groupname_temp, condition_temp, Train_timeData, ...
+            'VariableNames', variable_names);
+        
+        TimeTable = [TimeTable; newTable];
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        for k=1:min_size
+            condition_temp = [condition_temp; 'Test'];
+            groupname_temp = [groupname_temp; GroupNames{i}];
+        end
+        
+        % Make the table to have data of all conditions together
+        newTable = table(groupname_temp, condition_temp, Test_timeData, ...
+            'VariableNames', variable_names);
+        
+        TimeTable = [TimeTable; newTable];
+    end
+end
+
+% Statistical test for DropPosError
+
+
+% Create categorical array for x-axis labels with desired order
+TimeTable.Condition = categorical(TimeTable.Condition);
+TimeTable.Group = categorical(TimeTable.Group);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+TimeTable.Condition = reordercats(TimeTable.Condition, desiredOrder);
+
+figure
+time_boxchart = boxchart(TimeTable.Condition, seconds(TimeTable.Time),'GroupByColor',TimeTable.Group);
+
+legend("Location", "Best")
+title('Time plot - MEAN');
+ylabel('Time [sec]');
+xlabel('Conditions');
+ylim([0.7, 2.5])
+
+%%
+%%
+%%% Step 4: Plot the Time Data - Group specific
+% make a timetable for boxplot
+GroupNames = fieldnames(TimeData);
+
+timeData = [];
+variable_names = {'Group', 'Condition', 'Time'};
+condition_temp = {};
+TimeTable = table({}, {}, timeData, 'VariableNames', variable_names);
+% DropPosBoxPlotTable = ;
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = TimeData.(GroupNames{i});
+
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+        ParticipantNames = fieldnames(Participants);
+
+        myData = Participants.(ParticipantNames{j});
+
+%         Baseline_timeData = myData.Baseline.time_vector;
+%         Train_timeData = myData.Baseline.time_vector;
+%         Test_timeData = myData.Test.time_vector;
+        Baseline_timeData = myData.Baseline.time_std;
+        Train_timeData = myData.Train.time_std;
+        Test_timeData = myData.Test.time_std;
+        
+        min_size = min([length(Baseline_timeData), length(Train_timeData), length(Test_timeData)]);
+        
+        % Make the error size consistent among the conditions
+        Baseline_timeData = Baseline_timeData(end - (min_size - 1):end);
+        Train_timeData = Train_timeData(end - (min_size - 1):end);
+        Test_timeData = Test_timeData(end - (min_size - 1):end);
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        for k=1:min_size
+            condition_temp = [condition_temp; 'Baseline'];
+            groupname_temp = [groupname_temp; GroupNames{i}];
+        end
+        
+        % Make the table to have data of all conditions together
+        newTable = table(groupname_temp, condition_temp, Baseline_timeData, ...
+            'VariableNames', variable_names);
+        
+        TimeTable = [TimeTable; newTable];
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        for k=1:min_size
+            condition_temp = [condition_temp; 'Train'];
+            groupname_temp = [groupname_temp; GroupNames{i}];
+        end
+
+        % Make the table to have data of all conditions together
+        newTable = table(groupname_temp, condition_temp, Train_timeData, ...
+            'VariableNames', variable_names);
+        
+        TimeTable = [TimeTable; newTable];
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        for k=1:min_size
+            condition_temp = [condition_temp; 'Test'];
+            groupname_temp = [groupname_temp; GroupNames{i}];
+        end
+        
+        % Make the table to have data of all conditions together
+        newTable = table(groupname_temp, condition_temp, Test_timeData, ...
+            'VariableNames', variable_names);
+        
+        TimeTable = [TimeTable; newTable];
+    end
+end
+
+% Statistical test for DropPosError
+
+
+% Create categorical array for x-axis labels with desired order
+TimeTable.Condition = categorical(TimeTable.Condition);
+TimeTable.Group = categorical(TimeTable.Group);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+TimeTable.Condition = reordercats(TimeTable.Condition, desiredOrder);
+
+figure
+time_boxchart = boxchart(TimeTable.Condition, seconds(TimeTable.Time),'GroupByColor',TimeTable.Group);
+
+legend("Location", "Best")
+title('Time plot - STD');
+ylabel('Time [sec]');
+xlabel('Conditions');
+% ylim([0.7, 2.5])
+%%
 % Plot the time
 
 % GroupNames = fieldnames(TimeData);
@@ -697,6 +964,103 @@ for i = 1:length(GroupNames)
     end 
 end
 %%
+%%% Step 4: Plot the DropPos Error Data - Group specific
+% make a timetable for boxplot
+GroupNames = fieldnames(DropPosErrorData);
+
+errorData = [];
+variable_names = {'Group', 'Condition', 'Error'};
+condition_temp = {};
+DropPosTable = table({}, {}, errorData, 'VariableNames', variable_names);
+% DropPosBoxPlotTable = ;
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = DropPosErrorData.(GroupNames{i});
+
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+        ParticipantNames = fieldnames(Participants);
+
+        myData = Participants.(ParticipantNames{j});
+
+%         Baseline_errorData = myData.error_baseline;
+%         Train_errorData = myData.error_train;
+%         Test_errorData = myData.error_test;
+        Baseline_errorData = myData.std_error_baseline;
+        Train_errorData = myData.std_error_train;
+        Test_errorData = myData.std_error_test;
+        
+        min_size = min([length(Baseline_errorData), length(Train_errorData), length(Test_errorData)]);
+        
+        % Make the error size consistent among the conditions
+        Baseline_errorData = Baseline_errorData(end - (min_size - 1):end);
+        Train_errorData = Train_errorData(end - (min_size - 1):end);
+        Test_errorData = Test_errorData(end - (min_size - 1):end);
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        for k=1:min_size
+            condition_temp = [condition_temp; 'Baseline'];
+            groupname_temp = [groupname_temp; GroupNames{i}];
+        end
+        
+        % Make the table to have data of all conditions together
+        newTable = table(groupname_temp, condition_temp, Baseline_errorData, ...
+            'VariableNames', variable_names);
+        
+        DropPosTable = [DropPosTable; newTable];
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        for k=1:min_size
+            condition_temp = [condition_temp; 'Train'];
+            groupname_temp = [groupname_temp; GroupNames{i}];
+        end
+
+        % Make the table to have data of all conditions together
+        newTable = table(groupname_temp, condition_temp, Train_errorData, ...
+            'VariableNames', variable_names);
+        
+        DropPosTable = [DropPosTable; newTable];
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        for k=1:min_size
+            condition_temp = [condition_temp; 'Test'];
+            groupname_temp = [groupname_temp; GroupNames{i}];
+        end
+        
+        % Make the table to have data of all conditions together
+        newTable = table(groupname_temp, condition_temp, Test_errorData, ...
+            'VariableNames', variable_names);
+        
+        DropPosTable = [DropPosTable; newTable];
+    end
+end
+%Statistical test for DropPosError
+% Create categorical array for x-axis labels with desired order
+DropPosTable.Condition = categorical(DropPosTable.Condition);
+DropPosTable.Group = categorical(DropPosTable.Group);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+DropPosTable.Condition = reordercats(DropPosTable.Condition, desiredOrder);
+
+
+figure
+error_boxchart = boxchart(DropPosTable.Condition, DropPosTable.Error,'GroupByColor',DropPosTable.Group);
+
+legend("Location", "Best")
+title('Error plot - STD');
+ylabel('Error [m]');
+xlabel('Conditions');
+%%
+%%
 
 %%% Step 4: Plot the DropPos Error Data - Group specific
 % make a timetable for boxplot
@@ -774,14 +1138,68 @@ for i = 1:length(GroupNames)
         DropPosTable = [DropPosTable; newTable];
     end
 end
-%% Statistical test
-
-
-
-%%
-
+%% Statistical test for DropPosError
 % Create categorical array for x-axis labels with desired order
 DropPosTable.Condition = categorical(DropPosTable.Condition);
+DropPosTable.Group = categorical(DropPosTable.Group);
+
+with_haptics_baseline_error = DropPosTable((DropPosTable.Group == 'WithHaptics' & DropPosTable.Condition == 'Baseline'), :);
+with_haptics_train_error = DropPosTable((DropPosTable.Group == 'WithHaptics' & DropPosTable.Condition == 'Train'), :);
+with_haptics_test_error = DropPosTable((DropPosTable.Group == 'WithHaptics' & DropPosTable.Condition == 'Test'), :);
+
+without_haptics_baseline_error = DropPosTable((DropPosTable.Group == 'WithoutHaptics' & DropPosTable.Condition == 'Baseline'), :);
+without_haptics_train_error = DropPosTable((DropPosTable.Group == 'WithoutHaptics' & DropPosTable.Condition == 'Train'), :);
+without_haptics_test_error = DropPosTable((DropPosTable.Group == 'WithoutHaptics' & DropPosTable.Condition == 'Test'), :);
+
+with_haptics_baseline_error = with_haptics_baseline_error.Error;
+with_haptics_train_error = with_haptics_train_error.Error;
+with_haptics_test_error = with_haptics_test_error.Error;
+
+without_haptics_baseline_error = without_haptics_baseline_error.Error;
+without_haptics_train_error = without_haptics_train_error.Error;
+without_haptics_test_error = without_haptics_test_error.Error;
+
+clc
+disp('DropPosError')
+disp('------------')
+disp('WithHapticsBaseline vs. WithoutHapticsBaseline:')
+[p, hStat, stats] = ranksum(with_haptics_baseline_error, without_haptics_baseline_error);
+if hStat
+    disp('The medians are significantly different.');
+
+else
+    disp('The medians are not significantly different.');
+end
+
+disp('------------')
+disp('WithHapticsBaseline vs. WithHapticsTrain:')
+[p, hStat, stats] = ranksum(with_haptics_baseline_error, with_haptics_train_error);
+if hStat
+    disp('The medians are significantly different.');
+
+else
+    disp('The medians are not significantly different.');
+end
+
+disp('------------')
+disp('WithHapticsBaseline vs. WithHapticsTest:')
+[p, hStat, stats] = ranksum(with_haptics_baseline_error, with_haptics_test_error);
+if hStat
+    disp('The medians are significantly different.');
+
+else
+    disp('The medians are not significantly different.');
+end
+
+disp('------------')
+disp('WithoutHapticsBaseline vs. WithoutHapticsTrain:')
+[p, hStat, stats] = ranksum(without_haptics_baseline_error, without_haptics_train_error);
+if hStat
+    disp('The medians are significantly different.');
+
+else
+    disp('The medians are not significantly different.');
+end
 
 % Define the desired order of x-axis categories
 desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
@@ -794,7 +1212,7 @@ figure
 error_boxchart = boxchart(DropPosTable.Condition, DropPosTable.Error,'GroupByColor',DropPosTable.Group);
 
 legend("Location", "Best")
-title('Error plot');
+title('Error plot - MEAN');
 ylabel('Error [m]');
 xlabel('Conditions');
 
