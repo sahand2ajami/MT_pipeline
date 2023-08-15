@@ -42,9 +42,9 @@ SubjectData = struct();
 % i starts fom 3 because folderName first two elements are '.' and '..'
 % which are to be ignored
 for i = start:stop % Loop in the participants' folder
-    if i == 3 || i == 22 || i == 5
-        continue
-    else
+%     if i == 3 || i == 22 || i == 5
+%         continue
+%     else
 
     % go to the folder
     cd(folderName(i).name)
