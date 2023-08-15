@@ -233,7 +233,6 @@ for i = 1:length(GroupNames)
             if ~isempty(Trial)
                 time_test(k) = Trial.Time(end) - Trial.Time(1);
             end
-%             time_test(k) = Trial.Time(end) - Trial.Time(1);
         end
 
         time_test_mean = mean(time_test);
@@ -346,7 +345,6 @@ xlabel('Conditions');
 ylim([0.7, 2.5])
 
 %%
-%%
 %%% Step 4: Plot the Time Data - Group specific
 % make a timetable for boxplot
 GroupNames = fieldnames(TimeData);
@@ -445,188 +443,260 @@ title('Time plot - STD');
 ylabel('Time [sec]');
 xlabel('Conditions');
 % ylim([0.7, 2.5])
-%%
-% Plot the time
-
-% GroupNames = fieldnames(TimeData);
-% % DropPosErrorData = struct();
-% 
-% k = 1;
-% figure
-% 
-% % Change the dimensions of the figure
-% newWidth = 1000;  % New width in pixels
-% newHeight = 800; % New height in pixels
-% % set(gcf, 'Position', [100, 100, newWidth, newHeight]);
-% set(gca, 'XTickLabel', {});
-% set(gca, 'XTick', []);
-% 
-% % This loops in the "withHaptics" and "withoutHaptics" groups
-% for i = 1:length(GroupNames)
-%     % i = 1 WithoutHaptics
-%     % i = 2 WithHaptics
-% 
-%     Participants = TimeData.(GroupNames{i});
-%     
-%     % This loops in each participant of each group
-%     for j = 1:length(fieldnames(Participants))
-%         ParticipantNames = fieldnames(Participants);
-%  
-%         Data = Participants.(ParticipantNames{j});
-% 
-%         % Example data
-%         data1 = Data.Baseline.time_vector;
-%         data2 = Data.Test.time_vector;
-%         
-%         % Calculate mean and standard deviation
-%         mean1 = mean(data1);
-%         std1 = std(data1);
-%         mean2 = mean(data2);
-%         std2 = std(data2);
-%         
-%         % Create a figure
-%         subplot(length(GroupNames), length(fieldnames(Participants)), k)
-% 
-%         % Set the position of each bar chart
-%         barPositions = 0;
-%         barWidth = 0.3;
-%         set(gca, 'XTick', []);
-%         % Plot the first bar chart
-%         bar(barPositions, mean1, barWidth);
-%         hold on;
-%         bar(barPositions + barWidth, mean2, barWidth);
-%         
-%         errorbar(barPositions, mean1, std1, 'k.', 'LineWidth', 1);
-%         
-%         % Plot the second bar chart
-%         
-%         errorbar(barPositions + barWidth, mean2, std2, 'k.', 'LineWidth', 1);
-%         
-%         % Customize the chart
-% %         xlabel(["Baseline", "Test"]);
-%         ylabel('Duration [sec]');
-%         legend('Baseline', 'Test', 'Location','bestoutside');
-%         title(strcat(GroupNames{i}, ' - P', num2str(j)));
-%         
-%         % Adjust the x-axis limits
-%         xlim([min(barPositions)-barWidth, max(barPositions)+2*barWidth]);
-%         
-%         % Adjust the x-axis tick labels
-%         xticks([]);
-%         k = k + 1;
-%     end
-% end
 
 %% Analysis: Trajectory smoothness
-% VEL = {};
-% %%% Find Velocity, Acceleration and Jerk, and save them into TrajectoryInfo()
-% global TrajectoryInfo;
+VEL = {};
+%%% Find Velocity, Acceleration and Jerk, and save them into TrajectoryInfo()
+global TrajectoryInfo;
+
+TrajectoryInfo = struct();
+
+    % Note that in the JerkSaver function, the for calculating the derivatives 
+    % of trajectory, the data is downsampled by 1/3 times.
+TrajectoryInfo = JerkSaver(KinematicData, "Baseline");
+TrajectoryInfo = JerkSaver(KinematicData, "Train");
+TrajectoryInfo = JerkSaver(KinematicData, "Test");
+
+%%% Find mean and std of each trial for velocity
+GroupNames = fieldnames(TrajectoryInfo);
+% Where GroupNames is either "withHaptics" or "withoutHaptics"
 % 
-% TrajectoryInfo = struct();
-% 
-% 
-%     % Note that in the JerkSaver function, the for calculating the derivatives 
-%     % of trajectory, the data is downsampled by 1/3 times.
-% TrajectoryInfo = JerkSaver(KinematicData, "Baseline");
-% TrajectoryInfo = JerkSaver(KinematicData, "Test");
-% 
-% %%% Find mean and std of each trial for velocity
-% GroupNames = fieldnames(TrajectoryInfo);
-% % Where GroupNames is either "withHaptics" or "withoutHaptics"
-% 
-% % This loops in the "withHaptics" and "withoutHaptics" groups
-% for i = 1:length(GroupNames)
-%     % i = 1 WithoutHaptics
-%     % i = 2 WithHaptics
-% 
-%     Participants = TrajectoryInfo.(GroupNames{i});
-%     % where the "Participants" is all the subjects in the i-th
-%     % group.
-% 
-%     % This loops in each participant of each group
-%     for j = 1:length(fieldnames(Participants))
-% 
-%         ParticipantNames = fieldnames(Participants);
-%         Data = Participants.(ParticipantNames{j});
-% 
-%         BaselineTrials = Data.Baseline;
-%         field_names = fieldnames(BaselineTrials);
-% 
-%         for k = 1:length(fieldnames(BaselineTrials))
-%             VEL_baseline{i, j, k} = BaselineTrials.(field_names{k}).Velocity;
-%             ACC_baseline{i, j, k} = BaselineTrials.(field_names{k}).Acceleration;
-%             JRK_baseline{i, j, k} = BaselineTrials.(field_names{k}).Jerk;
-%         end
-% 
-%         for kk = 1:size(VEL_baseline, 3)
-%             VEL_baseline_trialmean{i, j, kk} = mean(VEL_baseline{i, j, kk}.Velocity_Overall);
-%             ACC_baseline_trialmean{i, j, kk} = mean(ACC_baseline{i, j, kk}.Acceleration_Overall);
-%             JRK_baseline_trialmean{i, j, kk} = mean(JRK_baseline{i, j, kk}.Jerk_Overall);
-%         end
-% 
-%         VEL_baseline_subjectmean{i, j} = mean([VEL_baseline_trialmean{i, j, :}]);
-%         ACC_baseline_subjectmean{i, j} = mean([ACC_baseline_trialmean{i, j, :}]);
-%         JRK_baseline_subjectmean{i, j} = mean([JRK_baseline_trialmean{i, j, :}]);
-% 
-%         TestTrials = Data.Test;
-%         field_names = fieldnames(TestTrials);
-% 
-%         for k = 1:length(fieldnames(TestTrials))
-%             VEL_test{i, j, k} = TestTrials.(field_names{k}).Velocity;
-%             ACC_test{i, j, k} = TestTrials.(field_names{k}).Acceleration;
-%             JRK_test{i, j, k} = TestTrials.(field_names{k}).Jerk;
-%         end
-% 
-%         for kk = 1:size(VEL_baseline, 3)
-%             VEL_test_trialmean{i, j, kk} = mean(VEL_test{i, j, kk}.Velocity_Overall);
-%             ACC_test_trialmean{i, j, kk} = mean(ACC_test{i, j, kk}.Acceleration_Overall);
-%             JRK_test_trialmean{i, j, kk} = mean(JRK_test{i, j, kk}.Jerk_Overall);
-%         end
-% 
-%         VEL_test_subjectmean{i, j} = mean([VEL_test_trialmean{i, j, :}]);
-%         ACC_test_subjectmean{i, j} = mean([ACC_test_trialmean{i, j, :}]);
-%         JRK_test_subjectmean{i, j} = mean([JRK_test_trialmean{i, j, :}]);
-% 
-%     end
-% end
-% 
-% figure
-% for i = 1:length(GroupNames)
-%     % Plot velocity - group specific
-%     data1 = [VEL_baseline_subjectmean{i, :}];
-%     data2 = [VEL_test_subjectmean{i, :}];
-%     % Create a figure
-%     
-%     subplot(length(GroupNames), 1, i)
-%     PlotTrajInfo(data1, data2, 'Velocity [m/s]', strcat(GroupNames{i}))
-% end
-% 
-% figure
-% for i=1:length(GroupNames)
-% 
-%     % Plot acceleration - group specific
-%     data1 = [ACC_baseline_subjectmean{i, :}];
-%     data2 = [ACC_test_subjectmean{i, :}];
-%     % Create a figure
-%     
-%     subplot(length(GroupNames), 1, i)
-%     PlotTrajInfo(data1, data2, 'Acceleration [m/s^2]', strcat(GroupNames{i}))
-% end
-% 
-% figure
-% for i=1:length(GroupNames)
-% 
-%     % Plot acceleration - group specific
-%     data1 = [JRK_baseline_subjectmean{i, :}];
-%     data2 = [JRK_test_subjectmean{i, :}];
-%     % Create a figure
-%     
-%     subplot(length(GroupNames), 1, i)
-%     PlotTrajInfo(data1, data2, 'Jerk [m/s^3]', strcat(GroupNames{i}))
-% end
+
+velData = [];
+accData = [];
+jrkData = [];
+
+vel_variable_names = {'Group', 'Condition', 'Velocity'};
+condition_temp = {};
+VelTable = table({}, {}, velData, 'VariableNames', vel_variable_names);
+
+acc_variable_names = {'Group', 'Condition', 'Acceleration'};
+condition_temp = {};
+AccTable = table({}, {}, accData, 'VariableNames', acc_variable_names);
+
+jrk_variable_names = {'Group', 'Condition', 'Jerk'};
+condition_temp = {};
+JrkTable = table({}, {}, jrkData, 'VariableNames', jrk_variable_names);
+
+% This loops in the "withHaptics" and "withoutHaptics" groups
+for i = 1:length(GroupNames)
+    % i = 1 WithoutHaptics
+    % i = 2 WithHaptics
+
+    Participants = TrajectoryInfo.(GroupNames{i});
+    % where the "Participants" is all the subjects in the i-th
+    % group.
+
+    % This loops in each participant of each group
+    for j = 1:length(fieldnames(Participants))
+
+        ParticipantNames = fieldnames(Participants);
+        Data = Participants.(ParticipantNames{j});
+
+        BaselineTrials = Data.Baseline;
+        field_names = fieldnames(BaselineTrials);
+
+        for k = 1:length(fieldnames(BaselineTrials))
+            VEL_baseline{i, j, k} = BaselineTrials.(field_names{k}).Velocity;
+            ACC_baseline{i, j, k} = BaselineTrials.(field_names{k}).Acceleration;
+            JRK_baseline{i, j, k} = BaselineTrials.(field_names{k}).Jerk;
+        end
+
+        for kk = 1:size(VEL_baseline, 3)
+            if ~isempty(VEL_baseline{i, j, kk})
+                VEL_baseline_trialmean{i, j, kk} = mean(VEL_baseline{i, j, kk}.Velocity_Overall);
+            end
+            
+            if ~isempty(ACC_baseline{i, j, kk})
+                ACC_baseline_trialmean{i, j, kk} = mean(ACC_baseline{i, j, kk}.Acceleration_Overall);
+            end
+            
+            if ~isempty(JRK_baseline{i, j, kk})
+                JRK_baseline_trialmean{i, j, kk} = mean(JRK_baseline{i, j, kk}.Jerk_Overall);
+            end
+        end
+        VEL_baseline_participantmean = mean([VEL_baseline_trialmean{i, j, :}]);
+        ACC_baseline_participantmean = mean([ACC_baseline_trialmean{i, j, :}]);
+        JRK_baseline_participantmean = mean([JRK_baseline_trialmean{i, j, :}]);
+
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        
+        condition_temp = [condition_temp; 'Baseline'];
+        groupname_temp = [groupname_temp; GroupNames{i}];
+        
+        % Make the table to have data of all conditions together
+        newRow = table(groupname_temp, condition_temp, VEL_baseline_participantmean, ...
+            'VariableNames', vel_variable_names);
+        VelTable = [VelTable; newRow];
+        
+        newRow = table(groupname_temp, condition_temp, ACC_baseline_participantmean, ...
+            'VariableNames', acc_variable_names);
+        AccTable = [AccTable; newRow];
+        
+        newRow = table(groupname_temp, condition_temp, JRK_baseline_participantmean, ...
+            'VariableNames', jrk_variable_names);
+        JrkTable = [JrkTable; newRow];
+        
+        
+% %         VEL_baseline_subjectmean{i, j} = mean([VEL_baseline_trialmean{i, j, :}]);
+% %         ACC_baseline_subjectmean{i, j} = mean([ACC_baseline_trialmean{i, j, :}]);
+% %         JRK_baseline_subjectmean{i, j} = mean([JRK_baseline_trialmean{i, j, :}]);
+
+        TrainTrials = Data.Train;
+        field_names = fieldnames(TrainTrials);
+
+        for k = 1:length(fieldnames(TrainTrials))
+            VEL_train{i, j, k} = TrainTrials.(field_names{k}).Velocity;
+            ACC_train{i, j, k} = TrainTrials.(field_names{k}).Acceleration;
+            JRK_train{i, j, k} = TrainTrials.(field_names{k}).Jerk;
+        end
+
+        for kk = 1:size(VEL_train, 3)
+            if ~isempty(VEL_train{i, j, kk})
+                VEL_train_trialmean{i, j, kk} = mean(VEL_train{i, j, kk}.Velocity_Overall);
+            end
+            
+            if ~isempty(ACC_train{i, j, kk})
+                ACC_train_trialmean{i, j, kk} = mean(ACC_train{i, j, kk}.Acceleration_Overall);
+            end
+            
+            if ~isempty(JRK_train{i, j, kk})
+                JRK_train_trialmean{i, j, kk} = mean(JRK_train{i, j, kk}.Jerk_Overall);
+            end
+        end
+        VEL_train_participantmean = mean([VEL_train_trialmean{i, j, :}]);
+        ACC_train_participantmean = mean([ACC_train_trialmean{i, j, :}]);
+        JRK_train_participantmean = mean([JRK_train_trialmean{i, j, :}]);
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        
+        condition_temp = [condition_temp; 'Train'];
+        groupname_temp = [groupname_temp; GroupNames{i}];
+        
+        % Make the table to have data of all conditions together
+        newRow = table(groupname_temp, condition_temp, VEL_train_participantmean, ...
+            'VariableNames', vel_variable_names);
+        VelTable = [VelTable; newRow];
+        
+        newRow = table(groupname_temp, condition_temp, ACC_train_participantmean, ...
+            'VariableNames', acc_variable_names);
+        AccTable = [AccTable; newRow];
+        
+        newRow = table(groupname_temp, condition_temp, JRK_train_participantmean, ...
+            'VariableNames', jrk_variable_names);
+        JrkTable = [JrkTable; newRow];
+        
+        
+        %%% TestTrials
+
+        TestTrials = Data.Test;
+        field_names = fieldnames(TestTrials);
+
+        for k = 1:length(fieldnames(TestTrials))
+            VEL_test{i, j, k} = TestTrials.(field_names{k}).Velocity;
+            ACC_test{i, j, k} = TestTrials.(field_names{k}).Acceleration;
+            JRK_test{i, j, k} = TestTrials.(field_names{k}).Jerk;
+        end
+
+        for kk = 1:size(VEL_test, 3)
+            if ~isempty(VEL_test{i, j, kk})
+
+                VEL_test_trialmean{i, j, kk} = mean(VEL_test{i, j, kk}.Velocity_Overall);
+                % This calculates mean of trial kk of group i_th,
+                % participant j_th
+            end
+
+            if ~isempty(ACC_test{i, j, kk})
+                ACC_test_trialmean{i, j, kk} = mean(ACC_test{i, j, kk}.Acceleration_Overall);
+            end
+            
+            if ~isempty(JRK_test{i, j, kk})
+                JRK_test_trialmean{i, j, kk} = mean(JRK_test{i, j, kk}.Jerk_Overall);
+            end
+        end
+        
+        VEL_test_participantmean = mean([VEL_test_trialmean{i, j, :}]);
+        ACC_test_participantmean = mean([ACC_test_trialmean{i, j, :}]);
+        JRK_test_participantmean = mean([JRK_test_trialmean{i, j, :}]);
+        
+        groupname_temp = cell('');
+        condition_temp = cell('');
+        
+        condition_temp = [condition_temp; 'Test'];
+        groupname_temp = [groupname_temp; GroupNames{i}];
+        
+        % Make the table to have data of all conditions together
+        newRow = table(groupname_temp, condition_temp, VEL_test_participantmean, ...
+            'VariableNames', vel_variable_names);
+        VelTable = [VelTable; newRow];
+        
+        newRow = table(groupname_temp, condition_temp, ACC_test_participantmean, ...
+            'VariableNames', acc_variable_names);
+        AccTable = [AccTable; newRow];
+        
+        newRow = table(groupname_temp, condition_temp, JRK_test_participantmean, ...
+            'VariableNames', jrk_variable_names);
+        JrkTable = [JrkTable; newRow];
+    end
+end
+%%
+VelTable.Condition = categorical(VelTable.Condition);
+VelTable.Group = categorical(VelTable.Group);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+VelTable.Condition = reordercats(VelTable.Condition, desiredOrder);
 
 
+figure
+vel_boxchart = boxchart(VelTable.Condition, VelTable.Velocity,'GroupByColor',VelTable.Group);
 
+legend("Location", "Best")
+title('Velocity plot - MEAN');
+ylabel('Velocity [m/s]');
+xlabel('Conditions');
+
+%%% Acceleration
+AccTable.Condition = categorical(AccTable.Condition);
+AccTable.Group = categorical(AccTable.Group);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+AccTable.Condition = reordercats(AccTable.Condition, desiredOrder);
+
+
+figure
+acc_boxchart = boxchart(AccTable.Condition, AccTable.Acceleration,'GroupByColor',AccTable.Group);
+
+legend("Location", "Best")
+title('Acceleration plot - MEAN');
+ylabel('Acceleration [m/s^2]');
+xlabel('Conditions');
+
+%%% Jerk
+JrkTable.Condition = categorical(JrkTable.Condition);
+JrkTable.Group = categorical(JrkTable.Group);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+JrkTable.Condition = reordercats(JrkTable.Condition, desiredOrder);
+
+
+figure
+jrk_boxchart = boxchart(JrkTable.Condition, JrkTable.Jerk,'GroupByColor',JrkTable.Group);
+
+legend("Location", "Best")
+title('Jerk plot - MEAN');
+ylabel('Jerk [m/s^3]');
+xlabel('Conditions');
 
 %% Analysis: Score data
 

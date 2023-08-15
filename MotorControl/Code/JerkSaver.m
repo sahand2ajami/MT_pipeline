@@ -1,8 +1,8 @@
 function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
     
-    downsample_ratio = 1;
+    downsample_ratio = 2;
     % Apply Savitzky-Golay filter to remove drift
-    window_size = 7;   % Must be an odd integer (larger values for more smoothing, but avoid excessive smoothing)
+    window_size = 19;   % Must be an odd integer (larger values for more smoothing, but avoid excessive smoothing)
     polynomial_order = 5;  % The order of the polynomial to fit
 
     global TrajectoryInfo
@@ -25,8 +25,11 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
             ParticipantNames = fieldnames(Participants);
             Data = Participants.(ParticipantNames{j});
     
+            
             if ConditionString == "Baseline"
                 Trials = fieldnames(Data.LeftBaseline);
+            elseif ConditionString == "Train"
+                Trials = fieldnames(Data.RightTrain);
             elseif ConditionString == "Test"
                 Trials = fieldnames(Data.LeftTest);
     %         else
@@ -39,6 +42,8 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
     
                 if ConditionString == "Baseline"
                     Trial = Data.LeftBaseline.(Trials{k});
+                elseif ConditionString == "Train"
+                    Trial = Data.RightTrain.(Trials{k});
                 elseif ConditionString == "Test"
                     Trial = Data.LeftTest.(Trials{k});
                 end
@@ -57,7 +62,7 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     t_seconds = downsample(t_seconds, downsample_ratio);
 
                     % Filter trajectories
-                    length(traj_x{k})
+                    
                     filtered_traj_x{k} = sgolayfilt(traj_x{k}, polynomial_order, window_size);
                     filtered_traj_y{k} = sgolayfilt(traj_y{k}, polynomial_order, window_size);
                     filtered_traj_z{k} = sgolayfilt(traj_z{k}, polynomial_order, window_size);
@@ -131,7 +136,6 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     % find the mean and std of each trial
                     velocity_x_mean = mean(vel_x{k});
                     if velocity_x_mean == inf
-                        k;
                         vel_x{k};
                     end
                     velocity_x_std{k} = std(vel_x{k});

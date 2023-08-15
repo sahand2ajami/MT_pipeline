@@ -1,5 +1,6 @@
 function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
-
+    
+    downsample_ratio = 1;
     % Apply Savitzky-Golay filter to remove drift
     window_size = 7;   % Must be an odd integer (larger values for more smoothing, but avoid excessive smoothing)
     polynomial_order = 5;  % The order of the polynomial to fit
@@ -24,6 +25,7 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
             ParticipantNames = fieldnames(Participants);
             Data = Participants.(ParticipantNames{j});
     
+            
             if ConditionString == "Baseline"
                 Trials = fieldnames(Data.LeftBaseline);
             elseif ConditionString == "Test"
@@ -38,6 +40,8 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
     
                 if ConditionString == "Baseline"
                     Trial = Data.LeftBaseline.(Trials{k});
+                elseif ConditionString == "Train"
+                    Trial = Data.RightTrain.(Trials{})
                 elseif ConditionString == "Test"
                     Trial = Data.LeftTest.(Trials{k});
                 end
@@ -50,29 +54,29 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     traj_y{k} = Trial.Y;
                     traj_z{k} = Trial.Z;
                     
-                    traj_x{k} = downsample(traj_x{k}, 3);
-                    traj_y{k} = downsample(traj_y{k}, 3);
-                    traj_z{k} = downsample(traj_z{k}, 4);
-
-                    t_seconds = downsample(t_seconds, 4);
+                    traj_x{k} = downsample(traj_x{k}, downsample_ratio);
+                    traj_y{k} = downsample(traj_y{k}, downsample_ratio);
+                    traj_z{k} = downsample(traj_z{k}, downsample_ratio);
+                    t_seconds = downsample(t_seconds, downsample_ratio);
 
                     % Filter trajectories
+                    
                     filtered_traj_x{k} = sgolayfilt(traj_x{k}, polynomial_order, window_size);
                     filtered_traj_y{k} = sgolayfilt(traj_y{k}, polynomial_order, window_size);
                     filtered_traj_z{k} = sgolayfilt(traj_z{k}, polynomial_order, window_size);
                    
 
                     %% CLEAN THIS PART
-                    vel_notFiltered = diff(traj_x{k}) ./ diff(t_seconds);
-                    vel_Filtered = diff(filtered_traj_x{k}) ./ diff(t_seconds);
-
-                    if i == 1 && j == 1
-                        figure
-                        plot(t_seconds(1: end-1), vel_notFiltered)
-                        hold on
-                        plot(t_seconds(1: end-1), vel_Filtered)
-                        legend("No Filter", "Yes Filter")
-                    end
+%                     vel_notFiltered = diff(traj_x{k}) ./ diff(t_seconds);
+%                     vel_Filtered = diff(filtered_traj_x{k}) ./ diff(t_seconds);
+% 
+%                     if i == 1 && j == 1
+%                         figure
+%                         plot(t_seconds(1: end-1), vel_notFiltered)
+%                         hold on
+%                         plot(t_seconds(1: end-1), vel_Filtered)
+%                         legend("No Filter", "Yes Filter")
+%                     end
 %%
                     % Calculate velocity
                     vel_x{k} = diff(traj_x{k}) ./ diff(t_seconds); % Velocity in the x dimension
@@ -87,7 +91,7 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     filtered_vel_y{k} = sgolayfilt(vel_y{k}, polynomial_order, window_size);
                     filtered_vel_z{k} = sgolayfilt(vel_z{k}, polynomial_order, window_size);
 
-                    %% CLEAN THIS PART
+%                     %% CLEAN THIS PART
 %                     acc_notFiltered = diff(vel_x{k}) ./ diff(t_seconds(1:end-1));
 %                     acc_Filtered = diff(filtered_vel_x{k}) ./ diff(t_seconds(1:end-1));
 % 
@@ -130,7 +134,6 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
                     % find the mean and std of each trial
                     velocity_x_mean = mean(vel_x{k});
                     if velocity_x_mean == inf
-                        k;
                         vel_x{k};
                     end
                     velocity_x_std{k} = std(vel_x{k});
@@ -170,7 +173,7 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
 
                     
                     TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Velocity = timetable(vel_x{k}, vel_y{k}, vel_z{k}, vel_overall{k}, 'RowTimes', seconds(vel_time{k}), 'VariableNames',{'Vel_X','Vel_Y','Vel_Z', 'Velocity_Overall'});
-                    TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Acceleration = timetable(acc_x{k}, acc_y{k}, acc_z{k}, acc_overall{k}, 'RowTimes', seconds(acc_time{k}), 'VariableNames',{'Acc_X','Acc_Y','Acc_Z', 'Acceleartion_Overall'});
+                    TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Acceleration = timetable(acc_x{k}, acc_y{k}, acc_z{k}, acc_overall{k}, 'RowTimes', seconds(acc_time{k}), 'VariableNames',{'Acc_X','Acc_Y','Acc_Z', 'Acceleration_Overall'});
                     TrajectoryInfo.(GroupNames{i}).(strcat('S', num2str(j))).(ConditionString).(Trials{k}).Jerk = timetable(jerk_x{k}, jerk_y{k}, jerk_z{k}, jerk_overall{k}, 'RowTimes', seconds(jerk_time{k}), 'VariableNames',{'Jerk_X','Jerk_Y','Jerk_Z', 'Jerk_Overall'});
                     vel_x = {};
                     vel_y = {};
