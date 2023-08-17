@@ -891,16 +891,30 @@ ScoreTable.Condition = reordercats(ScoreTable.Condition, desiredOrder);
 
 
 figure
-score_boxchart = boxchart(ScoreTable.Condition, ScoreTable.Score,'GroupByColor', ScoreTable.Group);
+centre = [1, 2.75, 4.5];
+bias = 0.3;
+    x_data1 = centre - bias;
+    x_data1 = repmat(x_data1, 1, 11);
+    x_data2 = centre + bias;
+    x_data2 = repmat(x_data2, 1, 11);
+    % x_data2 = repmat(x_data1, 1, 11);
+    y_data1 = ScoreTable.Score(1:33);
+    y_data2 = ScoreTable.Score(34:end);
+    score_boxchart = boxchart(x_data1, y_data1);
+    hold on
+    boxchart(x_data2, y_data2)
+    score_boxchart.Parent.XTick = centre;
+    score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
 
 score_legend = legend("WithHaptics","WithoutHaptics","Location", "Best");
 excludeIndex = 2;
 legendEntries = score_legend.EntryContainer.Children;
 legendEntries(3:end) = [];
-% score_legend.String = {'WithHaptics', 'WithoutHaptics'}
+score_legend.String = {'WithHaptics', 'WithoutHaptics'}
+
 title('Score plot');
 ylabel('Score [%]');
-ylim([0, 100])
+ylim([0, 130])
 xlabel('Conditions');
 
 %%% Statistical Analysis: Score
@@ -921,15 +935,19 @@ without_haptics_test_score = ScoreTable((ScoreTable.Group == 'WithoutHaptics' & 
 [p, hStat, stats] = ranksum(with_haptics_baseline_score, with_haptics_train_score);
 [p, hStat, stats] = ranksum(with_haptics_test_score, without_haptics_test_score)
 
-lineHandles = findobj(score_boxchart(1));
+% lineHandles = findobj(score_boxchart(1));
 hold on
-line([0.75, 1.25], [10, 10], 'Color', 'black')
-score_legend.String(end) = [];
+bias2 = 0.02;
+StatisticalLines(centre(1) - bias, centre(3) - bias, '**', 96, 0.7, 2, score_legend)
+StatisticalLines(centre(1) + bias, centre(3) + bias, '***', 93, 0.7, 2, score_legend)
+StatisticalLines(centre(1) + bias, centre(2) + bias - bias2, '**', 90, 0.7, 2, score_legend)
+StatisticalLines(centre(2) + bias + bias2, centre(3) + bias, '***', 90, 0.7, 2, score_legend)
+StatisticalLines(centre(1) - bias, centre(2) - bias - bias2, '*', 87, 0.7, 2, score_legend)
+StatisticalLines(centre(2) - bias + bias2, centre(3) - bias - bias2, '***', 87, 0.7, 2, score_legend)
+StatisticalLines(centre(3) - bias + bias2, centre(3) + bias, '**', 87, 0.7, 2, score_legend)
+ylim([0, 100])
+xlim([0.25, 5.25])
 
-% plot([0.75, 1.25], [10, 10], 'k')
-% plot([0.75, 0.75], [9.75, 12], 'k')
-% plot([1.25, 1.25], [9.75, 12], 'k')
-% plot([1], [8], 'k*')
 %% Analysis: DropPos data
 
 %%% Step1: Clean the data and store them in DropPosData
