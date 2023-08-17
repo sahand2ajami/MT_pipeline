@@ -699,6 +699,8 @@ ylabel('Jerk [m/s^3]');
 xlabel('Conditions');
 
 %% Analysis: Score data
+close all
+
 
 ScoreData = struct();
 
@@ -741,12 +743,12 @@ BaselineData = {};
 TrainData = {};
 TestData = {};
 
-% Change the dimensions of the figure
-newWidth = 600;  % New width in pixels
-newHeight = 800; % New height in pixels
-set(gcf, 'Position', [100, 100, newWidth, newHeight]);
-set(gca, 'XTickLabel', {});
-set(gca, 'XTick', []);
+% % % Change the dimensions of the figure
+% % newWidth = 600;  % New width in pixels
+% % newHeight = 800; % New height in pixels
+% % set(gcf, 'Position', [100, 100, newWidth, newHeight]);
+% % set(gca, 'XTickLabel', {});
+% % set(gca, 'XTick', []);
 
 % This loops in the "withHaptics" and "withoutHaptics" groups
 for i = 1:length(GroupNames)
@@ -891,13 +893,18 @@ ScoreTable.Condition = reordercats(ScoreTable.Condition, desiredOrder);
 figure
 score_boxchart = boxchart(ScoreTable.Condition, ScoreTable.Score,'GroupByColor', ScoreTable.Group);
 
-legend("Location", "Best")
+score_legend = legend("WithHaptics","WithoutHaptics","Location", "Best");
+excludeIndex = 2;
+legendEntries = score_legend.EntryContainer.Children;
+legendEntries(3:end) = [];
+% score_legend.String = {'WithHaptics', 'WithoutHaptics'}
 title('Score plot');
 ylabel('Score [%]');
 ylim([0, 100])
 xlabel('Conditions');
 
-%% Statistical Analysis: Score
+%%% Statistical Analysis: Score
+
 % Create categorical array for x-axis labels with desired order
 ScoreTable.Condition = categorical(ScoreTable.Condition);
 ScoreTable.Group = categorical(ScoreTable.Group);
@@ -914,7 +921,15 @@ without_haptics_test_score = ScoreTable((ScoreTable.Group == 'WithoutHaptics' & 
 [p, hStat, stats] = ranksum(with_haptics_baseline_score, with_haptics_train_score);
 [p, hStat, stats] = ranksum(with_haptics_test_score, without_haptics_test_score)
 
+lineHandles = findobj(score_boxchart(1));
+hold on
+line([0.75, 1.25], [10, 10], 'Color', 'black')
+score_legend.String(end) = [];
 
+% plot([0.75, 1.25], [10, 10], 'k')
+% plot([0.75, 0.75], [9.75, 12], 'k')
+% plot([1.25, 1.25], [9.75, 12], 'k')
+% plot([1], [8], 'k*')
 %% Analysis: DropPos data
 
 %%% Step1: Clean the data and store them in DropPosData
