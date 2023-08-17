@@ -1,0 +1,33 @@
+clc, clear, close all
+
+cd('C:\Users\s2ajami\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Questionnaire\Data')
+
+% Define the path to your Excel file
+excelFilePath = 'QuestionnaireData.xlsx';
+
+% Get sheet names from the Excel file
+[~, sheetNames] = xlsfinfo(excelFilePath);
+
+
+PresenceData = struct();
+NasaData = struct();
+BodyData = struct();
+
+With
+
+% Loop through each sheet and read specific cells
+for sheetIndex = 1:numel(sheetNames)
+    sheetName = sheetNames{sheetIndex};
+    
+    % Define the range of cells you want to read (e.g., 'A1', 'B2:C5', etc.)
+    cellRange = 'D11:F11';  % Modify this to the specific range you want
+    
+    % Read the data from the specified cell range
+    data = xlsread(excelFilePath, sheetName, cellRange);
+    BodyData.(sheetName(4:end)).('BodyOwnership').(strcat()) = 
+    % Display or process the data as needed
+    disp(['Sheet: ' sheetName]);
+    disp('Data:');
+    disp(data);
+end
+

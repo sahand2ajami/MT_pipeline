@@ -891,8 +891,8 @@ ScoreTable.Condition = reordercats(ScoreTable.Condition, desiredOrder);
 
 
 figure
-centre = [1, 2.75, 4.5];
-bias = 0.3;
+    centre = [1, 2.75, 4.5];
+    bias = 0.3;
     x_data1 = centre - bias;
     x_data1 = repmat(x_data1, 1, 11);
     x_data2 = centre + bias;
@@ -906,16 +906,16 @@ bias = 0.3;
     score_boxchart.Parent.XTick = centre;
     score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
 
-score_legend = legend("WithHaptics","WithoutHaptics","Location", "Best");
-excludeIndex = 2;
-legendEntries = score_legend.EntryContainer.Children;
-legendEntries(3:end) = [];
-score_legend.String = {'WithHaptics', 'WithoutHaptics'}
+    score_legend = legend("WithHaptics","WithoutHaptics","Location", "Best");
+    excludeIndex = 2;
+    legendEntries = score_legend.EntryContainer.Children;
+    legendEntries(3:end) = [];
+    score_legend.String = {'WithHaptics', 'WithoutHaptics'}
 
-title('Score plot');
-ylabel('Score [%]');
-ylim([0, 130])
-xlabel('Conditions');
+    title('Score plot');
+    ylabel('Score [%]');
+    ylim([0, 130])
+    xlabel('Conditions');
 
 %%% Statistical Analysis: Score
 
