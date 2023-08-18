@@ -235,7 +235,7 @@ for i = 1:length(GroupNames)
         subjectID = (fieldnames(subjects));
         Answers = subjects.(subjectID{j});
         TrainAgencyanswers{i, j} = subjects.(subjectID{j});
-        TrainAgencyScore{i, j} = Answers(1) - Answers(2) - Answers(3);
+        TrainAgencyScore{i, j} = Answers(1) + Answers(2) + Answers(3) - Answers(4);
 
         groupname_temp = cell('');
         condition_temp = cell('');
@@ -255,7 +255,7 @@ for i = 1:length(GroupNames)
         subjectID = (fieldnames(subjects));
         Answers = subjects.(subjectID{j});
         TestAgencyanswers{i, j} = subjects.(subjectID{j});
-        TestAgencyScore{i, j} = Answers(1) - Answers(2) - Answers(3);
+        TestAgencyScore{i, j} = Answers(1) + Answers(2) + Answers(3) - Answers(4);
 
         groupname_temp = cell('');
         condition_temp = cell('');
@@ -269,6 +269,15 @@ for i = 1:length(GroupNames)
         AgencyScoreTable = [AgencyScoreTable; newTable];
     end
 end
+
+% Create categorical array for x-axis labels with desired order
+AgencyScoreTable.Condition = categorical(AgencyScoreTable.Condition);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+AgencyScoreTable.Condition = reordercats(AgencyScoreTable.Condition, desiredOrder);
 
 figure
     centre = [1, 2.75, 4.5];
@@ -298,15 +307,15 @@ figure
     ylim([-12, +12])
     xlabel('Conditions');
     
-%% Statistical test on Body Ownership
+%% Statistical test on Agency and Motor Control
     
-with_haptics_baseline_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithHaptics') & BodyAgencyTable.Condition == 'Baseline'), :);
-with_haptics_train_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithHaptics') & BodyAgencyTable.Condition == 'Train'), :);
-with_haptics_test_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithHaptics') & BodyAgencyTable.Condition == 'Test'), :);
+with_haptics_baseline_agency = AgencyScoreTable((strcmp(AgencyScoreTable.Group, 'WithHaptics') & AgencyScoreTable.Condition == 'Baseline'), :);
+with_haptics_train_agency = AgencyScoreTable((strcmp(AgencyScoreTable.Group, 'WithHaptics') & AgencyScoreTable.Condition == 'Train'), :);
+with_haptics_test_agency = AgencyScoreTable((strcmp(AgencyScoreTable.Group, 'WithHaptics') & AgencyScoreTable.Condition == 'Test'), :);
 
-without_haptics_baseline_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithoutHaptics') & BodyAgencyTable.Condition == 'Baseline'), :);
-without_haptics_train_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithoutHaptics') & BodyAgencyTable.Condition == 'Train'), :);
-without_haptics_test_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithoutHaptics') & BodyAgencyTable.Condition == 'Test'), :);
+without_haptics_baseline_agency = AgencyScoreTable((strcmp(AgencyScoreTable.Group, 'WithoutHaptics') & AgencyScoreTable.Condition == 'Baseline'), :);
+without_haptics_train_agency = AgencyScoreTable((strcmp(AgencyScoreTable.Group, 'WithoutHaptics') & AgencyScoreTable.Condition == 'Train'), :);
+without_haptics_test_agency = AgencyScoreTable((strcmp(AgencyScoreTable.Group, 'WithoutHaptics') & AgencyScoreTable.Condition == 'Test'), :);
 
 with_haptics_baseline_agency = with_haptics_baseline_agency.Score;
 with_haptics_train_agency = with_haptics_train_agency.Score;
@@ -318,7 +327,7 @@ without_haptics_test_agency = without_haptics_test_agency.Score;
 
 clc
 disp('WithHapticsBaseline vs. WithHapticsTrain:')
-[p, hStat, stats] = ranksum(with_haptics_baseline_body, with_haptics_train_body)
+[p, hStat, stats] = ranksum(without_haptics_test_agency, without_haptics_train_agency)
 %%
 % Tactile Sensation
 
@@ -405,6 +414,16 @@ for i = 1:length(GroupNames)
     end
 end
 
+% Create categorical array for x-axis labels with desired order
+TactileScoreTable.Condition = categorical(TactileScoreTable.Condition);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+TactileScoreTable.Condition = reordercats(TactileScoreTable.Condition, desiredOrder);
+
+
 figure
     centre = [1, 2.75, 4.5];
     bias = 0.3;
@@ -432,6 +451,33 @@ figure
     ylabel('Score');
     ylim([-12, +12])
     xlabel('Conditions');
+
+%% Statistical test on Agency and Motor Control
+    
+with_haptics_baseline_tactile = TactileScoreTable((strcmp(TactileScoreTable.Group, 'WithHaptics') & TactileScoreTable.Condition == 'Baseline'), :);
+with_haptics_train_tactile = TactileScoreTable((strcmp(TactileScoreTable.Group, 'WithHaptics') & TactileScoreTable.Condition == 'Train'), :);
+with_haptics_test_tactile = TactileScoreTable((strcmp(TactileScoreTable.Group, 'WithHaptics') & TactileScoreTable.Condition == 'Test'), :);
+
+without_haptics_baseline_tactile = TactileScoreTable((strcmp(TactileScoreTable.Group, 'WithoutHaptics') & TactileScoreTable.Condition == 'Baseline'), :);
+without_haptics_train_tactile = TactileScoreTable((strcmp(TactileScoreTable.Group, 'WithoutHaptics') & TactileScoreTable.Condition == 'Train'), :);
+without_haptics_test_tactile = TactileScoreTable((strcmp(TactileScoreTable.Group, 'WithoutHaptics') & TactileScoreTable.Condition == 'Test'), :);
+
+with_haptics_baseline_tactile = with_haptics_baseline_tactile.Score;
+with_haptics_train_tactile = with_haptics_train_tactile.Score;
+with_haptics_test_tactile = with_haptics_test_tactile.Score;
+
+without_haptics_baseline_tactile = without_haptics_baseline_tactile.Score;
+without_haptics_train_tactile = without_haptics_train_tactile.Score;
+without_haptics_test_tactile = without_haptics_test_tactile.Score;
+
+clc
+disp('Tactile Sensation')
+disp('-----------------')
+disp('WithHapticsTrain vs. WithoutHapticsTrain:')
+[p, hStat, stats] = ranksum(without_haptics_train_tactile, with_haptics_train_tactile)
+
+disp('WithHapticsTrain vs. WithoutHapticsTrain:')
+[p, hStat, stats] = ranksum(without_haptics_test_tactile, with_haptics_test_tactile)
 
 %% Location of the body
 
