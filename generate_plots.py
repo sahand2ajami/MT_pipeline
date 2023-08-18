@@ -140,7 +140,7 @@ def main(participant_id, experiment_block):
             for question_id in range(1, NUM_QUESTIONS_TLX + 1):
                 tlx_responses[block_id][f'Q{question_id}'].append(df.iloc[5 + block_id, 1 + question_id])
             for question_id in range(1, NUM_QUESTIONS_EMBODIMENT_OWNERSHIP + 1):
-                embodiment_responses[block_id][f'Q{question_id}'].append(df.iloc[9 + block_id, 2 + question_id])
+                embodiment_responses[block_id][f'Q{question_id}'].append(df.iloc[9 + 10 * block_id, 2 + question_id])
             for question_id in range(1, NUM_QUESTIONS_EMBODIMENT_AGENCY + 1):
                 embodiment_responses[block_id][f'Q{question_id + NUM_QUESTIONS_EMBODIMENT_OWNERSHIP}'].append(df.iloc[11 + 10 * block_id, 2 + question_id])
             for question_id in range(1, NUM_QUESTIONS_EMBODIMENT_TACTILE + 1):
@@ -193,7 +193,7 @@ def main(participant_id, experiment_block):
             for question_id in range(1, NUM_QUESTIONS_TLX + 1):
                 tlx_responses_no[block_id][f'Q{question_id}'].append(df.iloc[5 + block_id, 1 + question_id])
             for question_id in range(1, NUM_QUESTIONS_EMBODIMENT_OWNERSHIP + 1):
-                embodiment_responses_no[block_id][f'Q{question_id}'].append(df.iloc[9 + block_id, 2 + question_id])
+                embodiment_responses_no[block_id][f'Q{question_id}'].append(df.iloc[9 + 10 * block_id, 2 + question_id])
             for question_id in range(1, NUM_QUESTIONS_EMBODIMENT_AGENCY + 1):
                 embodiment_responses_no[block_id][f'Q{question_id + NUM_QUESTIONS_EMBODIMENT_OWNERSHIP}'].append(df.iloc[11 + 10 * block_id, 2 + question_id])
             for question_id in range(1, NUM_QUESTIONS_EMBODIMENT_TACTILE + 1):
@@ -216,7 +216,7 @@ def main(participant_id, experiment_block):
     print(f'Generating plots for Presence PCA...')
     sns.set_style(style='whitegrid')
 
-    ownership_score, agency_score, tactile_score, location_score, appearance_score = compute_embodiment_scores(presence_responses, presence_responses_no, experiment_block)
+    ownership_score, agency_score, tactile_score, location_score, appearance_score = compute_embodiment_scores(embodiment_responses, embodiment_responses_no, experiment_block)
 
     mental_demand_score, physical_demand_score, temporal_demand_score, performance_score, effort_score, frustration_score = compute_tlx_scores(tlx_responses, tlx_responses_no, experiment_block)
     
@@ -275,7 +275,6 @@ def main(participant_id, experiment_block):
     # df_ownership_score_test = pd.concat([df_ownership_score_with_test, df_ownership_score_without_test])
 
     # df_ownership_score = pd.concat([df_ownership_score_baseline, df_ownership_score_train, df_ownership_score_test])
-
     # ax = sns.boxplot(data = df_ownership_score, x='phase', y='score', hue='condition')
     # ax.set(xlabel='Experiment Phase', ylabel='Body Ownership Score')
     # plotname = 'Embodiment-Ownership.png'
@@ -458,59 +457,59 @@ def main(participant_id, experiment_block):
     5. Appearance Plot
     """
 
-    # condition_labels = []
-    # for i in range(len(appearance_score[BASELINE]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(appearance_score[BASELINE]['with_haptics'])):
-    #     phase_labels.append(0)
-    # df_appearance_score_with_baseline = pd.DataFrame({'score': appearance_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(appearance_score[BASELINE]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(appearance_score[BASELINE]['without_haptics'])):
-    #     phase_labels.append(0)
-    # df_appearance_score_without_baseline = pd.DataFrame({'score': appearance_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_appearance_score_baseline = pd.concat([df_appearance_score_with_baseline, df_appearance_score_without_baseline])
+    condition_labels = []
+    for i in range(len(appearance_score[BASELINE]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(appearance_score[BASELINE]['with_haptics'])):
+        phase_labels.append(0)
+    df_appearance_score_with_baseline = pd.DataFrame({'score': appearance_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(appearance_score[BASELINE]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(appearance_score[BASELINE]['without_haptics'])):
+        phase_labels.append(0)
+    df_appearance_score_without_baseline = pd.DataFrame({'score': appearance_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_appearance_score_baseline = pd.concat([df_appearance_score_with_baseline, df_appearance_score_without_baseline])
 
-    # condition_labels = []
-    # for i in range(len(appearance_score[TRAIN]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(appearance_score[TRAIN]['with_haptics'])):
-    #     phase_labels.append(1) 
-    # df_appearance_score_with_train = pd.DataFrame({'score': appearance_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(appearance_score[TRAIN]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(appearance_score[TRAIN]['without_haptics'])):
-    #     phase_labels.append(1)
-    # df_appearance_score_without_train = pd.DataFrame({'score': appearance_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_appearance_score_train = pd.concat([df_appearance_score_with_train, df_appearance_score_without_train])
+    condition_labels = []
+    for i in range(len(appearance_score[TRAIN]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(appearance_score[TRAIN]['with_haptics'])):
+        phase_labels.append(1) 
+    df_appearance_score_with_train = pd.DataFrame({'score': appearance_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(appearance_score[TRAIN]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(appearance_score[TRAIN]['without_haptics'])):
+        phase_labels.append(1)
+    df_appearance_score_without_train = pd.DataFrame({'score': appearance_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_appearance_score_train = pd.concat([df_appearance_score_with_train, df_appearance_score_without_train])
 
-    # condition_labels = []
-    # for i in range(len(appearance_score[TEST]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(appearance_score[TEST]['with_haptics'])):
-    #     phase_labels.append(2) 
-    # df_appearance_score_with_test = pd.DataFrame({'score': appearance_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(appearance_score[TEST]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(appearance_score[TEST]['without_haptics'])):
-    #     phase_labels.append(2) 
-    # df_appearance_score_without_test = pd.DataFrame({'score': appearance_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_appearance_score_test = pd.concat([df_appearance_score_with_test, df_appearance_score_without_test])
+    condition_labels = []
+    for i in range(len(appearance_score[TEST]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(appearance_score[TEST]['with_haptics'])):
+        phase_labels.append(2) 
+    df_appearance_score_with_test = pd.DataFrame({'score': appearance_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(appearance_score[TEST]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(appearance_score[TEST]['without_haptics'])):
+        phase_labels.append(2) 
+    df_appearance_score_without_test = pd.DataFrame({'score': appearance_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_appearance_score_test = pd.concat([df_appearance_score_with_test, df_appearance_score_without_test])
 
-    # df_appearance_score = pd.concat([df_appearance_score_baseline, df_appearance_score_train, df_appearance_score_test])
+    df_appearance_score = pd.concat([df_appearance_score_baseline, df_appearance_score_train, df_appearance_score_test])
 
-    # ax = sns.boxplot(data=df_appearance_score, x='phase', y='score', hue='condition')
-    # ax.set(xlabel='Experiment Phase', ylabel='Appearance Score')
-    # plotname = 'Embodiment-Appearance.png'   
+    ax = sns.boxplot(data=df_appearance_score, x='phase', y='score', hue='condition')
+    ax.set(xlabel='Experiment Phase', ylabel='Appearance Score')
+    plotname = 'Embodiment-Appearance.png'   
     
     
     # ax.set_xticklabels(custom_x_labels)
@@ -528,6 +527,111 @@ def main(participant_id, experiment_block):
     """
     NASA TLX Boxplots
     """
+
+    """
+    1. Mental Demand
+    """
+
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(mental_demand_score[BASELINE]['with_haptics'])):
+    #     condition_labels.append(1)
+    #     phase_labels.append(0)
+    # df_mental_demand_score_with_baseline = pd.DataFrame({'score': mental_demand_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(mental_demand_score[BASELINE]['without_haptics'])):
+    #     condition_labels.append(0)
+    #     phase_labels.append(0)
+    # df_mental_demand_score_without_baseline = pd.DataFrame({'score': mental_demand_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # df_mental_demand_score_baseline = pd.concat([df_mental_demand_score_with_baseline, df_mental_demand_score_without_baseline])
+
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(mental_demand_score[TRAIN]['with_haptics'])):
+    #     condition_labels.append(1)
+    #     phase_labels.append(1)
+    # df_mental_demand_score_with_train = pd.DataFrame({'score': mental_demand_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(mental_demand_score[TRAIN]['without_haptics'])):
+    #     condition_labels.append(0)
+    #     phase_labels.append(1)
+    # df_mental_demand_score_without_train = pd.DataFrame({'score': mental_demand_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # df_mental_demand_score_train = pd.concat([df_mental_demand_score_with_train, df_mental_demand_score_without_train])
+
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(mental_demand_score[TEST]['with_haptics'])):
+    #     condition_labels.append(1)
+    #     phase_labels.append(2)
+    # df_mental_demand_score_with_test = pd.DataFrame({'score': mental_demand_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(mental_demand_score[TEST]['without_haptics'])):
+    #     condition_labels.append(0)
+    #     phase_labels.append(2)
+    # df_mental_demand_score_without_test = pd.DataFrame({'score': mental_demand_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # df_mental_demand_score_test = pd.concat([df_mental_demand_score_with_test, df_mental_demand_score_without_test])
+
+    # df_mental_demand_score = pd.concat([df_mental_demand_score_baseline, df_mental_demand_score_train, df_mental_demand_score_test])
+
+    # ax = sns.boxplot(data=df_mental_demand_score, x='phase', y='score', hue='condition')
+    # ax.set(xlabel='Experiment Phase', ylabel='Mental Demand Score')
+    # plotname = 'TLX-Mental.png'
+
+
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(physical_demand_score[BASELINE]['with_haptics'])):
+    #     condition_labels.append(1)
+    #     phase_labels.append(0)
+    # df_physical_demand_score_with_baseline = pd.DataFrame({'score': physical_demand_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(physical_demand_score[BASELINE]['without_haptics'])):
+    #     condition_labels.append(0)
+    #     phase_labels.append(0)
+    # df_physical_demand_score_without_baseline = pd.DataFrame({'score': physical_demand_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # df_physical_demand_score_baseline = pd.concat([df_physical_demand_score_with_baseline, df_physical_demand_score_without_baseline])
+
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(physical_demand_score[TRAIN]['with_haptics'])):
+    #     condition_labels.append(1)
+    #     phase_labels.append(1)
+    # df_physical_demand_score_with_train = pd.DataFrame({'score': physical_demand_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(physical_demand_score[TRAIN]['without_haptics'])):
+    #     condition_labels.append(0)
+    #     phase_labels.append(1)
+    # df_physical_demand_score_without_train = pd.DataFrame({'score': physical_demand_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # df_physical_demand_score_train = pd.concat([df_physical_demand_score_with_train, df_physical_demand_score_without_train])
+
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(physical_demand_score[TEST]['with_haptics'])):
+    #     condition_labels.append(1)
+    #     phase_labels.append(2)
+    # df_physical_demand_score_with_test = pd.DataFrame({'score': physical_demand_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # condition_labels = []
+    # phase_labels = []
+    # for i in range(len(physical_demand_score[TEST]['without_haptics'])):
+    #     condition_labels.append(0)
+    #     phase_labels.append(2)
+    # df_physical_demand_score_without_test = pd.DataFrame({'score': physical_demand_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    # df_physical_demand_score_test = pd.concat([df_physical_demand_score_with_test, df_physical_demand_score_without_test])
+
+    # df_physical_demand_score = pd.concat([df_physical_demand_score_baseline, df_physical_demand_score_train, df_physical_demand_score_test])
+
+    # ax = sns.boxplot(data=df_physical_demand_score, x='phase', y='score', hue='condition')
+    # ax.set(xlabel='Experiment Phase', ylabel='Physical Demand Score')
+    # plotname = 'TLX-Physical.png'
+
+
+    ax.set_xticklabels(custom_x_labels)
+    plt.savefig(plotname)
 
 
 
