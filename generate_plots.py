@@ -226,232 +226,248 @@ def main(participant_id, experiment_block):
     1. Body Ownership Plot
     """
 
-    # condition_labels = []
-    # for i in range(len(ownership_score[BASELINE]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(ownership_score[BASELINE]['with_haptics'])):
-    #     phase_labels.append(0)
-    # df_ownership_score_with_baseline = pd.DataFrame({'score': ownership_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(ownership_score[BASELINE]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(ownership_score[BASELINE]['without_haptics'])):
-    #     phase_labels.append(0)
-    # df_ownership_score_without_baseline = pd.DataFrame({'score': ownership_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_ownership_score_baseline = pd.concat([df_ownership_score_with_baseline, df_ownership_score_without_baseline])
+    condition_labels = []
+    for i in range(len(ownership_score[BASELINE]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(ownership_score[BASELINE]['with_haptics'])):
+        phase_labels.append(0)
+    df_ownership_score_with_baseline = pd.DataFrame({'score': ownership_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(ownership_score[BASELINE]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(ownership_score[BASELINE]['without_haptics'])):
+        phase_labels.append(0)
+    df_ownership_score_without_baseline = pd.DataFrame({'score': ownership_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_ownership_score_baseline = pd.concat([df_ownership_score_with_baseline, df_ownership_score_without_baseline])
 
-    # condition_labels = []
-    # for i in range(len(ownership_score[TRAIN]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(ownership_score[TRAIN]['with_haptics'])):
-    #     phase_labels.append(1)
-    # df_ownership_score_with_train = pd.DataFrame({'score': ownership_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(ownership_score[TRAIN]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(ownership_score[TRAIN]['without_haptics'])):
-    #     phase_labels.append(1)
-    # df_ownership_score_without_train = pd.DataFrame({'score': ownership_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_ownership_score_train = pd.concat([df_ownership_score_with_train, df_ownership_score_without_train])
+    condition_labels = []
+    for i in range(len(ownership_score[TRAIN]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(ownership_score[TRAIN]['with_haptics'])):
+        phase_labels.append(1)
+    df_ownership_score_with_train = pd.DataFrame({'score': ownership_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(ownership_score[TRAIN]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(ownership_score[TRAIN]['without_haptics'])):
+        phase_labels.append(1)
+    df_ownership_score_without_train = pd.DataFrame({'score': ownership_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_ownership_score_train = pd.concat([df_ownership_score_with_train, df_ownership_score_without_train])
 
-    # condition_labels = []
-    # for i in range(len(ownership_score[TEST]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(ownership_score[TEST]['with_haptics'])):
-    #     phase_labels.append(2)
-    # df_ownership_score_with_test = pd.DataFrame({'score': ownership_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(ownership_score[TEST]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(ownership_score[TEST]['without_haptics'])):
-    #     phase_labels.append(2)
-    # df_ownership_score_without_test = pd.DataFrame({'score': ownership_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_ownership_score_test = pd.concat([df_ownership_score_with_test, df_ownership_score_without_test])
+    condition_labels = []
+    for i in range(len(ownership_score[TEST]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(ownership_score[TEST]['with_haptics'])):
+        phase_labels.append(2)
+    df_ownership_score_with_test = pd.DataFrame({'score': ownership_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(ownership_score[TEST]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(ownership_score[TEST]['without_haptics'])):
+        phase_labels.append(2)
+    df_ownership_score_without_test = pd.DataFrame({'score': ownership_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_ownership_score_test = pd.concat([df_ownership_score_with_test, df_ownership_score_without_test])
 
-    # df_ownership_score = pd.concat([df_ownership_score_baseline, df_ownership_score_train, df_ownership_score_test])
-    # ax = sns.boxplot(data = df_ownership_score, x='phase', y='score', hue='condition')
-    # ax.set(xlabel='Experiment Phase', ylabel='Body Ownership Score')
-    # plotname = 'Embodiment-Ownership.png'
+    df_ownership_score = pd.concat([df_ownership_score_baseline, df_ownership_score_train, df_ownership_score_test])
+    ax = sns.boxplot(data = df_ownership_score, x='phase', y='score', hue='condition')
+    ax.set(xlabel='Experiment Phase', ylabel='Body Ownership Score')
+    plotname = 'Embodiment-Ownership.png'
+
+    ax.set_xticklabels(custom_x_labels)
+    plt.savefig(plotname)
+    ax.clear()
 
     """
     2. Agency and Motor Control Plot
     """
 
-    # condition_labels = []
-    # for i in range(len(agency_score[BASELINE]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(agency_score[BASELINE]['with_haptics'])):
-    #     phase_labels.append(0)
-    # df_agency_score_with_baseline = pd.DataFrame({'score': agency_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(agency_score[BASELINE]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(agency_score[BASELINE]['without_haptics'])):
-    #     phase_labels.append(0)
-    # df_agency_score_without_baseline = pd.DataFrame({'score': agency_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_agency_score_baseline = pd.concat([df_agency_score_with_baseline, df_agency_score_without_baseline])
+    condition_labels = []
+    for i in range(len(agency_score[BASELINE]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(agency_score[BASELINE]['with_haptics'])):
+        phase_labels.append(0)
+    df_agency_score_with_baseline = pd.DataFrame({'score': agency_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(agency_score[BASELINE]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(agency_score[BASELINE]['without_haptics'])):
+        phase_labels.append(0)
+    df_agency_score_without_baseline = pd.DataFrame({'score': agency_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_agency_score_baseline = pd.concat([df_agency_score_with_baseline, df_agency_score_without_baseline])
 
-    # condition_labels = []
-    # for i in range(len(agency_score[TRAIN]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(agency_score[TRAIN]['with_haptics'])):
-    #     phase_labels.append(1)
-    # df_agency_score_with_train = pd.DataFrame({'score': agency_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(agency_score[TRAIN]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(agency_score[TRAIN]['without_haptics'])):
-    #     phase_labels.append(1)
-    # df_agency_score_without_train = pd.DataFrame({'score': agency_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_agency_score_train = pd.concat([df_agency_score_with_train, df_agency_score_without_train])
+    condition_labels = []
+    for i in range(len(agency_score[TRAIN]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(agency_score[TRAIN]['with_haptics'])):
+        phase_labels.append(1)
+    df_agency_score_with_train = pd.DataFrame({'score': agency_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(agency_score[TRAIN]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(agency_score[TRAIN]['without_haptics'])):
+        phase_labels.append(1)
+    df_agency_score_without_train = pd.DataFrame({'score': agency_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_agency_score_train = pd.concat([df_agency_score_with_train, df_agency_score_without_train])
 
-    # condition_labels = []
-    # for i in range(len(agency_score[TEST]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(agency_score[TEST]['with_haptics'])):
-    #     phase_labels.append(2)
-    # df_agency_score_with_test = pd.DataFrame({'score': agency_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(agency_score[TEST]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(agency_score[TEST]['without_haptics'])):
-    #     phase_labels.append(2)
-    # df_agency_score_without_test = pd.DataFrame({'score': agency_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_agency_score_test = pd.concat([df_agency_score_with_test, df_agency_score_without_test])
+    condition_labels = []
+    for i in range(len(agency_score[TEST]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(agency_score[TEST]['with_haptics'])):
+        phase_labels.append(2)
+    df_agency_score_with_test = pd.DataFrame({'score': agency_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(agency_score[TEST]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(agency_score[TEST]['without_haptics'])):
+        phase_labels.append(2)
+    df_agency_score_without_test = pd.DataFrame({'score': agency_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_agency_score_test = pd.concat([df_agency_score_with_test, df_agency_score_without_test])
 
-    # df_agency_score = pd.concat([df_agency_score_baseline, df_agency_score_train, df_agency_score_test])
+    df_agency_score = pd.concat([df_agency_score_baseline, df_agency_score_train, df_agency_score_test])
 
-    # ax = sns.boxplot(data = df_agency_score, x='phase', y='score', hue='condition')
-    # ax.set(xlabel='Experiment Phase', ylabel='Agency Score')
-    # plotname = 'Embodiment-Agency.png'
+    ax = sns.boxplot(data = df_agency_score, x='phase', y='score', hue='condition')
+    ax.set(xlabel='Experiment Phase', ylabel='Agency Score')
+    plotname = 'Embodiment-Agency.png'
+
+    ax.set_xticklabels(custom_x_labels)
+    plt.savefig(plotname)
+    ax.clear()
 
     """
     3. Tactile Perception Plot
     """
 
-    # condition_labels = []
-    # for i in range(len(tactile_score[BASELINE]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(tactile_score[BASELINE]['with_haptics'])):
-    #     phase_labels.append(0)
-    # df_tactile_score_with_baseline = pd.DataFrame({'score': tactile_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(tactile_score[BASELINE]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(tactile_score[BASELINE]['without_haptics'])):
-    #     phase_labels.append(0)
-    # df_tactile_score_without_baseline = pd.DataFrame({'score': tactile_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_tactile_score_baseline = pd.concat([df_tactile_score_with_baseline, df_tactile_score_without_baseline])
+    condition_labels = []
+    for i in range(len(tactile_score[BASELINE]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(tactile_score[BASELINE]['with_haptics'])):
+        phase_labels.append(0)
+    df_tactile_score_with_baseline = pd.DataFrame({'score': tactile_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(tactile_score[BASELINE]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(tactile_score[BASELINE]['without_haptics'])):
+        phase_labels.append(0)
+    df_tactile_score_without_baseline = pd.DataFrame({'score': tactile_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_tactile_score_baseline = pd.concat([df_tactile_score_with_baseline, df_tactile_score_without_baseline])
 
-    # condition_labels = []
-    # for i in range(len(tactile_score[TRAIN]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(tactile_score[TRAIN]['with_haptics'])):
-    #     phase_labels.append(1)
-    # df_tactile_score_with_train = pd.DataFrame({'score': tactile_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(tactile_score[TRAIN]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(tactile_score[TRAIN]['without_haptics'])):
-    #     phase_labels.append(1) 
-    # df_tactile_score_without_train = pd.DataFrame({'score': tactile_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_tactile_score_train = pd.concat([df_tactile_score_with_train, df_tactile_score_without_train])
+    condition_labels = []
+    for i in range(len(tactile_score[TRAIN]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(tactile_score[TRAIN]['with_haptics'])):
+        phase_labels.append(1)
+    df_tactile_score_with_train = pd.DataFrame({'score': tactile_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(tactile_score[TRAIN]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(tactile_score[TRAIN]['without_haptics'])):
+        phase_labels.append(1) 
+    df_tactile_score_without_train = pd.DataFrame({'score': tactile_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_tactile_score_train = pd.concat([df_tactile_score_with_train, df_tactile_score_without_train])
 
-    # condition_labels = []
-    # for i in range(len(tactile_score[TEST]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(tactile_score[TEST]['with_haptics'])):
-    #     phase_labels.append(2)
-    # df_tactile_score_with_test = pd.DataFrame({'score': tactile_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(tactile_score[TEST]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(tactile_score[TEST]['without_haptics'])):
-    #     phase_labels.append(2)
-    # df_tactile_score_without_test = pd.DataFrame({'score': tactile_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_tactile_score_test = pd.concat([df_tactile_score_with_test, df_tactile_score_without_test])
+    condition_labels = []
+    for i in range(len(tactile_score[TEST]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(tactile_score[TEST]['with_haptics'])):
+        phase_labels.append(2)
+    df_tactile_score_with_test = pd.DataFrame({'score': tactile_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(tactile_score[TEST]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(tactile_score[TEST]['without_haptics'])):
+        phase_labels.append(2)
+    df_tactile_score_without_test = pd.DataFrame({'score': tactile_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_tactile_score_test = pd.concat([df_tactile_score_with_test, df_tactile_score_without_test])
 
-    # df_tactile_score = pd.concat([df_tactile_score_baseline, df_tactile_score_train, df_tactile_score_test])
+    df_tactile_score = pd.concat([df_tactile_score_baseline, df_tactile_score_train, df_tactile_score_test])
 
-    # ax = sns.boxplot(data=df_tactile_score, x='phase', y='score', hue='condition')
-    # ax.set(xlabel='Experiment Phase', ylabel='Tactile Perception Score')
-    # plotname = 'Embodiment-Tactile.png'
+    ax = sns.boxplot(data=df_tactile_score, x='phase', y='score', hue='condition')
+    ax.set(xlabel='Experiment Phase', ylabel='Tactile Perception Score')
+    plotname = 'Embodiment-Tactile.png'
+
+    ax.set_xticklabels(custom_x_labels)
+    plt.savefig(plotname)
+    ax.clear()
 
     """
     4. Location Plot
     """
 
-    # condition_labels = []
-    # for i in range(len(location_score[BASELINE]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(location_score[BASELINE]['with_haptics'])):
-    #     phase_labels.append(0)
-    # df_location_score_with_baseline = pd.DataFrame({'score': location_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(location_score[BASELINE]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(location_score[BASELINE]['without_haptics'])):
-    #     phase_labels.append(0)
-    # df_location_score_without_baseline = pd.DataFrame({'score': location_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_location_score_baseline = pd.concat([df_location_score_with_baseline, df_location_score_without_baseline])
+    condition_labels = []
+    for i in range(len(location_score[BASELINE]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(location_score[BASELINE]['with_haptics'])):
+        phase_labels.append(0)
+    df_location_score_with_baseline = pd.DataFrame({'score': location_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(location_score[BASELINE]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(location_score[BASELINE]['without_haptics'])):
+        phase_labels.append(0)
+    df_location_score_without_baseline = pd.DataFrame({'score': location_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_location_score_baseline = pd.concat([df_location_score_with_baseline, df_location_score_without_baseline])
 
-    # condition_labels = []
-    # for i in range(len(location_score[TRAIN]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(location_score[TRAIN]['with_haptics'])):
-    #     phase_labels.append(1) 
-    # df_location_score_with_train = pd.DataFrame({'score': location_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(location_score[TRAIN]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(location_score[TRAIN]['without_haptics'])):
-    #     phase_labels.append(1)
-    # df_location_score_without_train = pd.DataFrame({'score': location_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_location_score_train = pd.concat([df_location_score_with_train, df_location_score_without_train])
+    condition_labels = []
+    for i in range(len(location_score[TRAIN]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(location_score[TRAIN]['with_haptics'])):
+        phase_labels.append(1) 
+    df_location_score_with_train = pd.DataFrame({'score': location_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(location_score[TRAIN]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(location_score[TRAIN]['without_haptics'])):
+        phase_labels.append(1)
+    df_location_score_without_train = pd.DataFrame({'score': location_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_location_score_train = pd.concat([df_location_score_with_train, df_location_score_without_train])
 
-    # condition_labels = []
-    # for i in range(len(location_score[TEST]['with_haptics'])):
-    #     condition_labels.append(1)
-    # phase_labels = []
-    # for i in range(len(location_score[TEST]['with_haptics'])):
-    #     phase_labels.append(2) 
-    # df_location_score_with_test = pd.DataFrame({'score': location_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # for i in range(len(location_score[TEST]['without_haptics'])):
-    #     condition_labels.append(0)
-    # phase_labels = []
-    # for i in range(len(location_score[TEST]['without_haptics'])):
-    #     phase_labels.append(2) 
-    # df_location_score_without_test = pd.DataFrame({'score': location_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_location_score_test = pd.concat([df_location_score_with_test, df_location_score_without_test])
+    condition_labels = []
+    for i in range(len(location_score[TEST]['with_haptics'])):
+        condition_labels.append(1)
+    phase_labels = []
+    for i in range(len(location_score[TEST]['with_haptics'])):
+        phase_labels.append(2) 
+    df_location_score_with_test = pd.DataFrame({'score': location_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    for i in range(len(location_score[TEST]['without_haptics'])):
+        condition_labels.append(0)
+    phase_labels = []
+    for i in range(len(location_score[TEST]['without_haptics'])):
+        phase_labels.append(2) 
+    df_location_score_without_test = pd.DataFrame({'score': location_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_location_score_test = pd.concat([df_location_score_with_test, df_location_score_without_test])
 
-    # df_location_score = pd.concat([df_location_score_baseline, df_location_score_train, df_location_score_test])
+    df_location_score = pd.concat([df_location_score_baseline, df_location_score_train, df_location_score_test])
 
-    # ax = sns.boxplot(data=df_location_score, x='phase', y='score', hue='condition')
-    # ax.set(xlabel='Experiment Phase', ylabel='Location Score')
-    # plotname = 'Embodiment-Location.png'
+    ax = sns.boxplot(data=df_location_score, x='phase', y='score', hue='condition')
+    ax.set(xlabel='Experiment Phase', ylabel='Location Score')
+    plotname = 'Embodiment-Location.png'
+
+    ax.set_xticklabels(custom_x_labels)
+    plt.savefig(plotname)
+    ax.clear()
 
     """
     5. Appearance Plot
@@ -512,16 +528,9 @@ def main(participant_id, experiment_block):
     plotname = 'Embodiment-Appearance.png'   
     
     
-    # ax.set_xticklabels(custom_x_labels)
-    # plt.savefig(plotname)
-
-    # df_appearance_score = pd.concat([df_appearance_score_with, df_appearance_score_without])
-
-    # custom_x_labels = ['Ownership-WithHaptics', 'Ownership-WithoutHaptics', 'Agency-WithHaptics', 'Agency-WithoutHaptics', 'Tactile-WithHaptics', 'Tactile-WithoutHaptics', 'Location-WithHaptics', 'Location-WithoutHaptics', 'Appearance-WithHaptics', 'Appearance-WithoutHaptics']
-
-    #ax = sns.boxplot(data=[df_ownership_score_with, df_appearance_score_without, df_agency_score_with, df_agency_score_without, df_tactile_score_with, df_tactile_score_without, df_location_score_with, df_location_score_without, df_appearance_score_with, df_appearance_score_without])
-
-    #ax.set_xticklabels(custom_x_labels)
+    ax.set_xticklabels(custom_x_labels)
+    plt.savefig(plotname)
+    ax.clear()
 
 
     """
@@ -532,106 +541,117 @@ def main(participant_id, experiment_block):
     1. Mental Demand
     """
 
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(mental_demand_score[BASELINE]['with_haptics'])):
-    #     condition_labels.append(1)
-    #     phase_labels.append(0)
-    # df_mental_demand_score_with_baseline = pd.DataFrame({'score': mental_demand_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(mental_demand_score[BASELINE]['without_haptics'])):
-    #     condition_labels.append(0)
-    #     phase_labels.append(0)
-    # df_mental_demand_score_without_baseline = pd.DataFrame({'score': mental_demand_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_mental_demand_score_baseline = pd.concat([df_mental_demand_score_with_baseline, df_mental_demand_score_without_baseline])
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(mental_demand_score[BASELINE]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(0)
+    df_mental_demand_score_with_baseline = pd.DataFrame({'score': mental_demand_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(mental_demand_score[BASELINE]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(0)
+    df_mental_demand_score_without_baseline = pd.DataFrame({'score': mental_demand_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_mental_demand_score_baseline = pd.concat([df_mental_demand_score_with_baseline, df_mental_demand_score_without_baseline])
 
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(mental_demand_score[TRAIN]['with_haptics'])):
-    #     condition_labels.append(1)
-    #     phase_labels.append(1)
-    # df_mental_demand_score_with_train = pd.DataFrame({'score': mental_demand_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(mental_demand_score[TRAIN]['without_haptics'])):
-    #     condition_labels.append(0)
-    #     phase_labels.append(1)
-    # df_mental_demand_score_without_train = pd.DataFrame({'score': mental_demand_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_mental_demand_score_train = pd.concat([df_mental_demand_score_with_train, df_mental_demand_score_without_train])
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(mental_demand_score[TRAIN]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(1)
+    df_mental_demand_score_with_train = pd.DataFrame({'score': mental_demand_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(mental_demand_score[TRAIN]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(1)
+    df_mental_demand_score_without_train = pd.DataFrame({'score': mental_demand_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_mental_demand_score_train = pd.concat([df_mental_demand_score_with_train, df_mental_demand_score_without_train])
 
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(mental_demand_score[TEST]['with_haptics'])):
-    #     condition_labels.append(1)
-    #     phase_labels.append(2)
-    # df_mental_demand_score_with_test = pd.DataFrame({'score': mental_demand_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(mental_demand_score[TEST]['without_haptics'])):
-    #     condition_labels.append(0)
-    #     phase_labels.append(2)
-    # df_mental_demand_score_without_test = pd.DataFrame({'score': mental_demand_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_mental_demand_score_test = pd.concat([df_mental_demand_score_with_test, df_mental_demand_score_without_test])
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(mental_demand_score[TEST]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(2)
+    df_mental_demand_score_with_test = pd.DataFrame({'score': mental_demand_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(mental_demand_score[TEST]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(2)
+    df_mental_demand_score_without_test = pd.DataFrame({'score': mental_demand_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_mental_demand_score_test = pd.concat([df_mental_demand_score_with_test, df_mental_demand_score_without_test])
 
-    # df_mental_demand_score = pd.concat([df_mental_demand_score_baseline, df_mental_demand_score_train, df_mental_demand_score_test])
+    df_mental_demand_score = pd.concat([df_mental_demand_score_baseline, df_mental_demand_score_train, df_mental_demand_score_test])
 
-    # ax = sns.boxplot(data=df_mental_demand_score, x='phase', y='score', hue='condition')
-    # ax.set(xlabel='Experiment Phase', ylabel='Mental Demand Score')
-    # plotname = 'TLX-Mental.png'
-
-
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(physical_demand_score[BASELINE]['with_haptics'])):
-    #     condition_labels.append(1)
-    #     phase_labels.append(0)
-    # df_physical_demand_score_with_baseline = pd.DataFrame({'score': physical_demand_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(physical_demand_score[BASELINE]['without_haptics'])):
-    #     condition_labels.append(0)
-    #     phase_labels.append(0)
-    # df_physical_demand_score_without_baseline = pd.DataFrame({'score': physical_demand_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_physical_demand_score_baseline = pd.concat([df_physical_demand_score_with_baseline, df_physical_demand_score_without_baseline])
-
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(physical_demand_score[TRAIN]['with_haptics'])):
-    #     condition_labels.append(1)
-    #     phase_labels.append(1)
-    # df_physical_demand_score_with_train = pd.DataFrame({'score': physical_demand_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(physical_demand_score[TRAIN]['without_haptics'])):
-    #     condition_labels.append(0)
-    #     phase_labels.append(1)
-    # df_physical_demand_score_without_train = pd.DataFrame({'score': physical_demand_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_physical_demand_score_train = pd.concat([df_physical_demand_score_with_train, df_physical_demand_score_without_train])
-
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(physical_demand_score[TEST]['with_haptics'])):
-    #     condition_labels.append(1)
-    #     phase_labels.append(2)
-    # df_physical_demand_score_with_test = pd.DataFrame({'score': physical_demand_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # condition_labels = []
-    # phase_labels = []
-    # for i in range(len(physical_demand_score[TEST]['without_haptics'])):
-    #     condition_labels.append(0)
-    #     phase_labels.append(2)
-    # df_physical_demand_score_without_test = pd.DataFrame({'score': physical_demand_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
-    # df_physical_demand_score_test = pd.concat([df_physical_demand_score_with_test, df_physical_demand_score_without_test])
-
-    # df_physical_demand_score = pd.concat([df_physical_demand_score_baseline, df_physical_demand_score_train, df_physical_demand_score_test])
-
-    # ax = sns.boxplot(data=df_physical_demand_score, x='phase', y='score', hue='condition')
-    # ax.set(xlabel='Experiment Phase', ylabel='Physical Demand Score')
-    # plotname = 'TLX-Physical.png'
-
+    ax = sns.boxplot(data=df_mental_demand_score, x='phase', y='score', hue='condition')
+    ax.set(xlabel='Experiment Phase', ylabel='Mental Demand Score')
+    plotname = 'TLX-Mental.png'
 
     ax.set_xticklabels(custom_x_labels)
     plt.savefig(plotname)
+    ax.clear()
+
+    """
+    2. Physical Demand
+    """
+
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(physical_demand_score[BASELINE]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(0)
+    df_physical_demand_score_with_baseline = pd.DataFrame({'score': physical_demand_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(physical_demand_score[BASELINE]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(0)
+    df_physical_demand_score_without_baseline = pd.DataFrame({'score': physical_demand_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_physical_demand_score_baseline = pd.concat([df_physical_demand_score_with_baseline, df_physical_demand_score_without_baseline])
+
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(physical_demand_score[TRAIN]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(1)
+    df_physical_demand_score_with_train = pd.DataFrame({'score': physical_demand_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(physical_demand_score[TRAIN]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(1)
+    df_physical_demand_score_without_train = pd.DataFrame({'score': physical_demand_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_physical_demand_score_train = pd.concat([df_physical_demand_score_with_train, df_physical_demand_score_without_train])
+
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(physical_demand_score[TEST]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(2)
+    df_physical_demand_score_with_test = pd.DataFrame({'score': physical_demand_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(physical_demand_score[TEST]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(2)
+    df_physical_demand_score_without_test = pd.DataFrame({'score': physical_demand_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_physical_demand_score_test = pd.concat([df_physical_demand_score_with_test, df_physical_demand_score_without_test])
+
+    df_physical_demand_score = pd.concat([df_physical_demand_score_baseline, df_physical_demand_score_train, df_physical_demand_score_test])
+
+    ax = sns.boxplot(data=df_physical_demand_score, x='phase', y='score', hue='condition')
+    ax.set(xlabel='Experiment Phase', ylabel='Physical Demand Score')
+    plotname = 'TLX-Physical.png'
+
+    ax.set_xticklabels(custom_x_labels)
+    plt.savefig(plotname)
+    ax.clear()
+
+    """
+    3. 
+    """
 
 
 
