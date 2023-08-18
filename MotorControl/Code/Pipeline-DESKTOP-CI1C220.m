@@ -10,7 +10,7 @@ stop = start + (num_participants - 1); % final folder depends on the number of p
 
 % This is where each participants' data are stored for this project
 % cd ('C:\Users\Sahand\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Data\Pilot2')
-cd ('C:\Users\s2ajami\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\MotorControl\Data\CHIData')
+cd ('C:\Users\Sahand\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\MotorControl\Data\CHIData')
 
 % This function loops in every participant's folder and makes a .mat copy
 % of their .csv data 
@@ -891,27 +891,13 @@ ScoreTable.Condition = reordercats(ScoreTable.Condition, desiredOrder);
 
 
 figure
-centre = [1, 2.75, 4.5];
-bias = 0.3;
-    x_data1 = centre - bias;
-    x_data1 = repmat(x_data1, 1, 11);
-    x_data2 = centre + bias;
-    x_data2 = repmat(x_data2, 1, 11);
-    % x_data2 = repmat(x_data1, 1, 11);
-    y_data1 = ScoreTable.Score(1:33);
-    y_data2 = ScoreTable.Score(34:end);
-    score_boxchart = boxchart(x_data1, y_data1);
-    hold on
-    boxchart(x_data2, y_data2)
-    score_boxchart.Parent.XTick = centre;
-    score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
+score_boxchart = boxchart(ScoreTable.Condition, ScoreTable.Score,'GroupByColor', ScoreTable.Group);
 
 score_legend = legend("WithHaptics","WithoutHaptics","Location", "Best");
 excludeIndex = 2;
 legendEntries = score_legend.EntryContainer.Children;
 legendEntries(3:end) = [];
-score_legend.String = {'WithHaptics', 'WithoutHaptics'}
-
+% score_legend.String = {'WithHaptics', 'WithoutHaptics'}
 title('Score plot');
 ylabel('Score [%]');
 ylim([0, 130])
@@ -937,28 +923,14 @@ without_haptics_test_score = ScoreTable((ScoreTable.Group == 'WithoutHaptics' & 
 
 % lineHandles = findobj(score_boxchart(1));
 hold on
-bias2 = 0.02;
-% StatisticalLines(1, 2, '**', 102, 1, 2, score_legend)
-% StatisticalLines(1.25, 3.25, '***', 97, 1, 2, score_legend)
-StatisticalLines(centre(1) + bias, centre(2) + bias - bias2, '**', 92, 1, 2, score_legend)
-StatisticalLines(centre(2) + bias + bias2, centre(3), '***', 92, 1, 2, score_legend)
-StatisticalLines(centre(1) - bias, centre(2) - bias - bias2, '*', 87, 0.7, 2, score_legend)
-StatisticalLines(centre(2) - bias + bias2, centre(3) - bias - bias2, '***', 87, 0.7, 2, score_legend)
-StatisticalLines(centre(3) - bias + bias2, centre(3) + bias, '**', 87, 0.7, 2, score_legend)
+StatisticalLines(0.75, 2.75, '**', 97, 0.7, 2, score_legend)
+StatisticalLines(1.25, 3.25, '***', 94, 0.7, 2, score_legend)
+StatisticalLines(1.25, 2.24, '**', 91, 0.7, 2, score_legend)
+StatisticalLines(2.26, 3.25, '***', 91, 0.7, 2, score_legend)
+StatisticalLines(0.75, 1.74, '*', 87, 0.7, 2, score_legend)
+StatisticalLines(1.76, 2.74, '***', 87, 0.7, 2, score_legend)
+StatisticalLines(2.76, 3.25, '**', 87, 0.7, 2, score_legend)
 ylim([0, 100])
-% xlim([1.20, 3.30])
-% plot([1.25, 2.25], [85, 85], 'k')
-% score_legend.String(end) = [];
-% plot([1.25, 1.25], [85, 83], 'k')
-% score_legend.String(end) = [];
-% plot([2.25, 2.25], [85, 83], 'k')
-% score_legend.String(end) = [];
-% text((1.25+2.25)/2,87,'**', HorizontalAlignment='center')
-
-% plot([0.75, 1.25], [10, 10], 'k')
-% plot([0.75, 0.75], [9.75, 12], 'k')
-% plot([1.25, 1.25], [9.75, 12], 'k')
-% plot([1], [8], 'k*')
 %% Analysis: DropPos data
 
 %%% Step1: Clean the data and store them in DropPosData

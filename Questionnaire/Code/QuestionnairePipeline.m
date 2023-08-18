@@ -1,6 +1,6 @@
 clc, clear, close all
 
-cd('C:\Users\s2ajami\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Questionnaire\Data')
+cd('C:\Users\Sahand\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Questionnaire\Data')
 
 % Define the path to your Excel file
 excelFilePath = 'QuestionnaireData.xlsx';
@@ -248,10 +248,11 @@ end
 figure
     centre = [1, 2.75, 4.5];
     bias = 0.3;
-    x_data1 = centre - bias;
-    x_data1 = repmat(x_data1, 1, 11);
-    x_data2 = centre + bias;
-    x_data2 = repmat(x_data2, 1, 11);
+    x_data1 = [(centre(1) - bias) * ones(1, 11), (centre(2) - bias) * ones(1, 11), (centre(3) - bias) * ones(1, 11)];
+%     x_data1 = repmat(x_data1, 1, 11);
+%     x_data2 = centre + bias;
+    x_data2 = [(centre(1) + bias) * ones(1, 11), (centre(2) + bias) * ones(1, 11), (centre(3) + bias) * ones(1, 11)];
+%     x_data2 = repmat(x_data2, 1, 11);
     % x_data2 = repmat(x_data1, 1, 11);
     y_data1 = AgencyScoreTable.Score(1:33);
     y_data2 = AgencyScoreTable.Score(34:end);
@@ -360,13 +361,14 @@ end
 figure
     centre = [1, 2.75, 4.5];
     bias = 0.3;
-    x_data1 = centre - bias;
-    x_data1 = repmat(x_data1, 1, 11);
-    x_data2 = centre + bias;
-    x_data2 = repmat(x_data2, 1, 11);
+    x_data1 = [(centre(1) - bias) * ones(1, 11), (centre(2) - bias) * ones(1, 11), (centre(3) - bias) * ones(1, 11)];
+%     x_data1 = repmat(x_data1, 1, 11);
+%     x_data2 = centre + bias;
+    x_data2 = [(centre(1) + bias) * ones(1, 11), (centre(2) + bias) * ones(1, 11), (centre(3) + bias) * ones(1, 11)];
+%     x_data2 = repmat(x_data2, 1, 11);
     % x_data2 = repmat(x_data1, 1, 11);
-    y_data1 = AgencyScoreTable.Score(1:33);
-    y_data2 = AgencyScoreTable.Score(34:end);
+    y_data1 = TactileScoreTable.Score(1:33);
+    y_data2 = TactileScoreTable.Score(34:end);
     score_boxchart = boxchart(x_data1, y_data1);
     hold on
     boxchart(x_data2, y_data2)
@@ -379,7 +381,7 @@ figure
     legendEntries(3:end) = [];
     score_legend.String = {'WithHaptics', 'WithoutHaptics'};
     score_legend.Location = 'best';
-    title('Tactile');
+    title('Tactile Sensation');
     ylabel('Score');
     ylim([-12, +12])
     xlabel('Conditions');
@@ -473,10 +475,11 @@ end
 figure
     centre = [1, 2.75, 4.5];
     bias = 0.3;
-    x_data1 = centre - bias;
-    x_data1 = repmat(x_data1, 1, 11);
-    x_data2 = centre + bias;
-    x_data2 = repmat(x_data2, 1, 11);
+    x_data1 = [(centre(1) - bias) * ones(1, 11), (centre(2) - bias) * ones(1, 11), (centre(3) - bias) * ones(1, 11)];
+%     x_data1 = repmat(x_data1, 1, 11);
+%     x_data2 = centre + bias;
+    x_data2 = [(centre(1) + bias) * ones(1, 11), (centre(2) + bias) * ones(1, 11), (centre(3) + bias) * ones(1, 11)];
+%     x_data2 = repmat(x_data2, 1, 11);
     % x_data2 = repmat(x_data1, 1, 11);
     y_data1 = LocationScoreTable.Score(1:33);
     y_data2 = LocationScoreTable.Score(34:end);
@@ -584,13 +587,14 @@ end
 figure
     centre = [1, 2.75, 4.5];
     bias = 0.3;
-    x_data1 = centre - bias;
-    x_data1 = repmat(x_data1, 1, 11);
-    x_data2 = centre + bias;
-    x_data2 = repmat(x_data2, 1, 11);
+    x_data1 = [(centre(1) - bias) * ones(1, 11), (centre(2) - bias) * ones(1, 11), (centre(3) - bias) * ones(1, 11)];
+%     x_data1 = repmat(x_data1, 1, 11);
+%     x_data2 = centre + bias;
+    x_data2 = [(centre(1) + bias) * ones(1, 11), (centre(2) + bias) * ones(1, 11), (centre(3) + bias) * ones(1, 11)];
+%     x_data2 = repmat(x_data2, 1, 11);
     % x_data2 = repmat(x_data1, 1, 11);
     y_data1 = ExternalAppearanceScoreTable.Score(1:33);
-    y_data2 = ExternalAppearanceScoreTable.Score(34:end-1);
+    y_data2 = ExternalAppearanceScoreTable.Score(34:end);
     score_boxchart = boxchart(x_data1, y_data1);
     hold on
     boxchart(x_data2, y_data2)
@@ -603,7 +607,7 @@ figure
     legendEntries(3:end) = [];
     score_legend.String = {'WithHaptics', 'WithoutHaptics'};
     score_legend.Location = 'best';
-    title('External Appearance');
+    title('Location of the Body');
     ylabel('Score');
-    ylim([-12, +12])
+    ylim([-12.5, +12])
     xlabel('Conditions');
