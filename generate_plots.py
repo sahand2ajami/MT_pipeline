@@ -650,8 +650,60 @@ def main(participant_id, experiment_block):
     ax.clear()
 
     """
-    3. 
+    3. Temporal Demand
     """
+
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(temporal_demand_score[BASELINE]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(0)
+    df_temporal_demand_score_with_baseline = pd.DataFrame({'score': temporal_demand_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(temporal_demand_score[BASELINE]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(0)
+    df_temporal_demand_score_without_baseline = pd.DataFrame({'score': temporal_demand_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_temporal_demand_score_baseline = pd.concat([df_temporal_demand_score_with_baseline, df_temporal_demand_score_without_baseline])
+
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(temporal_demand_score[TRAIN]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(1)
+    df_temporal_demand_score_with_train = pd.DataFrame({'score': temporal_demand_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(temporal_demand_score[TRAIN]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(1)
+    df_temporal_demand_score_without_train = pd.DataFrame({'score': temporal_demand_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_temporal_demand_score_train = pd.concat([df_temporal_demand_score_with_train, df_temporal_demand_score_without_train])
+
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(temporal_demand_score[TEST]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(2)
+    df_temporal_demand_score_with_test = pd.DataFrame({'score': temporal_demand_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(physical_demand_score[TEST]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(2)
+    df_temporal_demand_score_without_test = pd.DataFrame({'score': temporal_demand_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_temporal_demand_score_test = pd.concat([df_temporal_demand_score_with_test, df_temporal_demand_score_without_test])
+
+    df_temporal_demand_score = pd.concat([df_temporal_demand_score_baseline, df_temporal_demand_score_train, df_temporal_demand_score_test])
+
+    ax = sns.boxplot(data=df_temporal_demand_score, x='phase', y='score', hue='condition')
+    ax.set(xlabel='Experiment Phase', ylabel='Temporal Demand Score')
+    plotname = 'TLX-Temporal.png'
+
+    ax.set_xticklabels(custom_x_labels)
+    plt.savefig(plotname)
+    ax.clear()
 
 
 
