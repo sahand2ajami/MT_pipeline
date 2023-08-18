@@ -809,7 +809,7 @@ def main(participant_id, experiment_block):
 
     df_effort_score = pd.concat([df_effort_score_baseline, df_effort_score_train, df_effort_score_test])
 
-    ax = sns.boxplot(data=df_performance_score, x='phase', y='score', hue='condition')
+    ax = sns.boxplot(data=df_effort_score, x='phase', y='score', hue='condition')
     ax.set(xlabel='Experiment Phase', ylabel='Temporal Demand Score')
     plotname = 'TLX-Effort.png'
 
@@ -820,6 +820,58 @@ def main(participant_id, experiment_block):
     """
     6. Frustration
     """
+
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(frustration_score[BASELINE]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(0)
+    df_frustration_score_with_baseline = pd.DataFrame({'score': frustration_score[BASELINE]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(frustration_score[BASELINE]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(0)
+    df_frustration_score_without_baseline = pd.DataFrame({'score': frustration_score[BASELINE]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_frustration_score_baseline = pd.concat([df_frustration_score_with_baseline, df_frustration_score_without_baseline])
+
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(frustration_score[TRAIN]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(1)
+    df_frustration_score_with_train = pd.DataFrame({'score': frustration_score[TRAIN]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(frustration_score[TRAIN]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(1)
+    df_frustration_score_without_train = pd.DataFrame({'score': frustration_score[TRAIN]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_frustration_score_train = pd.concat([df_frustration_score_with_train, df_frustration_score_without_train])
+
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(frustration_score[TEST]['with_haptics'])):
+        condition_labels.append(1)
+        phase_labels.append(2)
+    df_frustration_score_with_test = pd.DataFrame({'score': frustration_score[TEST]['with_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    condition_labels = []
+    phase_labels = []
+    for i in range(len(frustration_score[TEST]['without_haptics'])):
+        condition_labels.append(0)
+        phase_labels.append(2)
+    df_frustration_score_without_test = pd.DataFrame({'score': frustration_score[TEST]['without_haptics'], 'condition': condition_labels, 'phase': phase_labels})
+    df_frustration_score_test = pd.concat([df_frustration_score_with_test, df_frustration_score_without_test])
+
+    df_frustration_score = pd.concat([df_frustration_score_baseline, df_frustration_score_train, df_frustration_score_test])
+
+    ax = sns.boxplot(data=df_frustration_score, x='phase', y='score', hue='condition')
+    ax.set(xlabel='Experiment Phase', ylabel='Temporal Demand Score')
+    plotname = 'TLX-Frustration.png'
+
+    ax.set_xticklabels(custom_x_labels)
+    plt.savefig(plotname)
+    ax.clear()
 
 
     
