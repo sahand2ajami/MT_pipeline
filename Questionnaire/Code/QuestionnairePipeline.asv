@@ -165,30 +165,28 @@ figure
     ylim([-9, +9])
     xlabel('Conditions');
 
-%% Statistical test on Body Ownership
     
-with_haptics_baseline_body = BodyScoreTable((strcmp(BodyScoreTable.Group, 'WithHaptics') & BodyScoreTable.Condition == 'Baseline'), :);
-with_haptics_train_body = BodyScoreTable((strcmp(BodyScoreTable.Group, 'WithHaptics') & BodyScoreTable.Condition == 'Train'), :);
-with_haptics_test_body = BodyScoreTable((strcmp(BodyScoreTable.Group, 'WithHaptics') & BodyScoreTable.Condition == 'Test'), :);
+with_haptics_baseline_body = BodyScoreTable((BodyScoreTable.Group == 'WithHaptics' & BodyScoreTable.Condition == 'Baseline'), :);
+with_haptics_train_body = BodyScoreTable((BodyScoreTable.Group == 'WithHaptics' & BodyScoreTable.Condition == 'Train'), :);
+with_haptics_test_body = BodyScoreTable((BodyScoreTable.Group == 'WithHaptics' & BodyScoreTable.Condition == 'Test'), :);
 
 without_haptics_baseline_body = BodyScoreTable((strcmp(BodyScoreTable.Group, 'WithoutHaptics') & BodyScoreTable.Condition == 'Baseline'), :);
-without_haptics_train_body = BodyScoreTable((strcmp(BodyScoreTable.Group, 'WithoutHaptics') & BodyScoreTable.Condition == 'Train'), :);
-without_haptics_test_body = BodyScoreTable((strcmp(BodyScoreTable.Group, 'WithoutHaptics') & BodyScoreTable.Condition == 'Test'), :);
+without_haptics_train_body = BodyScoreTable((BodyScoreTable.Group == 'WithoutHaptics' & BodyScoreTable.Condition == 'Train'), :);
+without_haptics_test_body = BodyScoreTable((BodyScoreTable.Group == 'WithoutHaptics' & BodyScoreTable.Condition == 'Test'), :);
 
 with_haptics_baseline_body = with_haptics_baseline_body.Score;
-with_haptics_train_body = with_haptics_train_body.Score;
-with_haptics_test_body = with_haptics_test_body.Score;
+with_haptics_train_body = with_haptics_train_error.Score;
+with_haptics_test_body = with_haptics_test_error.Score;
 
 without_haptics_baseline_body = without_haptics_baseline_body.Score;
 without_haptics_train_body = without_haptics_train_body.Score;
 without_haptics_test_body = without_haptics_test_body.Score;
 
 clc
-disp('WithHapticsBaseline vs. WithHapticsTrain:')
-[p, hStat, stats] = ranksum(with_haptics_baseline_body, with_haptics_train_body)
-
-disp('WithHapticsBaseline vs. WithHapticsTrain:')
-[p, hStat, stats] = ranksum(without_haptics_baseline_body, without_haptics_test_body)
+disp('DropPosError')
+disp('------------')
+disp('WithHapticsBaseline vs. WithoutHapticsBaseline:')
+[p, hStat, stats] = ranksum(with_haptics_baseline_error, without_haptics_baseline_error);
 
 %%
 
@@ -230,8 +228,8 @@ for i = 1:length(GroupNames)
     end
 
     % This loops in each participant of each group - Train
-    for j = 1:length(fieldnames(SubCategory.Agency.Train))
-        subjects = SubCategory.Agency.Train;
+    for j = 1:length(fieldnames(SubCategory.BodyOwnership.Train))
+        subjects = SubCategory.BodyOwnership.Train;
         subjectID = (fieldnames(subjects));
         Answers = subjects.(subjectID{j});
         TrainAgencyanswers{i, j} = subjects.(subjectID{j});
@@ -297,28 +295,6 @@ figure
     ylabel('Score');
     ylim([-12, +12])
     xlabel('Conditions');
-    
-%% Statistical test on Body Ownership
-    
-with_haptics_baseline_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithHaptics') & BodyAgencyTable.Condition == 'Baseline'), :);
-with_haptics_train_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithHaptics') & BodyAgencyTable.Condition == 'Train'), :);
-with_haptics_test_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithHaptics') & BodyAgencyTable.Condition == 'Test'), :);
-
-without_haptics_baseline_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithoutHaptics') & BodyAgencyTable.Condition == 'Baseline'), :);
-without_haptics_train_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithoutHaptics') & BodyAgencyTable.Condition == 'Train'), :);
-without_haptics_test_agency = BodyAgencyTable((strcmp(BodyAgencyTable.Group, 'WithoutHaptics') & BodyAgencyTable.Condition == 'Test'), :);
-
-with_haptics_baseline_agency = with_haptics_baseline_agency.Score;
-with_haptics_train_agency = with_haptics_train_agency.Score;
-with_haptics_test_agency = with_haptics_test_agency.Score;
-
-without_haptics_baseline_agency = without_haptics_baseline_agency.Score;
-without_haptics_train_agency = without_haptics_train_agency.Score;
-without_haptics_test_agency = without_haptics_test_agency.Score;
-
-clc
-disp('WithHapticsBaseline vs. WithHapticsTrain:')
-[p, hStat, stats] = ranksum(with_haptics_baseline_body, with_haptics_train_body)
 %%
 % Tactile Sensation
 
