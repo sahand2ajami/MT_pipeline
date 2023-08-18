@@ -1,5 +1,5 @@
 clc, clear, close all
-
+%%
 cd('C:\Users\s2ajami\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Questionnaire\Data')
 
 % Define the path to your Excel file
@@ -9,9 +9,9 @@ excelFilePath = 'QuestionnaireData.xlsx';
 [~, sheetNames] = xlsfinfo(excelFilePath);
 
 
-global PresenceData
-global NasaData
-global BodyData 
+% global PresenceData
+% global NasaData
+% global BodyData 
 
 PresenceData = struct();
 NasaData = struct();
@@ -19,32 +19,37 @@ BodyData = struct();
 
 WithHapticsCounter = 1;
 WithoutHapticsCounter = 1;
+%%
 tic
 % Loop through each sheet and read specific cells
 for sheetIndex = 1:numel(sheetNames)
     sheetName = sheetNames{sheetIndex};
     
-    BodyData = ReadExcel(excelFilePath, 'D11:F11', 'BodyOwnership', 'Baseline', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D21:F21', 'BodyOwnership', 'Train', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D31:F31', 'BodyOwnership', 'Test', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D11:F11', 'BodyOwnership', 'Baseline', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D21:F21', 'BodyOwnership', 'Train', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D31:F31', 'BodyOwnership', 'Test', sheetName);
 
-    BodyData = ReadExcel(excelFilePath, 'D13:G13', 'Agency', 'Baseline', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D23:G23', 'Agency', 'Train', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D33:G33', 'Agency', 'Test', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D13:G13', 'Agency', 'Baseline', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D23:G23', 'Agency', 'Train', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D33:G33', 'Agency', 'Test', sheetName);
 
-    BodyData = ReadExcel(excelFilePath, 'D15:G15', 'Tactile', 'Baseline', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D25:G25', 'Tactile', 'Train', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D35:G35', 'Tactile', 'Test', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D15:G15', 'Tactile', 'Baseline', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D25:G25', 'Tactile', 'Train', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D35:G35', 'Tactile', 'Test', sheetName);
 
-    BodyData = ReadExcel(excelFilePath, 'D17:F17', 'Location', 'Baseline', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D27:F27', 'Location', 'Train', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D37:F37', 'Location', 'Test', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D17:F17', 'Location', 'Baseline', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D27:F27', 'Location', 'Train', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D37:F37', 'Location', 'Test', sheetName);
 
-    BodyData = ReadExcel(excelFilePath, 'D19:G19', 'ExternalAppearance', 'Baseline', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D29:G29', 'ExternalAppearance', 'Train', sheetName);
-    BodyData = ReadExcel(excelFilePath, 'D39:G39', 'ExternalAppearance', 'Test', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D19:G19', 'ExternalAppearance', 'Baseline', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D29:G29', 'ExternalAppearance', 'Train', sheetName);
+    BodyData = ReadExcel(BodyData, excelFilePath, 'D39:G39', 'ExternalAppearance', 'Test', sheetName);
+    
+    NasaData = ReadExcel(NasaData, excelFilePath, 'C7:H7', 'Category', 'Baseline', sheetName);
 end
-toc
+
+%%
+
 %%
 
 % OwnershipScore
@@ -103,7 +108,7 @@ for i = 1:length(GroupNames)
         newTable = table(groupname_temp, condition_temp, TrainBodyScore{i, j}, ...
             'VariableNames', variable_names);
         
-        BodyScoreTable = [BodyScoreTable; newTable]
+        BodyScoreTable = [BodyScoreTable; newTable];
     end
 
     % This loops in each participant of each group - Test
@@ -153,6 +158,9 @@ figure
     boxchart(x_data2, y_data2)
     score_boxchart.Parent.XTick = centre;
     score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
+    score_boxchart.Parent.YLim = [-9.5 10];
+    score_boxchart.Parent.YTick
+    score_boxchart.Parent.YTick = score_boxchart.Parent.YTick(1:end-1);
 
     score_legend = legend("WithHaptics","WithoutHaptics");
     excludeIndex = 2;
@@ -162,9 +170,12 @@ figure
     score_legend.Location = 'best';
     title('Body Ownership');
     ylabel('Score');
-    ylim([-9, +9])
+    
     xlabel('Conditions');
 
+    bias2 = 0.02;
+    StatisticalLines(centre(1) - bias, centre(2) - bias, '*', 9.5, 0.2, 2, score_legend)
+    
 %% Statistical test on Body Ownership
     
 with_haptics_baseline_body = BodyScoreTable((strcmp(BodyScoreTable.Group, 'WithHaptics') & BodyScoreTable.Condition == 'Baseline'), :);
@@ -187,8 +198,6 @@ clc
 disp('WithHapticsBaseline vs. WithHapticsTrain:')
 [p, hStat, stats] = ranksum(with_haptics_baseline_body, with_haptics_train_body)
 
-disp('WithHapticsBaseline vs. WithHapticsTrain:')
-[p, hStat, stats] = ranksum(without_haptics_baseline_body, without_haptics_test_body)
 
 %%
 
@@ -325,9 +334,9 @@ without_haptics_baseline_agency = without_haptics_baseline_agency.Score;
 without_haptics_train_agency = without_haptics_train_agency.Score;
 without_haptics_test_agency = without_haptics_test_agency.Score;
 
-clc
-disp('WithHapticsBaseline vs. WithHapticsTrain:')
-[p, hStat, stats] = ranksum(without_haptics_test_agency, without_haptics_train_agency)
+% clc
+% disp('WithHapticsBaseline vs. WithHapticsTrain:')
+% [p, hStat, stats] = ranksum(without_haptics_test_agency, without_haptics_train_agency)
 %%
 % Tactile Sensation
 
@@ -452,6 +461,9 @@ figure
     ylim([-12, +12])
     xlabel('Conditions');
 
+    bias2 = 0.02;
+    StatisticalLines(centre(2) - bias, centre(2) + bias, '*', 10, 0.2, 2, score_legend)
+    StatisticalLines(centre(3) - bias, centre(3) + bias, '*', 10, 0.2, 2, score_legend)
 %% Statistical test on Agency and Motor Control
     
 with_haptics_baseline_tactile = TactileScoreTable((strcmp(TactileScoreTable.Group, 'WithHaptics') & TactileScoreTable.Condition == 'Baseline'), :);
@@ -476,8 +488,9 @@ disp('-----------------')
 disp('WithHapticsTrain vs. WithoutHapticsTrain:')
 [p, hStat, stats] = ranksum(without_haptics_train_tactile, with_haptics_train_tactile)
 
-disp('WithHapticsTrain vs. WithoutHapticsTrain:')
+disp('WithHapticsTest vs. WithoutHapticsTest:')
 [p, hStat, stats] = ranksum(without_haptics_test_tactile, with_haptics_test_tactile)
+
 
 %% Location of the body
 
@@ -564,6 +577,15 @@ for i = 1:length(GroupNames)
         
     end
 end
+
+% Create categorical array for x-axis labels with desired order
+LocationScoreTable.Condition = categorical(LocationScoreTable.Condition);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+LocationScoreTable.Condition = reordercats(LocationScoreTable.Condition, desiredOrder);
 
 figure
     centre = [1, 2.75, 4.5];
@@ -677,6 +699,15 @@ for i = 1:length(GroupNames)
     end
 end
 
+% Create categorical array for x-axis labels with desired order
+ExternalAppearanceScoreTable.Condition = categorical(ExternalAppearanceScoreTable.Condition);
+
+% Define the desired order of x-axis categories
+desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+
+% Reorder the unique values in DropPosTable.Condition
+ExternalAppearanceScoreTable.Condition = reordercats(ExternalAppearanceScoreTable.Condition, desiredOrder);
+
 figure
     centre = [1, 2.75, 4.5];
     bias = 0.3;
@@ -700,7 +731,7 @@ figure
     legendEntries(3:end) = [];
     score_legend.String = {'WithHaptics', 'WithoutHaptics'};
     score_legend.Location = 'best';
-    title('Location of the Body');
+    title('External Appearance');
     ylabel('Score');
     ylim([-12.5, +12])
     xlabel('Conditions');

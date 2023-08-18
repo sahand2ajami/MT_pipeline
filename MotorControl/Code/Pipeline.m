@@ -699,7 +699,7 @@ ylabel('Jerk [m/s^3]');
 xlabel('Conditions');
 
 %% Analysis: Score data
-close all
+
 
 
 ScoreData = struct();
