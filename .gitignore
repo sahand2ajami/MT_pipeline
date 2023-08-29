@@ -1,3 +1,4 @@
 # Ignore CSV and MAT files
 *.csv
 *.mat
+*.pptx

@@ -775,37 +775,37 @@ for i = 1:length(GroupNames)
             answers = Condition.(subjects{k});
             
             % Make the table to have data of all conditions together
-            newTable = table(GroupNames(i), Conditions(j), {'Q1'}, answers(1) * (6/21) - 3, ...
+            newTable = table(GroupNames(i), Conditions(j), {'Q1'}, answers(1), ...
                 'VariableNames', variable_names);
             
             NASATable = [NASATable; newTable];
             
             % Make the table to have data of all conditions together
-            newTable = table(GroupNames(i), Conditions(j), {'Q2'}, answers(2) * (6/21) - 3, ...
+            newTable = table(GroupNames(i), Conditions(j), {'Q2'}, answers(2), ...
                 'VariableNames', variable_names);
             
             NASATable = [NASATable; newTable];
             
             % Make the table to have data of all conditions together
-            newTable = table(GroupNames(i), Conditions(j), {'Q3'}, answers(3) * (6/21) - 3, ...
+            newTable = table(GroupNames(i), Conditions(j), {'Q3'}, answers(3), ...
                 'VariableNames', variable_names);
             
             NASATable = [NASATable; newTable];
             
             % Make the table to have data of all conditions together
-            newTable = table(GroupNames(i), Conditions(j), {'Q4'}, answers(4) * (6/21) - 3, ...
+            newTable = table(GroupNames(i), Conditions(j), {'Q4'}, answers(4), ...
                 'VariableNames', variable_names);
             
             NASATable = [NASATable; newTable];
             
             % Make the table to have data of all conditions together
-            newTable = table(GroupNames(i), Conditions(j), {'Q5'}, answers(5) * (6/21) - 3, ...
+            newTable = table(GroupNames(i), Conditions(j), {'Q5'}, answers(5), ...
                 'VariableNames', variable_names);
             
             NASATable = [NASATable; newTable];
             
             % Make the table to have data of all conditions together
-            newTable = table(GroupNames(i), Conditions(j), {'Q6'}, answers(6) * (6/21) - 3, ...
+            newTable = table(GroupNames(i), Conditions(j), {'Q6'}, answers(6), ...
                 'VariableNames', variable_names);
             
             NASATable = [NASATable; newTable];
@@ -1159,7 +1159,7 @@ NASAFigure = figure;
     NASAFigure.PaperPosition = [15, 15, 15, 15];
 
 
-
+ygap = 20;
     centre = 1;
     bias_between_groups = 0.3;
     bias_between_conditions = 1.5;
@@ -1240,6 +1240,8 @@ subplot(2, 3, 1)
     score_boxchart.Parent.Units = 'points';
     score_boxchart.Parent.FontSize = 9;
 
+    score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
+
 %%% Q2
 subplot(2, 3, 2)
 
@@ -1306,6 +1308,7 @@ subplot(2, 3, 2)
     score_boxchart.Parent.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Units = 'points';
     score_boxchart.Parent.FontSize = 9;
+    score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
 
 %%% Q3
 subplot(2, 3, 3)
@@ -1370,7 +1373,7 @@ subplot(2, 3, 3)
     score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Subtitle.Units = 'points';
     score_boxchart.Parent.Subtitle.FontSize = 9;
-    a = score_boxchart
+%     a = score_boxchart
     legend("With haptics", "Without haptics", "Location", "Best")
 %     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
 %     score_boxchart.Parent.Legend.Location = "BestOutside";
@@ -1378,11 +1381,15 @@ subplot(2, 3, 3)
     score_boxchart.Parent.Legend.FontSize = 9;
     score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Legend.Orientation = 'horizontal';
-    score_boxchart.Parent.Legend.Position(2) = score_boxchart.Parent.Legend.Position(2) - 30;
+    score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
     score_boxchart.Parent.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Units = 'points';
     score_boxchart.Parent.FontSize = 9;
-
+    score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
+%     score_boxchart.Parent.Legend.Title.FontSize = 'points';
+%     score_boxchart.Parent.Legend.FontSize = 9;
+%     score_boxchart.Parent.Legend.Font
+%     a = score_boxchart
 %%% Q4
 subplot(2, 3, 4)
     
@@ -1587,3 +1594,120 @@ subplot(2, 3, 6)
     score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Subtitle.Units = 'points';
     score_boxchart.Parent.Subtitle.FontSize = 9;
+%%
+[p, hStat, stats] = ranksum(withhaptics_train_q2_ydata, withouthaptics_train_q2_ydata)
+
+
+%% Final TLX score
+
+weight_q1 = 20;
+weight_q2 = 20;
+weight_q3 = 20;
+weight_q4 = 20;
+weight_q5 = 10;
+weight_q6 = 10;
+
+
+withouthaptics_baseline_score = weight_q1 .* withouthaptics_baseline_q1_ydata./21 + ...
+    weight_q2 .* withouthaptics_baseline_q2_ydata./21 + ...
+    weight_q3 .* withouthaptics_baseline_q3_ydata./21 + ...
+    weight_q4 .* withouthaptics_baseline_q4_ydata./21 + ...
+    weight_q5 .* withouthaptics_baseline_q5_ydata./21 + ...
+    weight_q6 .* withouthaptics_baseline_q6_ydata./21
+
+withouthaptics_train_score = weight_q1 .* withouthaptics_train_q1_ydata./21 + ...
+    weight_q2 .* withouthaptics_train_q2_ydata./21 + ...
+    weight_q3 .* withouthaptics_train_q3_ydata./21 + ...
+    weight_q4 .* withouthaptics_train_q4_ydata./21 + ...
+    weight_q5 .* withouthaptics_train_q5_ydata./21 + ...
+    weight_q6 .* withouthaptics_train_q6_ydata./21
+
+withouthaptics_test_score = weight_q1 .* withouthaptics_test_q1_ydata./21 + ...
+    weight_q2 .* withouthaptics_test_q2_ydata./21 + ...
+    weight_q3 .* withouthaptics_test_q3_ydata./21 + ...
+    weight_q4 .* withouthaptics_test_q4_ydata./21 + ...
+    weight_q5 .* withouthaptics_test_q5_ydata./21 + ...
+    weight_q6 .* withouthaptics_test_q6_ydata./21
+
+withhaptics_baseline_score = weight_q1 .* withhaptics_baseline_q1_ydata./21 + ...
+    weight_q2 .* withhaptics_baseline_q2_ydata./21 + ...
+    weight_q3 .* withhaptics_baseline_q3_ydata./21 + ...
+    weight_q4 .* withhaptics_baseline_q4_ydata./21 + ...
+    weight_q5 .* withhaptics_baseline_q5_ydata./21 + ...
+    weight_q6 .* withhaptics_baseline_q6_ydata./21
+
+withhaptics_train_score = weight_q1 .* withhaptics_train_q1_ydata./21 + ...
+    weight_q2 .* withhaptics_train_q2_ydata./21 + ...
+    weight_q3 .* withhaptics_train_q3_ydata./21 + ...
+    weight_q4 .* withhaptics_train_q4_ydata./21 + ...
+    weight_q5 .* withhaptics_train_q5_ydata./21 + ...
+    weight_q6 .* withhaptics_train_q6_ydata./21
+
+withhaptics_test_score = weight_q1 .* withhaptics_test_q1_ydata./21 + ...
+    weight_q2 .* withhaptics_test_q2_ydata./21 + ...
+    weight_q3 .* withhaptics_test_q3_ydata./21 + ...
+    weight_q4 .* withhaptics_test_q4_ydata./21 + ...
+    weight_q5 .* withhaptics_test_q5_ydata./21 + ...
+    weight_q6 .* withhaptics_test_q6_ydata./21
+
+
+% figure
+close all
+NASAScoreFigure = figure;
+    NASAScoreFigure.Units = 'centimeters';
+    NASAScoreFigure.Position = [15, 15, 15, 11.12];
+    NASAScoreFigure.PaperUnits = 'centimeters';
+    NASAScoreFigure.PaperPosition = [15, 15, 7.5, 15];
+%%%Baseline
+    score_boxchart = boxchart(withhaptics_baseline_q6_x, withhaptics_baseline_score);
+    score_boxchart.BoxFaceColor = color_withhaptics;
+    score_boxchart.MarkerColor = color_withhaptics;
+    hold on
+    score_boxchart = boxchart(withouthaptics_baseline_q6_x, withouthaptics_baseline_score);
+    score_boxchart.BoxFaceColor = color_withouthaptics;
+    score_boxchart.MarkerColor = color_withouthaptics;
+
+    %%%% Train
+    
+    score_boxchart = boxchart(withhaptics_train_q6_x, withhaptics_train_score);
+    score_boxchart.BoxFaceColor = color_withhaptics;
+    score_boxchart.MarkerColor = color_withhaptics;
+    hold on
+    score_boxchart = boxchart(withouthaptics_train_q6_x, withouthaptics_train_score);
+    score_boxchart.BoxFaceColor = color_withouthaptics;
+    score_boxchart.MarkerColor = color_withouthaptics;
+    
+    %%%% Test
+    
+    score_boxchart = boxchart(withhaptics_test_q6_x, withhaptics_test_score);
+    score_boxchart.BoxFaceColor = color_withhaptics;
+    score_boxchart.MarkerColor = color_withhaptics;
+    hold on
+    score_boxchart = boxchart(withouthaptics_test_q6_x, withouthaptics_test_score);
+    score_boxchart.BoxFaceColor = color_withouthaptics;
+    score_boxchart.MarkerColor = color_withouthaptics;
+
+    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
+    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
+    score_boxchart.Parent.FontName = 'Linux Libertine G';
+    score_boxchart.Parent.Units = 'points';
+    score_boxchart.Parent.FontSize = 9;
+
+    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
+%     score_boxchart.Parent.XLabel.String = "Conditions";
+%     score_boxchart.Parent.YLabel.String = "Score";
+%     score_boxchart.Parent.Subtitle.String = "Frustration";
+    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
+    score_boxchart.Parent.Subtitle.Units = 'points';
+    score_boxchart.Parent.Subtitle.FontSize = 9;
+    legend("With haptics", "Without haptics", "Location", "Best")
+%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
+%     score_boxchart.Parent.Legend.Location = "BestOutside";
+    score_boxchart.Parent.Legend.Units = 'points';
+    score_boxchart.Parent.Legend.FontSize = 9;
+    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
+    score_boxchart.Parent.Legend.Orientation = 'horizontal';
+%     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
+    ylim([0, 100])
+%%
+[p, hStat, stats] = ranksum(withhaptics_baseline_score, withhaptics_test_score)
