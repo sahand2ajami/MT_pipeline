@@ -1159,7 +1159,7 @@ NASAFigure = figure;
     NASAFigure.PaperPosition = [15, 15, 15, 15];
 
 
-ygap = 20;
+
     centre = 1;
     bias_between_groups = 0.3;
     bias_between_conditions = 1.5;
@@ -1240,8 +1240,6 @@ subplot(2, 3, 1)
     score_boxchart.Parent.Units = 'points';
     score_boxchart.Parent.FontSize = 9;
 
-    score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
-
 %%% Q2
 subplot(2, 3, 2)
 
@@ -1308,7 +1306,6 @@ subplot(2, 3, 2)
     score_boxchart.Parent.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Units = 'points';
     score_boxchart.Parent.FontSize = 9;
-    score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
 
 %%% Q3
 subplot(2, 3, 3)
@@ -1373,7 +1370,7 @@ subplot(2, 3, 3)
     score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Subtitle.Units = 'points';
     score_boxchart.Parent.Subtitle.FontSize = 9;
-%     a = score_boxchart
+    a = score_boxchart
     legend("With haptics", "Without haptics", "Location", "Best")
 %     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
 %     score_boxchart.Parent.Legend.Location = "BestOutside";
@@ -1381,15 +1378,11 @@ subplot(2, 3, 3)
     score_boxchart.Parent.Legend.FontSize = 9;
     score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Legend.Orientation = 'horizontal';
-    score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
+    score_boxchart.Parent.Legend.Position(2) = score_boxchart.Parent.Legend.Position(2) - 30;
     score_boxchart.Parent.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Units = 'points';
     score_boxchart.Parent.FontSize = 9;
-    score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
-%     score_boxchart.Parent.Legend.Title.FontSize = 'points';
-%     score_boxchart.Parent.Legend.FontSize = 9;
-%     score_boxchart.Parent.Legend.Font
-%     a = score_boxchart
+
 %%% Q4
 subplot(2, 3, 4)
     
