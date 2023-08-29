@@ -1167,7 +1167,8 @@ ygap = 20;
     color_withhaptics = [0 0.4470 0.7410];
     color_withouthaptics = [0.8500 0.3250 0.0980];
 %%% Q1
-subplot(2, 3, 1)  
+subplot(2, 3, 1)
+ylim([0, 21])
     %%%% Baseline
     withhaptics_baseline_q1_x = (centre(1) - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
     withouthaptics_baseline_q1_x = (centre(1) - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
@@ -1241,10 +1242,11 @@ subplot(2, 3, 1)
     score_boxchart.Parent.FontSize = 9;
 
     score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
-
+    score_boxchart.Parent.YLim = [0, 21];
+    
 %%% Q2
 subplot(2, 3, 2)
-
+ylim([0, 21])
     %%%% Baseline
     withhaptics_baseline_q2_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
     withouthaptics_baseline_q2_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
@@ -1309,10 +1311,14 @@ subplot(2, 3, 2)
     score_boxchart.Parent.Units = 'points';
     score_boxchart.Parent.FontSize = 9;
     score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
-
+    score_boxchart.Parent.YLim = [0, 21];
+%     a = legend('');
+    
+    StatisticalLines2(centre - bias_between_groups, centre + bias_between_groups, '**', 20, 0.3, 9)
+    
 %%% Q3
 subplot(2, 3, 3)
-
+ylim([0, 21])
     %%%% Baseline
     withhaptics_baseline_q3_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
     withouthaptics_baseline_q3_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
@@ -1374,7 +1380,7 @@ subplot(2, 3, 3)
     score_boxchart.Parent.Subtitle.Units = 'points';
     score_boxchart.Parent.Subtitle.FontSize = 9;
 %     a = score_boxchart
-    legend("With haptics", "Without haptics", "Location", "Best")
+    a = legend("With haptics", "Without haptics", "Location", "Best");
 %     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
 %     score_boxchart.Parent.Legend.Location = "BestOutside";
     score_boxchart.Parent.Legend.Units = 'points';
@@ -1386,13 +1392,12 @@ subplot(2, 3, 3)
     score_boxchart.Parent.Units = 'points';
     score_boxchart.Parent.FontSize = 9;
     score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
-%     score_boxchart.Parent.Legend.Title.FontSize = 'points';
-%     score_boxchart.Parent.Legend.FontSize = 9;
-%     score_boxchart.Parent.Legend.Font
-%     a = score_boxchart
+    score_boxchart.Parent.YLim = [0, 21];
+
+    StatisticalLines(centre - bias_between_groups, centre + bias_between_groups, '**', 20, 0.3, 9, a)
 %%% Q4
 subplot(2, 3, 4)
-    
+    ylim([0, 21])
     %%%% Baseline
     withhaptics_baseline_q4_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
     withouthaptics_baseline_q4_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
@@ -1462,9 +1467,11 @@ subplot(2, 3, 4)
     score_boxchart.Parent.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Units = 'points';
     score_boxchart.Parent.FontSize = 9;
+    score_boxchart.Parent.YLim = [0, 21];
 
     %%% Q5
 subplot(2, 3, 5)
+ylim([0, 21])
     %%%% Baseline
     withhaptics_baseline_q5_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
     withouthaptics_baseline_q5_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
@@ -1528,8 +1535,10 @@ subplot(2, 3, 5)
     score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Subtitle.Units = 'points';
     score_boxchart.Parent.Subtitle.FontSize = 9;
+    score_boxchart.Parent.YLim = [0, 21];
     %%% Q6
 subplot(2, 3, 6)
+ylim([0, 21])
     %%%% Baseline
     withhaptics_baseline_q6_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
     withouthaptics_baseline_q6_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
@@ -1594,9 +1603,10 @@ subplot(2, 3, 6)
     score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Subtitle.Units = 'points';
     score_boxchart.Parent.Subtitle.FontSize = 9;
+    score_boxchart.Parent.YLim = [0, 21];
 %%
+[p, hStat, stats] = ranksum(withouthaptics_train_q2_ydata, withouthaptics_test_q2_ydata)
 [p, hStat, stats] = ranksum(withouthaptics_train_q3_ydata, withouthaptics_test_q3_ydata)
-
 
 %% Final TLX score
 
@@ -1652,40 +1662,46 @@ withhaptics_test_score = weight_q1 .* withhaptics_test_q1_ydata./21 + ...
 
 
 % figure
-% close all
+close all
 NASAScoreFigure = figure;
     NASAScoreFigure.Units = 'centimeters';
-    NASAScoreFigure.Position = [15, 15, 15, 11.12];
+    NASAScoreFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
     NASAScoreFigure.PaperUnits = 'centimeters';
-    NASAScoreFigure.PaperPosition = [15, 15, 7.5, 15];
+%     NASAScoreFigure.PaperPosition = [15, 15, 7.5, 7.5];
 %%%Baseline
     score_boxchart = boxchart(withhaptics_baseline_q6_x, withhaptics_baseline_score);
     score_boxchart.BoxFaceColor = color_withhaptics;
     score_boxchart.MarkerColor = color_withhaptics;
+    score_boxchart.MarkerSize = 3;
     hold on
     score_boxchart = boxchart(withouthaptics_baseline_q6_x, withouthaptics_baseline_score);
     score_boxchart.BoxFaceColor = color_withouthaptics;
     score_boxchart.MarkerColor = color_withouthaptics;
+    score_boxchart.MarkerSize = 3;
 
     %%%% Train
     
     score_boxchart = boxchart(withhaptics_train_q6_x, withhaptics_train_score);
     score_boxchart.BoxFaceColor = color_withhaptics;
     score_boxchart.MarkerColor = color_withhaptics;
+    score_boxchart.MarkerSize = 3;
     hold on
     score_boxchart = boxchart(withouthaptics_train_q6_x, withouthaptics_train_score);
     score_boxchart.BoxFaceColor = color_withouthaptics;
     score_boxchart.MarkerColor = color_withouthaptics;
+    score_boxchart.MarkerSize = 3;
     
     %%%% Test
     
     score_boxchart = boxchart(withhaptics_test_q6_x, withhaptics_test_score);
     score_boxchart.BoxFaceColor = color_withhaptics;
     score_boxchart.MarkerColor = color_withhaptics;
+    score_boxchart.MarkerSize = 3;
     hold on
     score_boxchart = boxchart(withouthaptics_test_q6_x, withouthaptics_test_score);
     score_boxchart.BoxFaceColor = color_withouthaptics;
     score_boxchart.MarkerColor = color_withouthaptics;
+    score_boxchart.MarkerSize = 3;
 
     score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
     score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
@@ -1700,7 +1716,7 @@ NASAScoreFigure = figure;
     score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Subtitle.Units = 'points';
     score_boxchart.Parent.Subtitle.FontSize = 9;
-    legend("With haptics", "Without haptics", "Location", "Best")
+    legend("With haptics", "Without haptics", "Location", "northOutside")
 %     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
 %     score_boxchart.Parent.Legend.Location = "BestOutside";
     score_boxchart.Parent.Legend.Units = 'points';
@@ -1708,6 +1724,11 @@ NASAScoreFigure = figure;
     score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
     score_boxchart.Parent.Legend.Orientation = 'horizontal';
 %     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
+    score_boxchart.Parent.YLabel.String = "NASA-TLX score";
+    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
+    score_boxchart.Parent.YLabel.FontUnits = "points";
+    score_boxchart.Parent.YLabel.FontSize = 9;
+    score_boxchart.MarkerSize = 3;
     ylim([0, 100])
 %%
 [p, hStat, stats] = ranksum(withhaptics_baseline_score, withhaptics_test_score)
