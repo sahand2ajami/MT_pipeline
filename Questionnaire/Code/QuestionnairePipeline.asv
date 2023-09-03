@@ -751,8 +751,8 @@ figure
 %% Final Embodiment score
 
 weight_q1 = 1;
-weight_q2 = 2;
-weight_q3 = 2;
+weight_q2 = 1;
+weight_q3 = 1;
 weight_q4 = 1;
 
 %%% Body Ownership
@@ -838,7 +838,6 @@ EmbodimentScoreFigure = figure;
     EmbodimentScoreFigure.Units = 'centimeters';
     EmbodimentScoreFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
     EmbodimentScoreFigure.PaperUnits = 'centimeters';
-
     centre = 1;
     bias_between_groups = 0.3;
     bias_between_conditions = 1.5;
@@ -915,16 +914,9 @@ EmbodimentScoreFigure = figure;
     score_boxchart.Parent.YLabel.FontUnits = "points";
     score_boxchart.Parent.YLabel.FontSize = 9;
     score_boxchart.MarkerSize = 3;
-    StatisticalLines(centre - bias, centre + bias, '*', 13, 0.5, 9, score_boxchart.Parent.Legend)
+    
     ylim([min_score, max_score])
 
-    %%
-    close all
-    figure
-    mean_ = mean(withhaptics_train_q1_ydata);
-    res_ = withhaptics_train_q1_ydata - mean_;
-    qqplot(res_)
-%     qqplot(withhaptics_train_q1_ydata)
 %% Statistical tests on Embodiment score
 [p, hStat, stats] = ranksum(withhaptics_train_score, withouthaptics_train_score)
 %%
