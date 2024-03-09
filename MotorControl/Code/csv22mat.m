@@ -1,4 +1,3 @@
-
 function data = csv22mat(path)
 
 ax = readmatrix(path);
@@ -21,3 +20,4 @@ ax = readmatrix(path);
 
     data = kinematics;
 end
+
