@@ -1,21 +1,16 @@
 clc, clear, close all
 %%
-
 n_withhaptics = 11;
 n_withouthaptics = 11;
 
-cd('C:\Users\s2ajami\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Questionnaire\Data')
+data_path = "D:\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline2\Questionnaire\Data";
+cd(data_path)
 
 % Define the path to your Excel file
 excelFilePath = 'QuestionnaireData.xlsx';
 
 % Get sheet names from the Excel file
 [~, sheetNames] = xlsfinfo(excelFilePath);
-
-
-% global PresenceData
-% global NasaData
-% global BodyData 
 
 PresenceData = struct();
 NasaData = struct();
@@ -24,7 +19,6 @@ BodyData = struct();
 WithHapticsCounter = 1;
 WithoutHapticsCounter = 1;
 %%
-tic
 % Loop through each sheet and read specific cells
 for sheetIndex = 1:numel(sheetNames)
     sheetName = sheetNames{sheetIndex};
@@ -53,9 +47,6 @@ for sheetIndex = 1:numel(sheetNames)
     NasaData = ReadExcel(NasaData, excelFilePath, 'C8:H8', 'Category', 'Train', sheetName);
     NasaData = ReadExcel(NasaData, excelFilePath, 'C9:H9', 'Category', 'Test', sheetName);
 end
-toc
-%%
-
 %%
 
 % OwnershipScore
@@ -146,41 +137,6 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 
 % Reorder the unique values in DropPosTable.Condition
 BodyScoreTable.Condition = reordercats(BodyScoreTable.Condition, desiredOrder);
-
-
-figure
-    centre = [1, 2.75, 4.5];
-    bias = 0.3;
-    x_data1 = [(centre(1) - bias) * ones(1, 11), (centre(2) - bias) * ones(1, 11), (centre(3) - bias) * ones(1, 11)];
-%     x_data1 = repmat(x_data1, 1, 11);
-%     x_data2 = centre + bias;
-    x_data2 = [(centre(1) + bias) * ones(1, 11), (centre(2) + bias) * ones(1, 11), (centre(3) + bias) * ones(1, 11)];
-%     x_data2 = repmat(x_data2, 1, 11);
-    % x_data2 = repmat(x_data1, 1, 11);
-    y_data1 = BodyScoreTable.Score(1:33);
-    y_data2 = BodyScoreTable.Score(34:end);
-    score_boxchart = boxchart(x_data1, y_data1);
-    hold on
-    boxchart(x_data2, y_data2)
-    score_boxchart.Parent.XTick = centre;
-    score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
-    score_boxchart.Parent.YLim = [-9.5 10];
-    score_boxchart.Parent.YTick
-    score_boxchart.Parent.YTick = score_boxchart.Parent.YTick(1:end-1);
-
-    score_legend = legend("WithHaptics","WithoutHaptics");
-    excludeIndex = 2;
-    legendEntries = score_legend.EntryContainer.Children;
-    legendEntries(3:end) = [];
-    score_legend.String = {'WithHaptics', 'WithoutHaptics'};
-    score_legend.Location = 'best';
-    title('Body Ownership');
-    ylabel('Score');
-    
-    xlabel('Conditions');
-
-    bias2 = 0.02;
-    StatisticalLines(centre(1) - bias, centre(2) - bias, '*', 9.5, 0.2, 2, score_legend)
     
 %% Statistical test on Body Ownership
     
@@ -200,103 +156,46 @@ without_haptics_baseline_body = without_haptics_baseline_body.Score;
 without_haptics_train_body = without_haptics_train_body.Score;
 without_haptics_test_body = without_haptics_test_body.Score;
 
+%%
 clc
+data = without_haptics_test_body;
+mean(data)
+std(data)
 %%
 clc
 disp('WithHapticsBaseline vs. WithHapticsTrain:')
 [p, hStat, stats] = signrank(with_haptics_baseline_body, with_haptics_train_body)
-%% Run ANOVA
+% Run ANOVA
 [p_anova, hStat, stats] = anova1([with_haptics_baseline_body, with_haptics_train_body, with_haptics_test_body], [], "on")
 comparison = multcompare(stats, 'CType', 'hsd')
 %%
 [p_anova, hStat, stats] = anova1([without_haptics_baseline_body, without_haptics_train_body, without_haptics_test_body], [], "on")
 comparison = multcompare(stats, 'CType', 'hsd');
+
 %% Body Ownership plot
-% figure
-% close all
-BodyOwnershipFigure = figure;
-    BodyOwnershipFigure.Units = 'centimeters';
-    BodyOwnershipFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
-    BodyOwnershipFigure.PaperUnits = 'centimeters';
-%     NASAScoreFigure.PaperPosition = [15, 15, 7.5, 7.5];
-    n_withhaptics = 11;
-    n_withouthaptics = 11;
-        centre = 1;
-    bias_between_groups = 0.3;
-    bias_between_conditions = 1.5;
-    bias_between_questions = 0.7;
-    color_withhaptics = [0 0.4470 0.7410];
-    color_withouthaptics = [0.8500 0.3250 0.0980];
-    bias2 = 0.02;
-    withhaptics_baseline_q6_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q6_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
+close all
+y1 = with_haptics_baseline_body;
+y2 = without_haptics_baseline_body;
+y3 = with_haptics_train_body;
+y4 = without_haptics_train_body;
+y5 = with_haptics_test_body;
+y6 = without_haptics_test_body;
 
-%%%Baseline
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, with_haptics_baseline_body);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, without_haptics_baseline_body);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
+y_label = "Body Ownership";
+y_lim = [-9, 9];
 
-    %%%% Train
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, with_haptics_train_body);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, without_haptics_train_body);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-    
-    %%%% Test
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, with_haptics_test_body);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, without_haptics_test_body);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', y_label, y_lim, "", 0.5, 0.6);
 
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
 
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-%     score_boxchart.Parent.Subtitle.String = "Frustration";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    legend("With haptics", "Without haptics", "Location", "northoutside")
-%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
-%     score_boxchart.Parent.Legend.Location = "BestOutside";
-    score_boxchart.Parent.Legend.Units = 'points';
-    score_boxchart.Parent.Legend.FontSize = 9;
-    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Legend.Orientation = 'horizontal';
-%     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
-    score_boxchart.Parent.YLabel.String = "Body ownership score";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-    score_boxchart.MarkerSize = 3;
-    ylim([-9, 9])
+%% Check normality
+close all
+data = without_haptics_baseline_body;
+qqplot(without_haptics_test_body)
 
 %%
+[h, p] = ttest2(without_haptics_baseline_body, with_haptics_baseline_body)
 
-% Agency and Motor Control
+%% Agency and Motor Control
 scoreData = [];
 variable_names = {'Group', 'Condition', 'Score'};
 condition_temp = {};
@@ -382,34 +281,6 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 
 % Reorder the unique values in DropPosTable.Condition
 AgencyScoreTable.Condition = reordercats(AgencyScoreTable.Condition, desiredOrder);
-
-figure
-    centre = [1, 2.75, 4.5];
-    bias = 0.3;
-    x_data1 = [(centre(1) - bias) * ones(1, 11), (centre(2) - bias) * ones(1, 11), (centre(3) - bias) * ones(1, 11)];
-%     x_data1 = repmat(x_data1, 1, 11);
-%     x_data2 = centre + bias;
-    x_data2 = [(centre(1) + bias) * ones(1, 11), (centre(2) + bias) * ones(1, 11), (centre(3) + bias) * ones(1, 11)];
-%     x_data2 = repmat(x_data2, 1, 11);
-    % x_data2 = repmat(x_data1, 1, 11);
-    y_data1 = AgencyScoreTable.Score(1:33);
-    y_data2 = AgencyScoreTable.Score(34:end);
-    score_boxchart = boxchart(x_data1, y_data1);
-    hold on
-    boxchart(x_data2, y_data2)
-    score_boxchart.Parent.XTick = centre;
-    score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
-
-    score_legend = legend("WithHaptics","WithoutHaptics");
-    excludeIndex = 2;
-    legendEntries = score_legend.EntryContainer.Children;
-    legendEntries(3:end) = [];
-    score_legend.String = {'WithHaptics', 'WithoutHaptics'};
-    score_legend.Location = 'best';
-    title('Agency and Motor Control');
-    ylabel('Score');
-    ylim([-12, +12])
-    xlabel('Conditions');
     
 %% Statistical test on Agency and Motor Control
     
@@ -428,7 +299,11 @@ with_haptics_test_agency = with_haptics_test_agency.Score;
 without_haptics_baseline_agency = without_haptics_baseline_agency.Score;
 without_haptics_train_agency = without_haptics_train_agency.Score;
 without_haptics_test_agency = without_haptics_test_agency.Score;
-
+%%
+clc
+data = with_haptics_train_agency;
+mean(data)
+std(data)
 % clc
 % disp('WithHapticsBaseline vs. WithHapticsTrain:')
 % [p, hStat, stats] = ranksum(without_haptics_test_agency, without_haptics_train_agency)
@@ -440,78 +315,21 @@ comparison = multcompare(stats, 'CType', 'hsd')
 comparison = multcompare(stats, 'CType', 'hsd');
 
 %% Agency Plot
-% figure
-% close all
-BodyOwnershipFigure = figure;
-    BodyOwnershipFigure.Units = 'centimeters';
-    BodyOwnershipFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
-    BodyOwnershipFigure.PaperUnits = 'centimeters';
-%     NASAScoreFigure.PaperPosition = [15, 15, 7.5, 7.5];
-%%%Baseline
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, with_haptics_baseline_agency);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, without_haptics_baseline_agency);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
 
-    %%%% Train
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, with_haptics_train_agency);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, without_haptics_train_agency);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-    
-    %%%% Test
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, with_haptics_test_agency);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, without_haptics_test_agency);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
+close all
+y1 = with_haptics_baseline_agency;
+y2 = without_haptics_baseline_agency;
+y3 = with_haptics_train_agency;
+y4 = without_haptics_train_agency;
+y5 = with_haptics_test_agency;
+y6 = without_haptics_test_agency;
 
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
+y_label = "Agency & Motor Control";
+y_lim = [-12, 12];
 
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-%     score_boxchart.Parent.Subtitle.String = "Frustration";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    legend("With haptics", "Without haptics", "Location", "northoutside")
-%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
-%     score_boxchart.Parent.Legend.Location = "BestOutside";
-    score_boxchart.Parent.Legend.Units = 'points';
-    score_boxchart.Parent.Legend.FontSize = 9;
-    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Legend.Orientation = 'horizontal';
-%     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
-    score_boxchart.Parent.YLabel.String = "Agency and Motor Control Score";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-    score_boxchart.MarkerSize = 3;
-    ylim([-12, 12])
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', y_label, y_lim, "", 0.5, 0.6);
 
-%%
-% Tactile Sensation
+%% Tactile Sensation
 
 scoreData = [];
 variable_names = {'Group', 'Condition', 'Score'};
@@ -605,38 +423,6 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 % Reorder the unique values in DropPosTable.Condition
 TactileScoreTable.Condition = reordercats(TactileScoreTable.Condition, desiredOrder);
 
-
-figure
-    centre = [1, 2.75, 4.5];
-    bias = 0.3;
-    x_data1 = [(centre(1) - bias) * ones(1, 11), (centre(2) - bias) * ones(1, 11), (centre(3) - bias) * ones(1, 11)];
-%     x_data1 = repmat(x_data1, 1, 11);
-%     x_data2 = centre + bias;
-    x_data2 = [(centre(1) + bias) * ones(1, 11), (centre(2) + bias) * ones(1, 11), (centre(3) + bias) * ones(1, 11)];
-%     x_data2 = repmat(x_data2, 1, 11);
-    % x_data2 = repmat(x_data1, 1, 11);
-    y_data1 = TactileScoreTable.Score(1:33);
-    y_data2 = TactileScoreTable.Score(34:end);
-    score_boxchart = boxchart(x_data1, y_data1);
-    hold on
-    boxchart(x_data2, y_data2)
-    score_boxchart.Parent.XTick = centre;
-    score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
-
-    score_legend = legend("WithHaptics","WithoutHaptics");
-    excludeIndex = 2;
-    legendEntries = score_legend.EntryContainer.Children;
-    legendEntries(3:end) = [];
-    score_legend.String = {'WithHaptics', 'WithoutHaptics'};
-    score_legend.Location = 'best';
-    title('Tactile Sensation');
-    ylabel('Score');
-    ylim([-12, +12])
-    xlabel('Conditions');
-
-    bias2 = 0.02;
-    StatisticalLines(centre(2) - bias, centre(2) + bias, '*', 10, 0.2, 2, score_legend)
-    StatisticalLines(centre(3) - bias, centre(3) + bias, '*', 10, 0.2, 2, score_legend)
 %% Statistical test on Tactile Sensation
 
 with_haptics_baseline_tactile = TactileScoreTable((strcmp(TactileScoreTable.Group, 'WithHaptics') & TactileScoreTable.Condition == 'Baseline'), :);
@@ -657,105 +443,74 @@ without_haptics_test_tactile = without_haptics_test_tactile.Score;
 
 %%
 
-clc
-disp('Tactile Sensation')
-disp('-----------------')
-disp('WithHapticsTrain vs. WithoutHapticsTrain:')
-[p, hStat, stats] = ranksum(without_haptics_train_tactile, with_haptics_train_tactile)
+% clc
+% disp('Tactile Sensation')
+% disp('-----------------')
+% disp('WithHapticsTrain vs. WithoutHapticsTrain:')
+% [p, hStat, stats] = ranksum(without_haptics_train_tactile, with_haptics_train_tactile)
+% 
+% disp('WithHapticsTest vs. WithoutHapticsTest:')
+% [p, ~, stats] = ranksum(without_haptics_test_tactile, with_haptics_test_tactile)
 
-disp('WithHapticsTest vs. WithoutHapticsTest:')
-[p, hStat, stats] = ranksum(without_haptics_test_tactile, with_haptics_test_tactile)
-
+[p,tbl,stats] = anova2([with_haptics_train_tactile, without_haptics_train_tactile]);
+p
+close all
+comparison = multcompare(stats)
+p = comparison(:, end)
+%%
+% [H, pValue, W] = swtest(without_haptics_train_tactile, 0.05)
 %% RUN ANOVA
 [p_anova, hStat, stats] = anova1([with_haptics_baseline_tactile, with_haptics_train_tactile, with_haptics_test_tactile], [], "on")
-comparison = multcompare(stats, 'CType', 'hsd')
+% comparison = multcompare(stats, 'CType', 'hsd')
 %%
 [p_anova, hStat, stats] = anova1([without_haptics_baseline_tactile, without_haptics_train_tactile, without_haptics_test_tactile], [], "on")
-comparison = multcompare(stats, 'CType', 'hsd');
+% comparison = multcompare(stats, 'CType', 'hsd');
+%% Tactile Sensation plot
+close all
+y1 = with_haptics_baseline_tactile;
+y2 = without_haptics_baseline_tactile;
+y3 = with_haptics_train_tactile;
+y4 = without_haptics_train_tactile;
+y5 = with_haptics_test_tactile;
+y6 = without_haptics_test_tactile;
+
+y_label = "Tactile Sensation";
+y_lim = [-12, 12];
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', y_label, y_lim, "", 0.5, 0.6);
+StatisticalLines(x3, x4, '**', 9, 0.5, 9)
+
+%% Normality check
+close all
+data = [with_haptics_baseline_tactile; with_haptics_train_tactile; with_haptics_test_tactile]
+mean_baseline = mean(with_haptics_baseline_tactile);
+mean_train = mean(with_haptics_train_tactile);
+mean_test = mean(with_haptics_test_tactile);
+res_baseline = with_haptics_baseline_tactile - mean_baseline;
+res_train = with_haptics_train_tactile - mean_train;
+res_test = with_haptics_test_tactile - mean_test;
+res_ = [res_baseline; res_train; res_test];
+qqplot(res_)
+
 %%
-% figure
+[h, p] = ttest2(without_haptics_train_tactile, with_haptics_train_tactile)
+
+[h, p] = ttest2(without_haptics_test_tactile, with_haptics_test_tactile)
+%%
 % close all
-BodyOwnershipFigure = figure;
-    BodyOwnershipFigure.Units = 'centimeters';
-    BodyOwnershipFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
-    BodyOwnershipFigure.PaperUnits = 'centimeters';
-%     NASAScoreFigure.PaperPosition = [15, 15, 7.5, 7.5];
-    n_withhaptics = 11;
-    n_withouthaptics = 11;
-        centre = 1;
-    bias_between_groups = 0.3;
-    bias_between_conditions = 1.5;
-    bias_between_questions = 0.7;
-    color_withhaptics = [0 0.4470 0.7410];
-    color_withouthaptics = [0.8500 0.3250 0.0980];
-    bias2 = 0.02;
-%%%Baseline
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, with_haptics_baseline_tactile);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, without_haptics_baseline_tactile);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-
-    %%%% Train
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, with_haptics_train_tactile);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, without_haptics_train_tactile);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-    
-    %%%% Test
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, with_haptics_test_tactile);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, without_haptics_test_tactile);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-%     score_boxchart.Parent.Subtitle.String = "Frustration";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    score_legend = legend("With haptics", "Without haptics", "Location", "northoutside")
-%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
-%     score_boxchart.Parent.Legend.Location = "BestOutside";
-    score_boxchart.Parent.Legend.Units = 'points';
-    score_boxchart.Parent.Legend.FontSize = 9;
-    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Legend.Orientation = 'horizontal';
-%     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
-    score_boxchart.Parent.YLabel.String = "Tactile Sensation score";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-    score_boxchart.MarkerSize = 3;
-
-    StatisticalLines(withhaptics_train_q6_x(1), withouthaptics_train_q6_x(1), '*', 9, 0.5, 9, score_legend)
-    StatisticalLines(withhaptics_test_q6_x(1), withouthaptics_test_q6_x(1), '*', 9, 0.5, 9, score_legend)
-
-    ylim([-12, 12])
-
+[p,tbl,stats] = anova2([with_haptics_train_tactile, without_haptics_train_tactile]);
+p
+close all
+comparison = multcompare(stats)
+p = comparison(:, end)
+%%
+[p,tbl,stats] = anova2([with_haptics_train_tactile, without_haptics_train_tactile]);
+p
+close all
+comparison = multcompare(stats)
+p = comparison(:, end)
+%%
+% [H, pValue, W] = swtest(without_haptics_test_tactile, 0.05)
 %% Location of the body
 
 scoreData = [];
@@ -851,34 +606,6 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 % Reorder the unique values in DropPosTable.Condition
 LocationScoreTable.Condition = reordercats(LocationScoreTable.Condition, desiredOrder);
 
-figure
-    centre = [1, 2.75, 4.5];
-    bias = 0.3;
-    x_data1 = [(centre(1) - bias) * ones(1, 11), (centre(2) - bias) * ones(1, 11), (centre(3) - bias) * ones(1, 11)];
-%     x_data1 = repmat(x_data1, 1, 11);
-%     x_data2 = centre + bias;
-    x_data2 = [(centre(1) + bias) * ones(1, 11), (centre(2) + bias) * ones(1, 11), (centre(3) + bias) * ones(1, 11)];
-%     x_data2 = repmat(x_data2, 1, 11);
-    % x_data2 = repmat(x_data1, 1, 11);
-    y_data1 = LocationScoreTable.Score(1:33);
-    y_data2 = LocationScoreTable.Score(34:end);
-    score_boxchart = boxchart(x_data1, y_data1);
-    hold on
-    boxchart(x_data2, y_data2)
-    score_boxchart.Parent.XTick = centre;
-    score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
-
-    score_legend = legend("WithHaptics","WithoutHaptics");
-    excludeIndex = 2;
-    legendEntries = score_legend.EntryContainer.Children;
-    legendEntries(3:end) = [];
-    score_legend.String = {'WithHaptics', 'WithoutHaptics'};
-    score_legend.Location = 'best';
-    title('Location of the Body');
-    ylabel('Score');
-    ylim([-9, +9])
-    xlabel('Conditions');
-
 %%
 with_haptics_baseline_location = LocationScoreTable((strcmp(LocationScoreTable.Group, 'WithHaptics') & LocationScoreTable.Condition == 'Baseline'), :);
 with_haptics_train_location = LocationScoreTable((strcmp(LocationScoreTable.Group, 'WithHaptics') & LocationScoreTable.Condition == 'Train'), :);
@@ -895,90 +622,22 @@ with_haptics_test_location = with_haptics_test_location.Score;
 without_haptics_baseline_location = without_haptics_baseline_location.Score;
 without_haptics_train_location = without_haptics_train_location.Score;
 without_haptics_test_location = without_haptics_test_location.Score;
-%%
-% figure
-% close all
-BodyOwnershipFigure = figure;
-    BodyOwnershipFigure.Units = 'centimeters';
-    BodyOwnershipFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
-    BodyOwnershipFigure.PaperUnits = 'centimeters';
-%     NASAScoreFigure.PaperPosition = [15, 15, 7.5, 7.5];
-    n_withhaptics = 11;
-    n_withouthaptics = 11;
-        centre = 1;
-    bias_between_groups = 0.3;
-    bias_between_conditions = 1.5;
-    bias_between_questions = 0.7;
-    color_withhaptics = [0 0.4470 0.7410];
-    color_withouthaptics = [0.8500 0.3250 0.0980];
-    bias2 = 0.02;
-%%%Baseline
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, with_haptics_baseline_location);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, without_haptics_baseline_location);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
 
-    %%%% Train
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, with_haptics_train_location);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, without_haptics_train_location);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-    
-    %%%% Test
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, with_haptics_test_location);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, without_haptics_test_location);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
+%% Location of the Body plot
+close all
+y1 = with_haptics_baseline_location;
+y2 = without_haptics_baseline_location;
+y3 = with_haptics_train_location;
+y4 = without_haptics_train_location;
+y5 = with_haptics_test_location;
+y6 = without_haptics_test_location;
 
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
+y_label = "Location of the Body";
+y_lim = [-9, 9];
 
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-%     score_boxchart.Parent.Subtitle.String = "Frustration";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    score_legend = legend("With haptics", "Without haptics", "Location", "northoutside")
-%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
-%     score_boxchart.Parent.Legend.Location = "BestOutside";
-    score_boxchart.Parent.Legend.Units = 'points';
-    score_boxchart.Parent.Legend.FontSize = 9;
-    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Legend.Orientation = 'horizontal';
-%     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
-    score_boxchart.Parent.YLabel.String = "Location of the Body score";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-    score_boxchart.MarkerSize = 3;
-
-%     StatisticalLines(withhaptics_train_q6_x(1), withouthaptics_train_q6_x(1), '*', 9, 0.5, 9, score_legend)
-%     StatisticalLines(withhaptics_test_q6_x(1), withouthaptics_test_q6_x(1), '*', 9, 0.5, 9, score_legend)
-
-    ylim([-9, 9])
-    %%
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', ...
+    y_label, y_lim, "", 0.5, 0.6);
 
 
 %% External appearance
@@ -1074,43 +733,12 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 % Reorder the unique values in DropPosTable.Condition
 ExternalAppearanceScoreTable.Condition = reordercats(ExternalAppearanceScoreTable.Condition, desiredOrder);
 
-figure
-    centre = [1, 2.75, 4.5];
-    bias = 0.3;
-    x_data1 = [(centre(1) - bias) * ones(1, 11), (centre(2) - bias) * ones(1, 11), (centre(3) - bias) * ones(1, 11)];
-%     x_data1 = repmat(x_data1, 1, 11);
-%     x_data2 = centre + bias;
-    x_data2 = [(centre(1) + bias) * ones(1, 11), (centre(2) + bias) * ones(1, 11), (centre(3) + bias) * ones(1, 11)];
-%     x_data2 = repmat(x_data2, 1, 11);
-    % x_data2 = repmat(x_data1, 1, 11);
-    y_data1 = ExternalAppearanceScoreTable.Score(1:33);
-    y_data2 = ExternalAppearanceScoreTable.Score(34:end);
-    score_boxchart = boxchart(x_data1, y_data1);
-    hold on
-    boxchart(x_data2, y_data2)
-    score_boxchart.Parent.XTick = centre;
-    score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
-
-    score_legend = legend("WithHaptics","WithoutHaptics");
-    excludeIndex = 2;
-    legendEntries = score_legend.EntryContainer.Children;
-    legendEntries(3:end) = [];
-    score_legend.String = {'WithHaptics', 'WithoutHaptics'};
-    score_legend.Location = 'best';
-    title('External Appearance');
-    ylabel('Score');
-    ylim([-12.5, +12])
-    xlabel('Conditions');
-
-
-
-%%
 %% Final Embodiment score
 
-weight_q1 = 1;
-weight_q2 = 2;
-weight_q3 = 2;
-weight_q4 = 1;
+weight_q1 = 20;
+weight_q2 = 30;
+weight_q3 = 30;
+weight_q4 = 20;
 
 %%% Body Ownership
 withouthaptics_baseline_q1_ydata = BodyScoreTable(BodyScoreTable.Group == "WithoutHaptics" & BodyScoreTable.Condition == "Baseline", :).Score;
@@ -1153,143 +781,92 @@ withouthaptics_test_q4_ydata = LocationScoreTable(LocationScoreTable.Group == "W
 withhaptics_test_q4_ydata = LocationScoreTable(LocationScoreTable.Group == "WithHaptics" & LocationScoreTable.Condition == "Test", :).Score;
 
 %%%
-withouthaptics_baseline_score = weight_q1 .* withouthaptics_baseline_q1_ydata./3 + ...
-    weight_q2 .* withouthaptics_baseline_q2_ydata./4 + ...
-    weight_q3 .* withouthaptics_baseline_q3_ydata./4 + ...
-    weight_q4 .* withouthaptics_baseline_q4_ydata./3
+withouthaptics_baseline_score = weight_q1 .* (withouthaptics_baseline_q1_ydata + 9)./18 + ...
+    weight_q2 .* (withouthaptics_baseline_q2_ydata + 12)./ 24 + ...
+    weight_q3 .* (withouthaptics_baseline_q3_ydata + 12)./24 + ...
+    weight_q4 .* (withouthaptics_baseline_q4_ydata + 9)./18;
   
 
-withouthaptics_train_score = weight_q1 .* withouthaptics_train_q1_ydata./3 + ...
-    weight_q2 .* withouthaptics_train_q2_ydata./4 + ...
-    weight_q3 .* withouthaptics_train_q3_ydata./4 + ...
-    weight_q4 .* withouthaptics_train_q4_ydata./3
+withouthaptics_train_score = weight_q1 .* (withouthaptics_train_q1_ydata + 9)./18 + ...
+    weight_q2 .* (withouthaptics_train_q2_ydata + 12)./24 + ...
+    weight_q3 .* (withouthaptics_train_q3_ydata + 12)./24 + ...
+    weight_q4 .* (withouthaptics_train_q4_ydata + 9)./18;
 
-withouthaptics_test_score = weight_q1 .* withouthaptics_test_q1_ydata./3 + ...
-    weight_q2 .* withouthaptics_test_q2_ydata./4 + ...
-    weight_q3 .* withouthaptics_test_q3_ydata./4 + ...
-    weight_q4 .* withouthaptics_test_q4_ydata./3 
+withouthaptics_test_score = weight_q1 .* (withouthaptics_test_q1_ydata + 9)./18 + ...
+    weight_q2 .* (withouthaptics_test_q2_ydata + 12)./24 + ...
+    weight_q3 .* (withouthaptics_test_q3_ydata + 12)./24 + ...
+    weight_q4 .* (withouthaptics_test_q4_ydata + 9)./18 ;
 
 
-withhaptics_baseline_score = weight_q1 .* withhaptics_baseline_q1_ydata./3 + ...
-    weight_q2 .* withhaptics_baseline_q2_ydata./4 + ...
-    weight_q3 .* withhaptics_baseline_q3_ydata./4 + ...
-    weight_q4 .* withhaptics_baseline_q4_ydata./3
+withhaptics_baseline_score = weight_q1 .* (withhaptics_baseline_q1_ydata + 9)./18 + ...
+    weight_q2 .* (withhaptics_baseline_q2_ydata + 12)./24 + ...
+    weight_q3 .* (withhaptics_baseline_q3_ydata + 12)./24 + ...
+    weight_q4 .* (withhaptics_baseline_q4_ydata + 9)./18;
   
 
-withhaptics_train_score = weight_q1 .* withhaptics_train_q1_ydata./3 + ...
-    weight_q2 .* withhaptics_train_q2_ydata./4 + ...
-    weight_q3 .* withhaptics_train_q3_ydata./4 + ...
-    weight_q4 .* withhaptics_train_q4_ydata./3 
+withhaptics_train_score = weight_q1 .* (withhaptics_train_q1_ydata + 9)./18 + ...
+    weight_q2 .* (withhaptics_train_q2_ydata + 12)./24 + ...
+    weight_q3 .* (withhaptics_train_q3_ydata + 12)./24 + ...
+    weight_q4 .* (withhaptics_train_q4_ydata + 9)./18 ;
    
 
-withhaptics_test_score = weight_q1 .* withhaptics_test_q1_ydata./3 + ...
-    weight_q2 .* withhaptics_test_q2_ydata./4 + ...
-    weight_q3 .* withhaptics_test_q3_ydata./4 + ...
-    weight_q4 .* withhaptics_test_q4_ydata./3
+withhaptics_test_score = weight_q1 .* (withhaptics_test_q1_ydata + 9)./18 + ...
+    weight_q2 .* (withhaptics_test_q2_ydata + 12)./24 + ...
+    weight_q3 .* (withhaptics_test_q3_ydata + 12)./24 + ...
+    weight_q4 .* (withhaptics_test_q4_ydata + 9)./18;
+%% Overall Embodiment Perception plot
 
-max_score = (9/3 * weight_q1) + (12/4 * weight_q2) + (12/4 * weight_q3) + (9/3 * weight_q4);
-min_score = -max_score;
-% figure
+close all
+y1 = withhaptics_baseline_score;
+y2 = withouthaptics_baseline_score;
+y3 = withhaptics_train_score;
+y4 = withouthaptics_train_score;
+y5 = withhaptics_test_score;
+y6 = withouthaptics_test_score;
+
+y_label = "Embodiment Perception";
+y_lim = [0, 100];
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', ...
+    y_label, y_lim, "", 0.5, 0.6);
+StatisticalLines(x3, x4, '*', 90, 2, 9)
+
+%%
+% STAT TEST - TTEST2
+x = withouthaptics_train_score;
+y = withhaptics_train_score;
+[h,p,ci,stats] = ttest2(x,y)
+
+%% Stats on Overall embodiment
+% Analyzing the normality
+% [H, pValue, W] = swtest(withouthaptics_train_score, 0.05);
+% [H, pValue, W] = swtest(withhaptics_train_score, 0.05);
+% 
+% % run the test
+
+
+% [p,tbl,stats] = anova2([withouthaptics_train_score, withhaptics_train_score])
+% p
 % close all
-EmbodimentScoreFigure = figure;
-    EmbodimentScoreFigure.Units = 'centimeters';
-    EmbodimentScoreFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
-    EmbodimentScoreFigure.PaperUnits = 'centimeters';
-
-    centre = 1;
-    bias_between_groups = 0.3;
-    bias_between_conditions = 1.5;
-    bias_between_questions = 0.7;
-    color_withhaptics = [0 0.4470 0.7410];
-    color_withouthaptics = [0.8500 0.3250 0.0980];
-%%%Baseline
-    withhaptics_baseline_q6_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q6_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_train_q6_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q6_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
-    
-     withhaptics_test_q6_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q6_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
- 
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, withhaptics_baseline_score);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, withouthaptics_baseline_score);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-
-    %%%% Train
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, withhaptics_train_score);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, withouthaptics_train_score);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-    
-    %%%% Test
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, withhaptics_test_score);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, withouthaptics_test_score);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-%     score_boxchart.Parent.Subtitle.String = "Frustration";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    legend("With haptics", "Without haptics", "Location", "northOutside")
-%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
-%     score_boxchart.Parent.Legend.Location = "BestOutside";
-    score_boxchart.Parent.Legend.Units = 'points';
-    score_boxchart.Parent.Legend.FontSize = 9;
-    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Legend.Orientation = 'horizontal';
-%     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
-    score_boxchart.Parent.YLabel.String = "Embodiment score";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-    score_boxchart.MarkerSize = 3;
-    StatisticalLines(centre - bias, centre + bias, '*', 13, 0.5, 9, score_boxchart.Parent.Legend)
-    ylim([min_score, max_score])
-
-    %%
-    close all
-    figure
-    mean_ = mean(withhaptics_train_q1_ydata);
-    res_ = withhaptics_train_q1_ydata - mean_;
-    qqplot(res_)
-%     qqplot(withhaptics_train_q1_ydata)
+% comparison = multcompare(stats);
+% p = comparison(:, end)
+% [p, h] = ttest(withouthaptics_train_score, withhaptics_train_score)
+% [h, p] = ttest2(with_haptics_test_time, without_haptics_test_time)
+% [h, p] = 
+% ranksum(withouthaptics_train_score, withhaptics_train_score+0.2)
+%% STAT TEST - TTEST2
+x = withouthaptics_train_score;
+y = withhaptics_train_score;
+[h,p,ci,stats] = ttest2(x,y)
 %% Statistical tests on Embodiment score
-[p, hStat, stats] = ranksum(withhaptics_train_score, withouthaptics_train_score)
+% [p, hStat, stats] = ranksum(withhaptics_train_score, withouthaptics_train_score)
 %%
-[p, hStat, stats] = ranksum(withhaptics_test_score, withouthaptics_test_score)
+% [p, hStat, stats] = ranksum(withhaptics_test_score, withouthaptics_test_score)
 
 %%
-[p_anova, hStat, stats] = anova1([withouthaptics_baseline_score, withouthaptics_train_score, withouthaptics_test_score], [], "on")
-comparison = multcompare(stats, 'CType', 'hsd');
+% [p_anova, hStat, stats] = anova1([withouthaptics_baseline_score, withouthaptics_train_score, withouthaptics_test_score], [], "on")
+% comparison = multcompare(stats, 'CType', 'hsd');
 
 %% NASA-TLX
 
@@ -1362,802 +939,353 @@ for i = 1:length(GroupNames)
     end  
 end
 
-% NASATable(NASATable.Group = 'WithHaptics')
+%% NASATLX Category data
 
-
-
-%% Plot NASA-TLX
-% close all
-figure
-    centre = linspace(1,30,6);
-    bias_between_groups = 0.3;
-    bias_between_conditions = 1.3;
-    bias_between_questions = 0.7;
-    color_withhaptics = [0 0.4470 0.7410];
-    color_withouthaptics = [0.8500 0.3250 0.0980];
-
-    %%% Q1
-    %%%% Baseline
-    withhaptics_baseline_q1_x = (centre(1) - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q1_x = (centre(1) - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_baseline_q1_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q1", :);
-    withhaptics_baseline_q1_ydata = withhaptics_baseline_q1_ytable.Score;
-    withouthaptics_baseline_q1_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q1", :);
-    withouthaptics_baseline_q1_ydata = withouthaptics_baseline_q1_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q1_x, withhaptics_baseline_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q1_x, withouthaptics_baseline_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
-    %%%% Train
-    withhaptics_train_q1_x = (centre(1) - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q1_x = (centre(1) + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_train_q1_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q1", :);
-    withhaptics_train_q1_ydata = withhaptics_train_q1_ytable.Score;
-    withouthaptics_train_q1_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q1", :);
-    withouthaptics_train_q1_ydata = withouthaptics_train_q1_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q1_x, withhaptics_train_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q1_x, withouthaptics_train_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.Parent.Parent.Units = 'centimeters';
-    score_boxchart.Parent.Parent.Position = [10   10   35  12];
-
-    %%%% Test
-    withhaptics_test_q1_x = (centre(1) + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q1_x = (centre(1) + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_test_q1_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q1", :);
-    withhaptics_test_q1_ydata = withhaptics_test_q1_ytable.Score;
-    withouthaptics_test_q1_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q1", :);
-    withouthaptics_test_q1_ydata = withouthaptics_test_q1_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q1_x, withhaptics_test_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q1_x, withouthaptics_test_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    %%% Q2
-    %%%% Baseline
-    withhaptics_baseline_q2_x = (centre(2) - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q2_x = (centre(2) - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_baseline_q2_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q2", :);
-    withhaptics_baseline_q2_ydata = withhaptics_baseline_q2_ytable.Score;
-    withouthaptics_baseline_q2_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q2", :);
-    withouthaptics_baseline_q2_ydata = withouthaptics_baseline_q2_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q2_x, withhaptics_baseline_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q2_x, withouthaptics_baseline_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    %%%% Train
-    withhaptics_train_q2_x = (centre(2) - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q2_x = (centre(2) + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_train_q2_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q2", :);
-    withhaptics_train_q2_ydata = withhaptics_train_q2_ytable.Score;
-    withouthaptics_train_q2_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q2", :);
-    withouthaptics_train_q2_ydata = withouthaptics_train_q2_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q2_x, withhaptics_train_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q2_x, withouthaptics_train_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
-    %%%% Test
-    withhaptics_test_q2_x = (centre(2) + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q2_x = (centre(2) + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_test_q2_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q2", :);
-    withhaptics_test_q2_ydata = withhaptics_test_q2_ytable.Score;
-    withouthaptics_test_q2_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q2", :);
-    withouthaptics_test_q2_ydata = withouthaptics_test_q2_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q2_x, withhaptics_test_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q2_x, withouthaptics_test_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    %%% Q3
-    %%%% Baseline
-    withhaptics_baseline_q3_x = (centre(3) - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q3_x = (centre(3) - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_baseline_q3_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q3", :);
-    withhaptics_baseline_q3_ydata = withhaptics_baseline_q3_ytable.Score;
-    withouthaptics_baseline_q3_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q3", :);
-    withouthaptics_baseline_q3_ydata = withouthaptics_baseline_q3_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q3_x, withhaptics_baseline_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q3_x, withouthaptics_baseline_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    %%%% Train
-    withhaptics_train_q3_x = (centre(3) - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q3_x = (centre(3) + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_train_q3_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q3", :);
-    withhaptics_train_q3_ydata = withhaptics_train_q3_ytable.Score;
-    withouthaptics_train_q3_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q3", :);
-    withouthaptics_train_q3_ydata = withouthaptics_train_q3_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q3_x, withhaptics_train_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q3_x, withouthaptics_train_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
-    %%%% Test
-    withhaptics_test_q3_x = (centre(3) + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q3_x = (centre(3) + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_test_q3_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q3", :);
-    withhaptics_test_q3_ydata = withhaptics_test_q3_ytable.Score;
-    withouthaptics_test_q3_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q3", :);
-    withouthaptics_test_q3_ydata = withouthaptics_test_q3_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q3_x, withhaptics_test_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q3_x, withouthaptics_test_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    %%% Q4
-    %%%% Baseline
-    withhaptics_baseline_q4_x = (centre(4) - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q4_x = (centre(4) - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_baseline_q4_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q4", :);
-    withhaptics_baseline_q4_ydata = withhaptics_baseline_q4_ytable.Score;
-    withouthaptics_baseline_q4_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q4", :);
-    withouthaptics_baseline_q4_ydata = withouthaptics_baseline_q4_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q4_x, withhaptics_baseline_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q4_x, withouthaptics_baseline_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    %%%% Train
-    withhaptics_train_q4_x = (centre(4) - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q4_x = (centre(4) + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_train_q4_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q4", :);
-    withhaptics_train_q4_ydata = withhaptics_train_q4_ytable.Score;
-    withouthaptics_train_q4_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q4", :);
-    withouthaptics_train_q4_ydata = withouthaptics_train_q4_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q4_x, withhaptics_train_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q4_x, withouthaptics_train_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
-    %%%% Test
-    withhaptics_test_q4_x = (centre(4) + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q4_x = (centre(4) + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_test_q4_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q4", :);
-    withhaptics_test_q4_ydata = withhaptics_test_q4_ytable.Score;
-    withouthaptics_test_q4_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q4", :);
-    withouthaptics_test_q4_ydata = withouthaptics_test_q4_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q4_x, withhaptics_test_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q4_x, withouthaptics_test_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    %%% Q5
-    %%%% Baseline
-    withhaptics_baseline_q5_x = (centre(5) - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q5_x = (centre(5) - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_baseline_q5_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q5", :);
-    withhaptics_baseline_q5_ydata = withhaptics_baseline_q5_ytable.Score;
-    withouthaptics_baseline_q5_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q5", :);
-    withouthaptics_baseline_q5_ydata = withouthaptics_baseline_q5_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q5_x, withhaptics_baseline_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q5_x, withouthaptics_baseline_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    %%%% Train
-    withhaptics_train_q5_x = (centre(5) - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q5_x = (centre(5) + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_train_q5_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q5", :);
-    withhaptics_train_q5_ydata = withhaptics_train_q5_ytable.Score;
-    withouthaptics_train_q5_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q5", :);
-    withouthaptics_train_q5_ydata = withouthaptics_train_q5_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q5_x, withhaptics_train_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q5_x, withouthaptics_train_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
-    %%%% Test
-    withhaptics_test_q5_x = (centre(5) + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q5_x = (centre(5) + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_test_q5_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q5", :);
-    withhaptics_test_q5_ydata = withhaptics_test_q5_ytable.Score;
-    withouthaptics_test_q5_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q5", :);
-    withouthaptics_test_q5_ydata = withouthaptics_test_q5_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q5_x, withhaptics_test_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q5_x, withouthaptics_test_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-
-    %%% Q6
-    %%%% Baseline
-    withhaptics_baseline_q6_x = (centre(6) - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q6_x = (centre(6) - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_baseline_q6_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q6", :);
-    withhaptics_baseline_q6_ydata = withhaptics_baseline_q6_ytable.Score;
-    withouthaptics_baseline_q6_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q6", :);
-    withouthaptics_baseline_q6_ydata = withouthaptics_baseline_q6_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, withhaptics_baseline_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, withouthaptics_baseline_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    %%%% Train
-    withhaptics_train_q6_x = (centre(6) - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q6_x = (centre(6) + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_train_q6_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q6", :);
-    withhaptics_train_q6_ydata = withhaptics_train_q6_ytable.Score;
-    withouthaptics_train_q6_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q6", :);
-    withouthaptics_train_q6_ydata = withouthaptics_train_q6_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, withhaptics_train_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, withouthaptics_train_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
-    %%%% Test
-    withhaptics_test_q6_x = (centre(6) + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q6_x = (centre(6) + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_test_q6_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q6", :);
-    withhaptics_test_q6_ydata = withhaptics_test_q6_ytable.Score;
-    withouthaptics_test_q6_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q6", :);
-    withouthaptics_test_q6_ydata = withouthaptics_test_q6_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, withhaptics_test_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, withouthaptics_test_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    score_boxchart.Parent.XTick = centre;
-    score_boxchart.Parent.XTickLabel = {'Q1','Q2','Q3', 'Q4','Q5','Q6'};
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - 5*bias_between_groups, centre(end) + bias_between_conditions + 5*bias_between_groups];
-    score_boxchart.Parent.XLabel.String = "Questions";
-    score_boxchart.Parent.YLabel.String = "Score";
-
-
-%%
-% close all
-NASAFigure = figure;
-    NASAFigure.Units = 'centimeters';
-    NASAFigure.Position = [15, 15, 15, 11.12];
-    NASAFigure.PaperUnits = 'centimeters';
-    NASAFigure.PaperPosition = [15, 15, 15, 15];
-
-
-ygap = 20;
-    centre = 1;
-    bias_between_groups = 0.3;
-    bias_between_conditions = 1.5;
-    bias_between_questions = 0.7;
-    color_withhaptics = [0 0.4470 0.7410];
-    color_withouthaptics = [0.8500 0.3250 0.0980];
 %%% Q1
-subplot(2, 3, 1)
-ylim([0, 21])
     %%%% Baseline
-    withhaptics_baseline_q1_x = (centre(1) - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q1_x = (centre(1) - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_baseline_q1_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q1", :);
     withhaptics_baseline_q1_ydata = withhaptics_baseline_q1_ytable.Score;
     withouthaptics_baseline_q1_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q1", :);
     withouthaptics_baseline_q1_ydata = withouthaptics_baseline_q1_ytable.Score;
     
-    score_boxchart = boxchart(withhaptics_baseline_q1_x, withhaptics_baseline_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q1_x, withouthaptics_baseline_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
     %%%% Train
-    withhaptics_train_q1_x = (centre(1) - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q1_x = (centre(1) + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_train_q1_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q1", :);
     withhaptics_train_q1_ydata = withhaptics_train_q1_ytable.Score;
     withouthaptics_train_q1_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q1", :);
     withouthaptics_train_q1_ydata = withouthaptics_train_q1_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q1_x, withhaptics_train_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q1_x, withouthaptics_train_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.Parent.Parent.Units = 'centimeters';
-    score_boxchart.Parent.XLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.XLabel.Units = 'points';
-    score_boxchart.Parent.XLabel.FontSize = 9;
+
     %%%% Test
-    withhaptics_test_q1_x = (centre(1) + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q1_x = (centre(1) + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_test_q1_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q1", :);
     withhaptics_test_q1_ydata = withhaptics_test_q1_ytable.Score;
     withouthaptics_test_q1_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q1", :);
     withouthaptics_test_q1_ydata = withouthaptics_test_q1_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q1_x, withhaptics_test_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q1_x, withouthaptics_test_q1_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
 
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {''};
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-    score_boxchart.Parent.YLabel.String = "Score";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-
-    score_boxchart.Parent.Subtitle.String = "Mental Demand";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-
-    score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
-    score_boxchart.Parent.YLim = [0, 21];
-    
 %%% Q2
-subplot(2, 3, 2)
-ylim([0, 21])
-    %%%% Baseline
-    withhaptics_baseline_q2_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q2_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
+    %%%% Baseline    
     withhaptics_baseline_q2_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q2", :);
     withhaptics_baseline_q2_ydata = withhaptics_baseline_q2_ytable.Score;
     withouthaptics_baseline_q2_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q2", :);
     withouthaptics_baseline_q2_ydata = withouthaptics_baseline_q2_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q2_x, withhaptics_baseline_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q2_x, withouthaptics_baseline_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
 
-    %%%% Train
-    withhaptics_train_q2_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q2_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
-    
+    %%%% Train    
     withhaptics_train_q2_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q2", :);
     withhaptics_train_q2_ydata = withhaptics_train_q2_ytable.Score;
     withouthaptics_train_q2_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q2", :);
     withouthaptics_train_q2_ydata = withouthaptics_train_q2_ytable.Score;
     
-    score_boxchart = boxchart(withhaptics_train_q2_x, withhaptics_train_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q2_x, withouthaptics_train_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
     %%%% Test
-    withhaptics_test_q2_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q2_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_test_q2_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q2", :);
     withhaptics_test_q2_ydata = withhaptics_test_q2_ytable.Score;
     withouthaptics_test_q2_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q2", :);
     withouthaptics_test_q2_ydata = withouthaptics_test_q2_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q2_x, withhaptics_test_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q2_x, withouthaptics_test_q2_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
 
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {''};
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-    score_boxchart.Parent.Subtitle.String = "Physical Demand";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-    score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
-    score_boxchart.Parent.YLim = [0, 21];
-%     a = legend('');
-    
-    StatisticalLines2(centre - bias_between_groups, centre + bias_between_groups, '**', 20, 0.3, 9)
-    
 %%% Q3
-subplot(2, 3, 3)
-ylim([0, 21])
     %%%% Baseline
-    withhaptics_baseline_q3_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q3_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_baseline_q3_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q3", :);
     withhaptics_baseline_q3_ydata = withhaptics_baseline_q3_ytable.Score;
     withouthaptics_baseline_q3_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q3", :);
     withouthaptics_baseline_q3_ydata = withouthaptics_baseline_q3_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q3_x, withhaptics_baseline_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q3_x, withouthaptics_baseline_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
 
     %%%% Train
-    withhaptics_train_q3_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q3_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_train_q3_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q3", :);
     withhaptics_train_q3_ydata = withhaptics_train_q3_ytable.Score;
     withouthaptics_train_q3_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q3", :);
     withouthaptics_train_q3_ydata = withouthaptics_train_q3_ytable.Score;
     
-    score_boxchart = boxchart(withhaptics_train_q3_x, withhaptics_train_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q3_x, withouthaptics_train_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
     %%%% Test
-    withhaptics_test_q3_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q3_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_test_q3_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q3", :);
     withhaptics_test_q3_ydata = withhaptics_test_q3_ytable.Score;
     withouthaptics_test_q3_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q3", :);
     withouthaptics_test_q3_ydata = withouthaptics_test_q3_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q3_x, withhaptics_test_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q3_x, withouthaptics_test_q3_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
 
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {''};
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-    score_boxchart.Parent.Subtitle.String = "Temporal Demand";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-%     a = score_boxchart
-    a = legend("With haptics", "Without haptics", "Location", "Best");
-%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
-%     score_boxchart.Parent.Legend.Location = "BestOutside";
-    score_boxchart.Parent.Legend.Units = 'points';
-    score_boxchart.Parent.Legend.FontSize = 9;
-    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Legend.Orientation = 'horizontal';
-    score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-    score_boxchart.Parent.Position(2) = score_boxchart.Parent.Position(2) - ygap;
-    score_boxchart.Parent.YLim = [0, 21];
-
-    StatisticalLines(centre - bias_between_groups, centre + bias_between_groups, '**', 20, 0.3, 9, a)
 %%% Q4
 subplot(2, 3, 4)
     ylim([0, 21])
     %%%% Baseline
-    withhaptics_baseline_q4_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q4_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_baseline_q4_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q4", :);
     withhaptics_baseline_q4_ydata = withhaptics_baseline_q4_ytable.Score;
     withouthaptics_baseline_q4_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q4", :);
     withouthaptics_baseline_q4_ydata = withouthaptics_baseline_q4_ytable.Score;
     
-    score_boxchart = boxchart(withhaptics_baseline_q4_x, withhaptics_baseline_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q4_x, withouthaptics_baseline_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
     %%%% Train
-    withhaptics_train_q4_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q4_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_train_q4_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q4", :);
     withhaptics_train_q4_ydata = withhaptics_train_q4_ytable.Score;
     withouthaptics_train_q4_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q4", :);
     withouthaptics_train_q4_ydata = withouthaptics_train_q4_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q4_x, withhaptics_train_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q4_x, withouthaptics_train_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
+
     %%%% Test
-    withhaptics_test_q4_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q4_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_test_q4_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q4", :);
     withhaptics_test_q4_ydata = withhaptics_test_q4_ytable.Score;
     withouthaptics_test_q4_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q4", :);
     withouthaptics_test_q4_ydata = withouthaptics_test_q4_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q4_x, withhaptics_test_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q4_x, withouthaptics_test_q4_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
 
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-    score_boxchart.Parent.YLabel.String = "Score";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-    score_boxchart.Parent.Subtitle.String = "Performance";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-    score_boxchart.Parent.YLim = [0, 21];
-
-    %%% Q5
-subplot(2, 3, 5)
-ylim([0, 21])
+%%% Q5
     %%%% Baseline
-    withhaptics_baseline_q5_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q5_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_baseline_q5_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q5", :);
     withhaptics_baseline_q5_ydata = withhaptics_baseline_q5_ytable.Score;
     withouthaptics_baseline_q5_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q5", :);
     withouthaptics_baseline_q5_ydata = withouthaptics_baseline_q5_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q5_x, withhaptics_baseline_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q5_x, withouthaptics_baseline_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
 
     %%%% Train
-    withhaptics_train_q5_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q5_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_train_q5_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q5", :);
     withhaptics_train_q5_ydata = withhaptics_train_q5_ytable.Score;
     withouthaptics_train_q5_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q5", :);
     withouthaptics_train_q5_ydata = withouthaptics_train_q5_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q5_x, withhaptics_train_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q5_x, withouthaptics_train_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
+
     %%%% Test
-    withhaptics_test_q5_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q5_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_test_q5_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q5", :);
     withhaptics_test_q5_ydata = withhaptics_test_q5_ytable.Score;
     withouthaptics_test_q5_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q5", :);
     withouthaptics_test_q5_ydata = withouthaptics_test_q5_ytable.Score;
     
-    score_boxchart = boxchart(withhaptics_test_q5_x, withhaptics_test_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q5_x, withouthaptics_test_q5_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-    score_boxchart.Parent.Subtitle.String = "Effort";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    score_boxchart.Parent.YLim = [0, 21];
-    %%% Q6
-subplot(2, 3, 6)
-ylim([0, 21])
+%%% Q6
     %%%% Baseline
-    withhaptics_baseline_q6_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q6_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_baseline_q6_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q6", :);
     withhaptics_baseline_q6_ydata = withhaptics_baseline_q6_ytable.Score;
     withouthaptics_baseline_q6_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Baseline" & NASATable.Question(:) == "Q6", :);
     withouthaptics_baseline_q6_ydata = withouthaptics_baseline_q6_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, withhaptics_baseline_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, withouthaptics_baseline_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
 
     %%%% Train
-    withhaptics_train_q6_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q6_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_train_q6_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q6", :);
     withhaptics_train_q6_ydata = withhaptics_train_q6_ytable.Score;
     withouthaptics_train_q6_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Train" & NASATable.Question(:) == "Q6", :);
     withouthaptics_train_q6_ydata = withouthaptics_train_q6_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, withhaptics_train_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, withouthaptics_train_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    
+ 
     %%%% Test
-    withhaptics_test_q6_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q6_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
     withhaptics_test_q6_ytable = NASATable(NASATable.Group(:) == "WithHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q6", :);
     withhaptics_test_q6_ydata = withhaptics_test_q6_ytable.Score;
     withouthaptics_test_q6_ytable = NASATable(NASATable.Group(:) == "WithoutHaptics" & NASATable.Condition(:) == "Test" & NASATable.Question(:) == "Q6", :);
     withouthaptics_test_q6_ydata = withouthaptics_test_q6_ytable.Score;
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, withhaptics_test_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, withouthaptics_test_q6_ydata);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
+%% NASATLX Category subplot
+close all
+figure
+%%% Mental Demand
+subplot(2, 3, 1)
+y1 = withhaptics_baseline_q1_ydata;
+y2 = withouthaptics_baseline_q1_ydata;
+y3 = withhaptics_train_q1_ydata;
+y4 = withouthaptics_train_q1_ydata;
+y5 = withhaptics_test_q1_ydata;
+y6 = withouthaptics_test_q1_ydata;
 
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
+y_label = "Score";
+y_lim = [0, 21];
+my_title = "Mental Demand";
 
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-    score_boxchart.Parent.Subtitle.String = "Frustration";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    score_boxchart.Parent.YLim = [0, 21];
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = NASATLXSubplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+
+%%% Physical Demand
+subplot(2, 3, 2)
+y1 = withhaptics_baseline_q2_ydata;
+y2 = withouthaptics_baseline_q2_ydata;
+y3 = withhaptics_train_q2_ydata;
+y4 = withouthaptics_train_q2_ydata;
+y5 = withhaptics_test_q2_ydata;
+y6 = withouthaptics_test_q2_ydata;
+
+y_label = "";
+y_lim = [0, 21];
+my_title = "Mental Demand";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = NASATLXSubplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+StatisticalLines(x3, x4, '*', 20, 0.5, 9)
+
+%%% Temporal Demand
+subplot(2, 3, 3)
+y1 = withhaptics_baseline_q3_ydata;
+y2 = withouthaptics_baseline_q3_ydata;
+y3 = withhaptics_train_q3_ydata;
+y4 = withouthaptics_train_q3_ydata;
+y5 = withhaptics_test_q3_ydata;
+y6 = withouthaptics_test_q3_ydata;
+
+y_label = "";
+y_lim = [0, 21];
+my_title = "Temporal Demand";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = NASATLXSubplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+StatisticalLines(x3, x4, '*', 20, 0.5, 9)
+
+%%% Performance
+subplot(2, 3, 4)
+y1 = withhaptics_baseline_q4_ydata;
+y2 = withouthaptics_baseline_q4_ydata;
+y3 = withhaptics_train_q4_ydata;
+y4 = withouthaptics_train_q4_ydata;
+y5 = withhaptics_test_q4_ydata;
+y6 = withouthaptics_test_q4_ydata;
+
+y_label = "Score";
+y_lim = [0, 21];
+my_title = "Performance";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = NASATLXSubplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+
+%%% Effort
+subplot(2, 3, 5)
+y1 = withhaptics_baseline_q5_ydata;
+y2 = withouthaptics_baseline_q5_ydata;
+y3 = withhaptics_train_q5_ydata;
+y4 = withouthaptics_train_q5_ydata;
+y5 = withhaptics_test_q5_ydata;
+y6 = withouthaptics_test_q5_ydata;
+
+y_label = "";
+y_lim = [0, 21];
+my_title = "Effort";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = NASATLXSubplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+
+%%% Frustration
+subplot(2, 3, 6)
+y1 = withhaptics_baseline_q6_ydata;
+y2 = withouthaptics_baseline_q6_ydata;
+y3 = withhaptics_train_q6_ydata;
+y4 = withouthaptics_train_q6_ydata;
+y5 = withhaptics_test_q6_ydata;
+y6 = withouthaptics_test_q6_ydata;
+
+y_label = "";
+y_lim = [0, 21];
+my_title = "Frustration";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = NASATLXSubplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+
 %%
 clc
-[p, hStat, stats] = ranksum(withouthaptics_train_q2_ydata, withhaptics_train_q2_ydata)
-[p, hStat, stats] = ranksum(withouthaptics_train_q3_ydata, withhaptics_train_q3_ydata)
+% [p, hStat, stats] = ranksum(withouthaptics_train_q2_ydata, withhaptics_train_q2_ydata)
+% [H, pValue, W] = swtest(withhaptics_train_q2_ydata, 0.05)
+%%
+[p,tbl,stats] = anova2([withouthaptics_train_q2_ydata, withhaptics_train_q2_ydata]);
+p
+close all
+comparison = multcompare(stats)
+p = comparison(:, end)
+%%
+% [H, pValue, W] = swtest(withhaptics_train_q3_ydata, 0.05)
+%%
+% [p, hStat, stats] = ranksum(withouthaptics_train_q3_ydata, withhaptics_train_q3_ydata)
+[p,tbl,stats] = anova2([withouthaptics_train_q3_ydata, withhaptics_train_q3_ydata]);
+p
+close all
+comparison = multcompare(stats)
+p = comparison(:, end)
 
+%% Mental Demand
+close all
+y1 = withhaptics_baseline_q1_ydata;
+y2 = withouthaptics_baseline_q1_ydata;
+y3 = withhaptics_train_q1_ydata;
+y4 = withouthaptics_train_q1_ydata;
+y5 = withhaptics_test_q1_ydata;
+y6 = withouthaptics_test_q1_ydata;
+
+y_label = "Score";
+y_lim = [0, 21];
+my_title = "Mental Demand";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+
+%% Physical Demand
+close all 
+y1 = withhaptics_baseline_q2_ydata;
+y2 = withouthaptics_baseline_q2_ydata;
+y3 = withhaptics_train_q2_ydata;
+y4 = withouthaptics_train_q2_ydata;
+y5 = withhaptics_test_q2_ydata;
+y6 = withouthaptics_test_q2_ydata;
+
+y_label = "";
+y_lim = [0, 21];
+my_title = "Physical Demand";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+StatisticalLines(x3, x4, '*', 20, 0.5, 9)
+
+%% Temporal Demand
+close all 
+y1 = withhaptics_baseline_q3_ydata;
+y2 = withouthaptics_baseline_q3_ydata;
+y3 = withhaptics_train_q3_ydata;
+y4 = withouthaptics_train_q3_ydata;
+y5 = withhaptics_test_q3_ydata;
+y6 = withouthaptics_test_q3_ydata;
+
+y_label = "Score";
+y_lim = [0, 21];
+my_title = "Temporal Demand";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+StatisticalLines(x3, x4, '*', 20, 0.5, 9)
+
+%% Performance
+close all 
+y1 = withhaptics_baseline_q4_ydata;
+y2 = withouthaptics_baseline_q4_ydata;
+y3 = withhaptics_train_q4_ydata;
+y4 = withouthaptics_train_q4_ydata;
+y5 = withhaptics_test_q4_ydata;
+y6 = withouthaptics_test_q4_ydata;
+
+y_label = "";
+y_lim = [0, 21];
+my_title = "Performance";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+
+%% Effort
+close all 
+y1 = withhaptics_baseline_q5_ydata;
+y2 = withouthaptics_baseline_q5_ydata;
+y3 = withhaptics_train_q5_ydata;
+y4 = withouthaptics_train_q5_ydata;
+y5 = withhaptics_test_q5_ydata;
+y6 = withouthaptics_test_q5_ydata;
+
+y_label = "Score";
+y_lim = [0, 21];
+my_title = "Effort";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
+
+%% Frustration
+close all
+y1 = withhaptics_baseline_q6_ydata;
+y2 = withouthaptics_baseline_q6_ydata;
+y3 = withhaptics_train_q6_ydata;
+y4 = withouthaptics_train_q6_ydata;
+y5 = withhaptics_test_q6_ydata;
+y6 = withouthaptics_test_q6_ydata;
+
+y_label = "";
+y_lim = [0, 21];
+my_title = "Frustration";
+
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', ...
+    y_label, y_lim, my_title, 0.5, 0.6);
 %% Final TLX score
 
 weight_q1 = 20;
@@ -2173,112 +1301,59 @@ withouthaptics_baseline_score = weight_q1 .* withouthaptics_baseline_q1_ydata./2
     weight_q3 .* withouthaptics_baseline_q3_ydata./21 + ...
     weight_q4 .* withouthaptics_baseline_q4_ydata./21 + ...
     weight_q5 .* withouthaptics_baseline_q5_ydata./21 + ...
-    weight_q6 .* withouthaptics_baseline_q6_ydata./21
+    weight_q6 .* withouthaptics_baseline_q6_ydata./21;
 
 withouthaptics_train_score = weight_q1 .* withouthaptics_train_q1_ydata./21 + ...
     weight_q2 .* withouthaptics_train_q2_ydata./21 + ...
     weight_q3 .* withouthaptics_train_q3_ydata./21 + ...
     weight_q4 .* withouthaptics_train_q4_ydata./21 + ...
     weight_q5 .* withouthaptics_train_q5_ydata./21 + ...
-    weight_q6 .* withouthaptics_train_q6_ydata./21
+    weight_q6 .* withouthaptics_train_q6_ydata./21;
 
 withouthaptics_test_score = weight_q1 .* withouthaptics_test_q1_ydata./21 + ...
     weight_q2 .* withouthaptics_test_q2_ydata./21 + ...
     weight_q3 .* withouthaptics_test_q3_ydata./21 + ...
     weight_q4 .* withouthaptics_test_q4_ydata./21 + ...
     weight_q5 .* withouthaptics_test_q5_ydata./21 + ...
-    weight_q6 .* withouthaptics_test_q6_ydata./21
+    weight_q6 .* withouthaptics_test_q6_ydata./21;
 
 withhaptics_baseline_score = weight_q1 .* withhaptics_baseline_q1_ydata./21 + ...
     weight_q2 .* withhaptics_baseline_q2_ydata./21 + ...
     weight_q3 .* withhaptics_baseline_q3_ydata./21 + ...
     weight_q4 .* withhaptics_baseline_q4_ydata./21 + ...
     weight_q5 .* withhaptics_baseline_q5_ydata./21 + ...
-    weight_q6 .* withhaptics_baseline_q6_ydata./21
+    weight_q6 .* withhaptics_baseline_q6_ydata./21;
 
 withhaptics_train_score = weight_q1 .* withhaptics_train_q1_ydata./21 + ...
     weight_q2 .* withhaptics_train_q2_ydata./21 + ...
     weight_q3 .* withhaptics_train_q3_ydata./21 + ...
     weight_q4 .* withhaptics_train_q4_ydata./21 + ...
     weight_q5 .* withhaptics_train_q5_ydata./21 + ...
-    weight_q6 .* withhaptics_train_q6_ydata./21
+    weight_q6 .* withhaptics_train_q6_ydata./21;
 
 withhaptics_test_score = weight_q1 .* withhaptics_test_q1_ydata./21 + ...
     weight_q2 .* withhaptics_test_q2_ydata./21 + ...
     weight_q3 .* withhaptics_test_q3_ydata./21 + ...
     weight_q4 .* withhaptics_test_q4_ydata./21 + ...
     weight_q5 .* withhaptics_test_q5_ydata./21 + ...
-    weight_q6 .* withhaptics_test_q6_ydata./21
+    weight_q6 .* withhaptics_test_q6_ydata./21;
 
+%% Overall NASATLX plot
+close all
+y1 = withhaptics_baseline_score;
+y2 = withouthaptics_baseline_score;
+y3 = withhaptics_train_score;
+y4 = withouthaptics_train_score;
+y5 = withhaptics_test_score;
+y6 = withouthaptics_test_score;
 
-% figure
-% close all
-NASAScoreFigure = figure;
-    NASAScoreFigure.Units = 'centimeters';
-    NASAScoreFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
-    NASAScoreFigure.PaperUnits = 'centimeters';
-%     NASAScoreFigure.PaperPosition = [15, 15, 7.5, 7.5];
-%%%Baseline
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, withhaptics_baseline_score);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, withouthaptics_baseline_score);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
+y_label = "NASA-TLX";
+y_lim = [0, 100];
 
-    %%%% Train
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, withhaptics_train_score);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, withouthaptics_train_score);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-    
-    %%%% Test
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, withhaptics_test_score);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, withouthaptics_test_score);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
+[scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
+    y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', ...
+    y_label, y_lim, "", 0.5, 0.6);
 
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-%     score_boxchart.Parent.Subtitle.String = "Frustration";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    legend("With haptics", "Without haptics", "Location", "northOutside")
-%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
-%     score_boxchart.Parent.Legend.Location = "BestOutside";
-    score_boxchart.Parent.Legend.Units = 'points';
-    score_boxchart.Parent.Legend.FontSize = 9;
-    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Legend.Orientation = 'horizontal';
-%     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
-    score_boxchart.Parent.YLabel.String = "NASA-TLX score";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-    score_boxchart.MarkerSize = 3;
-    ylim([0, 100])
 %%
-[p, hStat, stats] = ranksum(withhaptics_baseline_score, withhaptics_test_score)
+[p, hStat, stats] = ranksum(withhaptics_train_score, withouthaptics_train_score)
+

@@ -1,4 +1,8 @@
+# Ignore Data folders
+**/Data/
+**/[Dd][Aa][Tt][Aa]/
 # Ignore CSV and MAT files
 *.csv
 *.mat
 *.pptx
+
