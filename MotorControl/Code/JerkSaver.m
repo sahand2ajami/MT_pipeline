@@ -196,3 +196,4 @@ function [TrajectoryInfo] = JerkSaver(KinematicData, ConditionString)
         end
     end
 end
+

@@ -1,4 +1,3 @@
-
 function SubjectData = mat2struct(start, stop)
 
 YesHapticsCounter = 1;
@@ -91,5 +90,4 @@ for i = start:stop % Loop in the participants' folder
     % go back to the main folder
     cd ..
     end
-
 end

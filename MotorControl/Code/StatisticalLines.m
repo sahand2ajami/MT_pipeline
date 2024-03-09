@@ -1,4 +1,3 @@
-
 function StatisticalLines(First, Last, StarString, YLevel, Yclearance, StarFont)
     hold on
     plot([First, Last], [YLevel, YLevel], 'k')
