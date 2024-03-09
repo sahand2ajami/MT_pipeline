@@ -1356,3 +1356,4 @@ y_lim = [0, 100];
 
 %%
 [p, hStat, stats] = ranksum(withhaptics_train_score, withouthaptics_train_score)
+
