@@ -127,42 +127,42 @@ scatter_boxchart = scatter(x1_jitter, y1);
     scatter_boxchart.MarkerEdgeAlpha = MarkerEdgeAlpha;
     scatter_boxchart.MarkerFaceColor = color1;
     scatter_boxchart.MarkerFaceAlpha = MarkerFaceAlpha;
-    scatter_boxchart.SizeData = markersize;
+    scatter_boxchart.SizeData = markersize*2;
 hold on
     scatter_boxchart = scatter(x2_jitter, y2);
     scatter_boxchart.CData = color2;
     scatter_boxchart.MarkerEdgeAlpha = MarkerEdgeAlpha;
     scatter_boxchart.MarkerFaceColor = color2;
     scatter_boxchart.MarkerFaceAlpha = MarkerFaceAlpha;
-    scatter_boxchart.SizeData = markersize;
+    scatter_boxchart.SizeData = markersize*2;
 
 scatter_boxchart = scatter(x3_jitter, y3);
     scatter_boxchart.CData = color1;
     scatter_boxchart.MarkerEdgeAlpha = MarkerEdgeAlpha;
     scatter_boxchart.MarkerFaceColor = color1;
     scatter_boxchart.MarkerFaceAlpha = MarkerFaceAlpha;
-    scatter_boxchart.SizeData = markersize;
+    scatter_boxchart.SizeData = markersize*2;
 
 scatter_boxchart = scatter(x4_jitter, y4);
     scatter_boxchart.CData = color2;
     scatter_boxchart.MarkerEdgeAlpha = MarkerEdgeAlpha;
     scatter_boxchart.MarkerFaceColor = color2;
     scatter_boxchart.MarkerFaceAlpha = MarkerFaceAlpha;
-    scatter_boxchart.SizeData = markersize;
+    scatter_boxchart.SizeData = markersize*2;
 
 scatter_boxchart = scatter(x5_jitter, y5);
     scatter_boxchart.CData = color1;
     scatter_boxchart.MarkerEdgeAlpha = MarkerEdgeAlpha;
     scatter_boxchart.MarkerFaceColor = color1;
     scatter_boxchart.MarkerFaceAlpha = MarkerFaceAlpha;
-    scatter_boxchart.SizeData = markersize;
+    scatter_boxchart.SizeData = markersize*2;
 
 scatter_boxchart = scatter(x6_jitter, y6);
     scatter_boxchart.CData = color2;
     scatter_boxchart.MarkerEdgeAlpha = MarkerEdgeAlpha;
     scatter_boxchart.MarkerFaceColor = color2;
     scatter_boxchart.MarkerFaceAlpha = MarkerFaceAlpha;
-    scatter_boxchart.SizeData = markersize;
+    scatter_boxchart.SizeData = markersize*2;
 
 % Create a legend in the middle of the figure
 % hLegend = legend('With haptics', 'Without haptics', 'Location', 'northoutside', 'Orientation','horizontal');
