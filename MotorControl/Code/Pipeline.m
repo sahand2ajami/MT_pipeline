@@ -1,3 +1,4 @@
+
 % Pipeline to process the raw experimental data
 clc; clear; close all;
 format compact
@@ -9,8 +10,8 @@ num_participants = 22;
 stop = start + (num_participants - 1); % final folder depends on the number of participants
 
 % This is where each participants' data are stored for this project
-% cd ('C:\Users\Sahand\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Data\Pilot2')
-cd ('C:\Users\s2ajami\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\MotorControl\Data\CHIData')
+data_path = "D:\OneDrive - University of Waterloo\project_MT\DataAnalysis\mt_pipeline2\MotorControl\Data\CHIData";
+cd (data_path)
 
 % This function loops in every participant's folder and makes a .mat copy
 % of their .csv data 
@@ -80,17 +81,6 @@ for i = 1:length(GroupNames)
         [maxima, maximaIndices] = findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
         [minima, minimaIndices] = findpeaks(-smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", minima_min_peak_distance);
 
-%         figure
-%         yyaxis left
-%         findpeaks(smoothedLeftBaseline, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
-%         yyaxis right
-%         findpeaks(-smoothedLeftBaseline, "MinPeakProminence", minima_prominence, "MinPeakDistance", minima_min_peak_distance);
-%         legend("max", "min")
-
-%       end
-% end      
-
-
         for kk = 1:min(length(minimaIndices), length(maximaIndices))
             prospective_minima_indices = minimaIndices(minimaIndices > maximaIndices(kk));
             if ~isempty (prospective_minima_indices)
@@ -118,16 +108,6 @@ for i = 1:length(GroupNames)
 
         [maxima, maximaIndices] = findpeaks(smoothedRightTrain, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
         [minima, minimaIndices] = findpeaks(-smoothedRightTrain, "MinPeakProminence", maxima_prominence, "MinPeakDistance", minima_min_peak_distance);
-
-%         figure
-%         yyaxis left
-%         findpeaks(smoothedRightTrain, "MinPeakProminence", maxima_prominence, "MinPeakDistance", maxima_min_peak_distance);
-%         yyaxis right
-%         findpeaks(-smoothedRightTrain, "MinPeakProminence", minima_prominence, "MinPeakDistance", minima_min_peak_distance);
-%         legend("max", "min")
-
-%       end
-% end      
 
 
         for kk = 1:min(length(minimaIndices), length(maximaIndices))
@@ -322,9 +302,6 @@ for i = 1:length(GroupNames)
     end
 end
 
-% Statistical test for DropPosError
-
-
 % Create categorical array for x-axis labels with desired order
 TimeTable.Condition = categorical(TimeTable.Condition);
 TimeTable.Group = categorical(TimeTable.Group);
@@ -335,14 +312,6 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 % Reorder the unique values in DropPosTable.Condition
 TimeTable.Condition = reordercats(TimeTable.Condition, desiredOrder);
 
-figure
-time_boxchart = boxchart(TimeTable.Condition, seconds(TimeTable.Time),'GroupByColor',TimeTable.Group);
-
-legend("Location", "Best")
-title('Time plot - MEAN');
-ylabel('Time [sec]');
-xlabel('Conditions');
-% ylim([0.7, 2.5])
 %% Extract Time data
 
 with_haptics_baseline_time = TimeTable(TimeTable.Group == "WithHaptics" & TimeTable.Condition == 'Baseline', :).Time;
@@ -353,207 +322,119 @@ without_haptics_baseline_time = TimeTable(TimeTable.Group == "WithoutHaptics" & 
 without_haptics_train_time = TimeTable(TimeTable.Group == "WithoutHaptics" & TimeTable.Condition == 'Train', :).Time;
 without_haptics_test_time = TimeTable(TimeTable.Group == "WithoutHaptics" & TimeTable.Condition == 'Test', :).Time;
 
-with_haptics_baseline_time = seconds(with_haptics_baseline_time)
-with_haptics_train_time = seconds(with_haptics_train_time)
-with_haptics_test_time = seconds(with_haptics_test_time)
+with_haptics_baseline_time = seconds(with_haptics_baseline_time);
+with_haptics_train_time = seconds(with_haptics_train_time);
+with_haptics_test_time = seconds(with_haptics_test_time);
 
-without_haptics_baseline_time = seconds(without_haptics_baseline_time)
-without_haptics_train_time = seconds(without_haptics_train_time)
-without_haptics_test_time = seconds(without_haptics_test_time)
+without_haptics_baseline_time = seconds(without_haptics_baseline_time);
+without_haptics_train_time = seconds(without_haptics_train_time);
+without_haptics_test_time = seconds(without_haptics_test_time);
+%% Plot Time
+y1 = with_haptics_baseline_time;
+y2 = without_haptics_baseline_time;
+y3 = with_haptics_train_time;
+y4 = without_haptics_train_time;
+y5 = with_haptics_test_time;
+y6 = without_haptics_test_time;
+
+y_label = "Time [s]";
+y_lim = [0, 3];
+
+[my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', y_label, y_lim, "", 0.5, 0.6);
 %%
-
-
-TimeFigure = figure;
-    TimeFigure.Units = 'centimeters';
-    TimeFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
-    TimeFigure.PaperUnits = 'centimeters';
-%     NASAScoreFigure.PaperPosition = [15, 15, 7.5, 7.5];
-    n_withhaptics = 11;
-    n_withouthaptics = 11;
-        centre = 1;
-    bias_between_groups = 0.3;
-    bias_between_conditions = 1.5;
-    bias_between_questions = 0.7;
-    color_withhaptics = [0 0.4470 0.7410];
-    color_withouthaptics = [0.8500 0.3250 0.0980];
-    bias2 = 0.02;
-
-    withhaptics_baseline_q6_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q6_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_train_q6_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q6_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
-    
-    withhaptics_test_q6_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q6_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
- 
-%%%Baseline
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, with_haptics_baseline_time);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, without_haptics_baseline_time);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-
-    %%%% Train
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, with_haptics_train_time);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, without_haptics_train_time);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-    
-    %%%% Test
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, with_haptics_test_time);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, without_haptics_test_time);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-%     score_boxchart.Parent.Subtitle.String = "Frustration";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    score_legend = legend("With haptics", "Without haptics", "Location", "northoutside")
-%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
-%     score_boxchart.Parent.Legend.Location = "BestOutside";
-    score_boxchart.Parent.Legend.Units = 'points';
-    score_boxchart.Parent.Legend.FontSize = 9;
-    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Legend.Orientation = 'horizontal';
-%     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
-    score_boxchart.Parent.YLabel.String = "Time [s]";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-    score_boxchart.MarkerSize = 3;
-    ylim([0, 2.6])
-%     StatisticalLines(withhaptics_train_q6_x(1), withouthaptics_train_q6_x(1), '*', 9, 0.5, 9, score_legend)
-%     StatisticalLines(withhaptics_test_q6_x(1), withouthaptics_test_q6_x(1), '*', 9, 0.5, 9, score_legend)
-
-%     ylim([-12, 12])
-
-
+figure
+data = with_haptics_test_time;
+qqplot(data)
+%%
+% [h, p] = ttest2(with_haptics_test_time, without_haptics_test_time)
+ [H, pValue, W] = swtest(with_haptics_test_time, 0.05)
 %%
 %%% Step 4: Plot the Time Data - Group specific
-% make a timetable for boxplot
-GroupNames = fieldnames(TimeData);
-
-timeData = [];
-variable_names = {'Group', 'Condition', 'Time'};
-condition_temp = {};
-TimeTable = table({}, {}, timeData, 'VariableNames', variable_names);
-% DropPosBoxPlotTable = ;
-% This loops in the "withHaptics" and "withoutHaptics" groups
-for i = 1:length(GroupNames)
-    % i = 1 WithoutHaptics
-    % i = 2 WithHaptics
-
-    Participants = TimeData.(GroupNames{i});
-
-    % This loops in each participant of each group
-    for j = 1:length(fieldnames(Participants))
-        ParticipantNames = fieldnames(Participants);
-
-        myData = Participants.(ParticipantNames{j});
-
-%         Baseline_timeData = myData.Baseline.time_vector;
-%         Train_timeData = myData.Baseline.time_vector;
-%         Test_timeData = myData.Test.time_vector;
-        Baseline_timeData = myData.Baseline.time_std;
-        Train_timeData = myData.Train.time_std;
-        Test_timeData = myData.Test.time_std;
-        
-        min_size = min([length(Baseline_timeData), length(Train_timeData), length(Test_timeData)]);
-        
-        % Make the error size consistent among the conditions
-        Baseline_timeData = Baseline_timeData(end - (min_size - 1):end);
-        Train_timeData = Train_timeData(end - (min_size - 1):end);
-        Test_timeData = Test_timeData(end - (min_size - 1):end);
-        
-        groupname_temp = cell('');
-        condition_temp = cell('');
-        for k=1:min_size
-            condition_temp = [condition_temp; 'Baseline'];
-            groupname_temp = [groupname_temp; GroupNames{i}];
-        end
-        
-        % Make the table to have data of all conditions together
-        newTable = table(groupname_temp, condition_temp, Baseline_timeData, ...
-            'VariableNames', variable_names);
-        
-        TimeTable = [TimeTable; newTable];
-        
-        groupname_temp = cell('');
-        condition_temp = cell('');
-        for k=1:min_size
-            condition_temp = [condition_temp; 'Train'];
-            groupname_temp = [groupname_temp; GroupNames{i}];
-        end
-
-        % Make the table to have data of all conditions together
-        newTable = table(groupname_temp, condition_temp, Train_timeData, ...
-            'VariableNames', variable_names);
-        
-        TimeTable = [TimeTable; newTable];
-        
-        groupname_temp = cell('');
-        condition_temp = cell('');
-        for k=1:min_size
-            condition_temp = [condition_temp; 'Test'];
-            groupname_temp = [groupname_temp; GroupNames{i}];
-        end
-        
-        % Make the table to have data of all conditions together
-        newTable = table(groupname_temp, condition_temp, Test_timeData, ...
-            'VariableNames', variable_names);
-        
-        TimeTable = [TimeTable; newTable];
-    end
-end
-
-% Statistical test for DropPosError
-
-
-% Create categorical array for x-axis labels with desired order
-TimeTable.Condition = categorical(TimeTable.Condition);
-TimeTable.Group = categorical(TimeTable.Group);
-
-% Define the desired order of x-axis categories
-desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
-
-% Reorder the unique values in DropPosTable.Condition
-TimeTable.Condition = reordercats(TimeTable.Condition, desiredOrder);
-
-figure
-time_boxchart = boxchart(TimeTable.Condition, seconds(TimeTable.Time),'GroupByColor',TimeTable.Group);
-
-legend("Location", "Best")
-title('Time plot - STD');
-ylabel('Time [sec]');
-xlabel('Conditions');
-% ylim([0.7, 2.5])
+% % make a timetable for boxplot
+% GroupNames = fieldnames(TimeData);
+% 
+% timeData = [];
+% variable_names = {'Group', 'Condition', 'Time'};
+% condition_temp = {};
+% TimeTable = table({}, {}, timeData, 'VariableNames', variable_names);
+% % DropPosBoxPlotTable = ;
+% % This loops in the "withHaptics" and "withoutHaptics" groups
+% for i = 1:length(GroupNames)
+%     % i = 1 WithoutHaptics
+%     % i = 2 WithHaptics
+% 
+%     Participants = TimeData.(GroupNames{i});
+% 
+%     % This loops in each participant of each group
+%     for j = 1:length(fieldnames(Participants))
+%         ParticipantNames = fieldnames(Participants);
+% 
+%         myData = Participants.(ParticipantNames{j});
+% 
+% %         Baseline_timeData = myData.Baseline.time_vector;
+% %         Train_timeData = myData.Baseline.time_vector;
+% %         Test_timeData = myData.Test.time_vector;
+%         Baseline_timeData = myData.Baseline.time_std;
+%         Train_timeData = myData.Train.time_std;
+%         Test_timeData = myData.Test.time_std;
+%         
+%         min_size = min([length(Baseline_timeData), length(Train_timeData), length(Test_timeData)]);
+%         
+%         % Make the error size consistent among the conditions
+%         Baseline_timeData = Baseline_timeData(end - (min_size - 1):end);
+%         Train_timeData = Train_timeData(end - (min_size - 1):end);
+%         Test_timeData = Test_timeData(end - (min_size - 1):end);
+%         
+%         groupname_temp = cell('');
+%         condition_temp = cell('');
+%         for k=1:min_size
+%             condition_temp = [condition_temp; 'Baseline'];
+%             groupname_temp = [groupname_temp; GroupNames{i}];
+%         end
+%         
+%         % Make the table to have data of all conditions together
+%         newTable = table(groupname_temp, condition_temp, Baseline_timeData, ...
+%             'VariableNames', variable_names);
+%         
+%         TimeTable = [TimeTable; newTable];
+%         
+%         groupname_temp = cell('');
+%         condition_temp = cell('');
+%         for k=1:min_size
+%             condition_temp = [condition_temp; 'Train'];
+%             groupname_temp = [groupname_temp; GroupNames{i}];
+%         end
+% 
+%         % Make the table to have data of all conditions together
+%         newTable = table(groupname_temp, condition_temp, Train_timeData, ...
+%             'VariableNames', variable_names);
+%         
+%         TimeTable = [TimeTable; newTable];
+%         
+%         groupname_temp = cell('');
+%         condition_temp = cell('');
+%         for k=1:min_size
+%             condition_temp = [condition_temp; 'Test'];
+%             groupname_temp = [groupname_temp; GroupNames{i}];
+%         end
+%         
+%         % Make the table to have data of all conditions together
+%         newTable = table(groupname_temp, condition_temp, Test_timeData, ...
+%             'VariableNames', variable_names);
+%         
+%         TimeTable = [TimeTable; newTable];
+%     end
+% end
+% 
+% % Create categorical array for x-axis labels with desired order
+% TimeTable.Condition = categorical(TimeTable.Condition);
+% TimeTable.Group = categorical(TimeTable.Group);
+% 
+% % Define the desired order of x-axis categories
+% desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
+% 
+% % Reorder the unique values in DropPosTable.Condition
+% TimeTable.Condition = reordercats(TimeTable.Condition, desiredOrder);
 
 %% Analysis: Trajectory smoothness
 VEL = {};
@@ -648,11 +529,6 @@ for i = 1:length(GroupNames)
         newRow = table(groupname_temp, condition_temp, JRK_baseline_participantmean, ...
             'VariableNames', jrk_variable_names);
         JrkTable = [JrkTable; newRow];
-        
-        
-% %         VEL_baseline_subjectmean{i, j} = mean([VEL_baseline_trialmean{i, j, :}]);
-% %         ACC_baseline_subjectmean{i, j} = mean([ACC_baseline_trialmean{i, j, :}]);
-% %         JRK_baseline_subjectmean{i, j} = mean([JRK_baseline_trialmean{i, j, :}]);
 
         TrainTrials = Data.Train;
         field_names = fieldnames(TrainTrials);
@@ -762,14 +638,31 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 % Reorder the unique values in DropPosTable.Condition
 VelTable.Condition = reordercats(VelTable.Condition, desiredOrder);
 
+%% Data extraction for velocity
+withhaptics_baseline_vel = VelTable(VelTable.Group == "WithHaptics" & VelTable.Condition == "Baseline", :).Velocity;
+withouthaptics_baseline_vel = VelTable(VelTable.Group == "WithoutHaptics" & VelTable.Condition == "Baseline", :).Velocity;
 
-figure
-vel_boxchart = boxchart(VelTable.Condition, VelTable.Velocity,'GroupByColor',VelTable.Group);
+withhaptics_train_vel = VelTable(VelTable.Group == "WithHaptics" & VelTable.Condition == "Train", :).Velocity;
+withouthaptics_train_vel = VelTable(VelTable.Group == "WithoutHaptics" & VelTable.Condition == "Train", :).Velocity;
 
-legend("Location", "Best")
-title('Velocity plot - MEAN');
-ylabel('Velocity [m/s]');
-xlabel('Conditions');
+withhaptics_test_vel = VelTable(VelTable.Group == "WithHaptics" & VelTable.Condition == "Test", :).Velocity;
+withouthaptics_test_vel = VelTable(VelTable.Group == "WithoutHaptics" & VelTable.Condition == "Test", :).Velocity;
+
+%% Plot Velocity
+
+y1 = withhaptics_baseline_vel;
+y2 = withouthaptics_baseline_vel;
+y3 = withhaptics_train_vel;
+y4 = withouthaptics_train_vel;
+y5 = withhaptics_test_vel;
+y6 = withouthaptics_test_vel;
+
+y_label = "Velocity [m/s]";
+y_lim = [min(min([y1, y2, y3, y4, y5, y6])) - 0.05, max(max([y1, y2, y3, y4, y5, y6])) + 0.05];
+
+[my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', y_label, y_lim, "", 0.5, 0.6);
+
+%%
 
 %%% Acceleration
 AccTable.Condition = categorical(AccTable.Condition);
@@ -781,16 +674,32 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 % Reorder the unique values in DropPosTable.Condition
 AccTable.Condition = reordercats(AccTable.Condition, desiredOrder);
 
+%% Data extraction for acceleration
+withhaptics_baseline_acc = AccTable(AccTable.Group == "WithHaptics" & AccTable.Condition == "Baseline", :).Acceleration;
+withouthaptics_baseline_acc = AccTable(AccTable.Group == "WithoutHaptics" & AccTable.Condition == "Baseline", :).Acceleration;
 
-figure
-acc_boxchart = boxchart(AccTable.Condition, AccTable.Acceleration,'GroupByColor',AccTable.Group);
+withhaptics_train_acc = AccTable(AccTable.Group == "WithHaptics" & AccTable.Condition == "Train", :).Acceleration;
+withouthaptics_train_acc = AccTable(AccTable.Group == "WithoutHaptics" & AccTable.Condition == "Train", :).Acceleration;
 
-legend("Location", "Best")
-title('Acceleration plot - MEAN');
-ylabel('Acceleration [m/s^2]');
-xlabel('Conditions');
+withhaptics_test_acc = AccTable(AccTable.Group == "WithHaptics" & AccTable.Condition == "Test", :).Acceleration;
+withouthaptics_test_acc = AccTable(AccTable.Group == "WithoutHaptics" & AccTable.Condition == "Test", :).Acceleration;
 
-%%% Jerk
+%% Plot Acceleration
+
+y1 = withhaptics_baseline_acc;
+y2 = withouthaptics_baseline_acc;
+y3 = withhaptics_train_acc;
+y4 = withouthaptics_train_acc;
+y5 = withhaptics_test_acc;
+y6 = withouthaptics_test_acc;
+
+y_label = "Acceleration [m/s^2]";
+y_lim = [min(min([y1, y2, y3, y4, y5, y6])) - 0.5, max(max([y1, y2, y3, y4, y5, y6])) + 0.5];
+
+[my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', y_label, y_lim, "", 0.5, 0.6);
+
+
+%% Jerk
 JrkTable.Condition = categorical(JrkTable.Condition);
 JrkTable.Group = categorical(JrkTable.Group);
 
@@ -800,19 +709,32 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 % Reorder the unique values in DropPosTable.Condition
 JrkTable.Condition = reordercats(JrkTable.Condition, desiredOrder);
 
+% Data extraction for jerk
+withhaptics_baseline_jerk = JrkTable(JrkTable.Group == "WithHaptics" & JrkTable.Condition == "Baseline", :).Jerk;
+withouthaptics_baseline_jerk = JrkTable(JrkTable.Group == "WithoutHaptics" & JrkTable.Condition == "Baseline", :).Jerk;
 
-figure
-jrk_boxchart = boxchart(JrkTable.Condition, JrkTable.Jerk,'GroupByColor',JrkTable.Group);
+withhaptics_train_jerk = JrkTable(JrkTable.Group == "WithHaptics" & JrkTable.Condition == "Train", :).Jerk;
+withouthaptics_train_jerk = JrkTable(JrkTable.Group == "WithoutHaptics" & JrkTable.Condition == "Train", :).Jerk;
 
-legend("Location", "Best")
-title('Jerk plot - MEAN');
-ylabel('Jerk [m/s^3]');
-xlabel('Conditions');
+withhaptics_test_jerk = JrkTable(JrkTable.Group == "WithHaptics" & JrkTable.Condition == "Test", :).Jerk;
+withouthaptics_test_jerk = JrkTable(JrkTable.Group == "WithoutHaptics" & JrkTable.Condition == "Test", :).Jerk;
+
+% Plot Jerk
+y1 = withhaptics_baseline_jerk;
+y2 = withouthaptics_baseline_jerk;
+y3 = withhaptics_train_jerk;
+y4 = withouthaptics_train_jerk;
+y5 = withhaptics_test_jerk;
+y6 = withouthaptics_test_jerk;
+
+y_label = "Jerk [m/s^3]";
+y_lim = [min(min([y1, y2, y3, y4, y5, y6])) - 5, max(max([y1, y2, y3, y4, y5, y6])) + 5];
+
+[my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', y_label, y_lim, "", 0.5, 0.6);
 
 %% Analysis: Score data
 
 ScoreData = struct();
-
 GroupNames = fieldnames(SubjectData);
 % Where GroupNames is either "withHaptics" or "withoutHaptics"
 
@@ -831,9 +753,6 @@ for i = 1:length(GroupNames)
         ParticipantNames = fieldnames(Participants);
         Data = Participants.(ParticipantNames{j}).Score;
 
-%         BaselineScore = (Data.Baseline.data(1)) / (Data.Baseline.data(end)) * 100;
-%         TrainScore = (Data.Train.data(1)) / (Data.Train.data(end)) * 100;
-%         TestScore = (Data.Test.data(1)) / (Data.Test.data(end)) * 100;
         BaselineScore = (Data.Baseline.data(1));
         TrainScore = (Data.Train.data(1));
         TestScore = (Data.Test.data(1));
@@ -848,18 +767,11 @@ end
 GroupNames = fieldnames(ScoreData);
 
 k = 1;
-% figure
 
 BaselineData = {};
 TrainData = {};
 TestData = {};
 
-% % % Change the dimensions of the figure
-% % newWidth = 600;  % New width in pixels
-% % newHeight = 800; % New height in pixels
-% % set(gcf, 'Position', [100, 100, newWidth, newHeight]);
-% % set(gca, 'XTickLabel', {});
-% % set(gca, 'XTick', []);
 
 % This loops in the "withHaptics" and "withoutHaptics" groups
 for i = 1:length(GroupNames)
@@ -878,57 +790,8 @@ for i = 1:length(GroupNames)
         TrainData{i, j} = Data.Train;
         TestData{i, j} = Data.Test;
     end
-
-% %         Example data
-% %         data1 = [BaselineData{i, :}];
-% %         data2 = [TrainData{i, :}];
-% %         data3 = [TestData{i, :}];
-% %         
-% %         Calculate mean and standard deviation
-% %         mean1 = mean(data1);
-% %         std1 = std(data1);
-% %         mean2 = mean(data2);
-% %         std2 = std(data2);
-% %         mean3 = mean(data3);
-% %         std3 = std(data3);
-% %         
-% %         Create a figure
-% %         subplot(length(GroupNames), 1, i)
-% % 
-% %         Set the position of each bar chart
-% %         barPositions = 0;
-% %         barWidth = 0.3;
-% %         set(gca, 'XTick', []);
-% %         Plot the first bar chart
-% %         bar(barPositions, mean1, barWidth);
-% %         hold on;
-% %         bar(barPositions + barWidth, mean2, barWidth);
-% %         hold on;
-% %         bar(barPositions + 2*barWidth, mean3, barWidth);
-% %         
-% %         errorbar(barPositions, mean1, std1, 'k.', 'LineWidth', 1);
-% %         
-% %         Plot the second bar chart
-% %         
-% %         errorbar(barPositions + barWidth, mean2, std2, 'k.', 'LineWidth', 1);
-% % 
-% %         errorbar(barPositions + 2*barWidth, mean3, std3, 'k.', 'LineWidth', 1);
-% %         
-% %         Customize the chart
-% %         xlabel(["Baseline", "Test"]);
-% %         ylabel('Score Percentage [%]');
-% %         legend('Baseline', 'Train', 'Test', 'Location', 'bestoutside');
-% %         title(strcat(GroupNames{i}));
-% %         
-% %         Adjust the x-axis limits
-% %         xlim([min(barPositions)-barWidth, max(barPositions)+3*barWidth]);
-% %         
-% %         Adjust the x-axis tick labels
-% %         xticks([]);
-
 end
 
-%%% Step 4: Plot the Score Data - Group specific
 
 % make a table for boxplot
 GroupNames = fieldnames(ScoreData);
@@ -937,6 +800,11 @@ scoreData = [];
 variable_names = {'Group', 'Condition', 'Score'};
 condition_temp = {};
 ScoreTable = table({}, {}, scoreData, 'VariableNames', variable_names);
+
+% make a table for delta score between Test and Baseline for barplot
+DeltaScore = [];
+variable_names_delta = {'Group', 'DeltaScore'}
+DeltaTable = table({}, DeltaScore, 'VariableNames', variable_names_delta)
 
 % This loops in the "withHaptics" and "withoutHaptics" groups
 for i = 1:length(GroupNames)
@@ -956,6 +824,14 @@ for i = 1:length(GroupNames)
         Train_scoreData = myData.Train;
         Test_scoreData = myData.Test;
         
+        DeltaScore = Test_scoreData - Baseline_scoreData
+
+        groupname_temp_delta = cell('');
+        groupname_temp_delta = [groupname_temp_delta; GroupNames{i}];
+        newRow_delta = table(groupname_temp_delta, DeltaScore, 'VariableNames', variable_names_delta);
+        DeltaTable = [DeltaTable; newRow_delta];
+
+
         groupname_temp = cell('');
         condition_temp = cell('');
         condition_temp = [condition_temp; 'Baseline'];
@@ -1000,7 +876,7 @@ desiredOrder = {'Baseline', 'Train', 'Test'};  % Change the order as needed
 % Reorder the unique values in DropPosTable.Condition
 ScoreTable.Condition = reordercats(ScoreTable.Condition, desiredOrder);
 
-%% data extraction
+%% data extraction for score
 withhaptics_baseline_gamescore = ScoreTable(ScoreTable.Group == "WithHaptics" & ScoreTable.Condition == "Baseline", :).Score;
 withouthaptics_baseline_gamescore = ScoreTable(ScoreTable.Group == "WithoutHaptics" & ScoreTable.Condition == "Baseline", :).Score;
 
@@ -1009,48 +885,46 @@ withouthaptics_train_gamescore = ScoreTable(ScoreTable.Group == "WithoutHaptics"
 
 withhaptics_test_gamescore = ScoreTable(ScoreTable.Group == "WithHaptics" & ScoreTable.Condition == "Test", :).Score;
 withouthaptics_test_gamescore = ScoreTable(ScoreTable.Group == "WithoutHaptics" & ScoreTable.Condition == "Test", :).Score;
+%% Plot Success rate
+y1 = withhaptics_baseline_gamescore/60*100;
+y2 = withouthaptics_baseline_gamescore/60*100;
+y3 = withhaptics_train_gamescore/60*100;
+y4 = withouthaptics_train_gamescore/60*100;
+y5 = withhaptics_test_gamescore/60*100;
+y6 = withouthaptics_test_gamescore/60*100;
 
+y_label = "Success rate";
+y_lim = [0, 100];
+
+[my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', y_label, y_lim, "", 0.5, 0.6);
+StatisticalLines(x1, 0.995*x5, '**', 90, 2, 7)
+StatisticalLines(1.005*x5, x6, '***', 90, 2, 7)
+StatisticalLines(x2, x5, '**', 97, 2, 7)
+
+%%
 %%% Normality check
 figure
-    data = withhaptics_baseline_gamescore
+    data = withouthaptics_test_gamescore
     mean_ = mean(data);
     res_ = data - mean_;
-    qqplot(res_)
-
-%% Stats
-% close all
-[p,t,stats] = anova1([withhaptics_baseline_gamescore, withouthaptics_baseline_gamescore, withhaptics_test_gamescore, withouthaptics_test_gamescore], [], 'off')
-[c,m,h,gnames] = multcompare(stats, 'CType', 'bonferroni')
+    qqplot(data)
+%% Run stats
+[h,p] = ttest2(withhaptics_test_gamescore, withouthaptics_test_gamescore,'Alpha',0.05)
 %%
+[p,tbl,stats] = anova2([withhaptics_test_gamescore, withouthaptics_test_gamescore]);
+p
 figure
-    centre = [1, 2.75, 4.5];
-    bias = 0.3;
-    x_data1 = centre - bias;
-    x_data1 = repmat(x_data1, 1, 11);
-    x_data2 = centre + bias;
-    x_data2 = repmat(x_data2, 1, 11);
-    % x_data2 = repmat(x_data1, 1, 11);
-    y_data1 = ScoreTable.Score(1:33);
-    y_data2 = ScoreTable.Score(34:end);
-    score_boxchart = boxchart(x_data1, y_data1);
-    hold on
-    boxchart(x_data2, y_data2)
-    score_boxchart.Parent.XTick = centre;
-    score_boxchart.Parent.XTickLabel = {'Baseline','Train','Test'};
+comparison = multcompare(stats)
+p = comparison(:, end)
+%% Stats for score
+% close all
+[p,t,stats] = anova1([withouthaptics_baseline_gamescore, withouthaptics_test_gamescore])
+p
+[p,t,stats] = anova1([withhaptics_baseline_gamescore, withhaptics_test_gamescore])
+p
+% [c,m,h,gnames] = multcompare(stats, "bonferroni")
 
-    score_legend = legend("WithHaptics","WithoutHaptics","Location", "Best");
-    excludeIndex = 2;
-    legendEntries = score_legend.EntryContainer.Children;
-    legendEntries(3:end) = [];
-    score_legend.String = {'WithHaptics', 'WithoutHaptics'}
-
-    title('Score plot');
-    ylabel('Score [%]');
-    ylim([0, 130])
-    xlabel('Conditions');
-
-%%% Statistical Analysis: Score
-
+%%
 % Create categorical array for x-axis labels with desired order
 ScoreTable.Condition = categorical(ScoreTable.Condition);
 ScoreTable.Group = categorical(ScoreTable.Group);
@@ -1077,107 +951,181 @@ hold on
 % StatisticalLines(centre(1) - bias, centre(2) - bias - bias2, '*', 87, 0.7, 2, score_legend)
 % StatisticalLines(centre(2) - bias + bias2, centre(3) - bias - bias2, '***', 87, 0.7, 2, score_legend)
 % StatisticalLines(centre(3) - bias + bias2, centre(3) + bias, '**', 87, 0.7, 2, score_legend)
-ylim([0, 60])
-xlim([0.25, 5.25])
+% ylim([0, 60])
+% xlim([0.25, 5.25])
 %% Score plot
-% figure
 % close all
-NASAScoreFigure = figure;
-    NASAScoreFigure.Units = 'centimeters';
-    NASAScoreFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
-    NASAScoreFigure.PaperUnits = 'centimeters';
-%     NASAScoreFigure.PaperPosition = [15, 15, 7.5, 7.5];
-%%%Baseline
-% withhaptics_baseline_gamescore
-% withouthaptics_baseline_gamescore
-% withhaptics_train_gamescore
-% withouthaptics_train_gamescore
-% withhaptics_test_gamescore 
-% withouthaptics_test_gamescore
-%     centre = 
-    n_withhaptics = 11;
-    n_withouthaptics = 11;
-        centre = 1;
-    bias_between_groups = 0.3;
-    bias_between_conditions = 1.5;
-    bias_between_questions = 0.7;
-    color_withhaptics = [0 0.4470 0.7410];
-    color_withouthaptics = [0.8500 0.3250 0.0980];
-    bias2 = 0.02;
-
-    withhaptics_baseline_q6_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_baseline_q6_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-    withhaptics_train_q6_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_train_q6_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
-    withhaptics_test_q6_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
-    withouthaptics_test_q6_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
-
-
-    score_boxchart = boxchart(withhaptics_baseline_q6_x, withhaptics_baseline_gamescore);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_baseline_q6_x, withouthaptics_baseline_gamescore);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-
-    %%%% Train
-    
-    score_boxchart = boxchart(withhaptics_train_q6_x, withhaptics_train_gamescore);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_train_q6_x, withouthaptics_train_gamescore);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-    
-    %%%% Test
-    
-    score_boxchart = boxchart(withhaptics_test_q6_x, withhaptics_test_gamescore);
-    score_boxchart.BoxFaceColor = color_withhaptics;
-    score_boxchart.MarkerColor = color_withhaptics;
-    score_boxchart.MarkerSize = 3;
-    hold on
-    score_boxchart = boxchart(withouthaptics_test_q6_x, withouthaptics_test_gamescore);
-    score_boxchart.BoxFaceColor = color_withouthaptics;
-    score_boxchart.MarkerColor = color_withouthaptics;
-    score_boxchart.MarkerSize = 3;
-
-    score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
-    score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
-    score_boxchart.Parent.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Units = 'points';
-    score_boxchart.Parent.FontSize = 9;
-
-    score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
-%     score_boxchart.Parent.XLabel.String = "Conditions";
-%     score_boxchart.Parent.YLabel.String = "Score";
-%     score_boxchart.Parent.Subtitle.String = "Frustration";
-    score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Subtitle.Units = 'points';
-    score_boxchart.Parent.Subtitle.FontSize = 9;
-    score_legend = legend("With haptics", "Without haptics", "Location", "northOutside")
-%     score_boxchart.Parent.Legend.String = ("With haptics", "Without haptics");
-%     score_boxchart.Parent.Legend.Location = "BestOutside";
-    score_boxchart.Parent.Legend.Units = 'points';
-    score_boxchart.Parent.Legend.FontSize = 9;
-    score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.Legend.Orientation = 'horizontal';
-%     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
-    score_boxchart.Parent.YLabel.String = "Game score";
-    score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
-    score_boxchart.Parent.YLabel.FontUnits = "points";
-    score_boxchart.Parent.YLabel.FontSize = 9;
-    score_boxchart.MarkerSize = 3;
-    ylim([0, 60])
-
-    StatisticalLines(withhaptics_baseline_q6_x(1), withhaptics_test_q6_x(1) - bias2, '**', 53, 0.5, 9, score_legend)
-    StatisticalLines(withhaptics_test_q6_x(1) + bias2, withouthaptics_test_q6_x(1), '**', 53, 0.5, 9, score_legend)
-    StatisticalLines(withouthaptics_baseline_q6_x(1), withouthaptics_test_q6_x(1), '**', 56, 0.5, 9, score_legend)
+% plot_width = 8.6;
+% 
+% PerformanceFigure = figure;
+% PerformanceFigure.Units = "centimeters";
+%     old_pos = PerformanceFigure.Position;
+%     PerformanceFigure.Position(3) = plot_width;
+%     PerformanceFigure.Position(4) = 8;
+%     PerformanceFigure.Position
+% 
+% ScorePlot = subplot(1, 2, 1);
+%     n_withhaptics = 11;
+%     n_withouthaptics = 11;
+%     centre = 1;
+%     bias_between_groups = 0.3;
+%     bias_between_conditions = 1.5;
+%     bias_between_questions = 0.7;
+%     color_withhaptics = [0 0.4470 0.7410];
+%     color_withouthaptics = [0.8500 0.3250 0.0980];
+%     bias2 = 0.02;
+% 
+%     withhaptics_baseline_q6_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
+%     withouthaptics_baseline_q6_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
+%     withhaptics_train_q6_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
+%     withouthaptics_train_q6_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
+%     withhaptics_test_q6_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
+%     withouthaptics_test_q6_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
+% 
+%     score_boxchart = boxchart(withhaptics_baseline_q6_x, withhaptics_baseline_gamescore);
+%     score_boxchart.BoxFaceColor = color_withhaptics;
+%     score_boxchart.MarkerColor = color_withhaptics;
+%     score_boxchart.MarkerSize = 3;
+%     hold on
+%     score_boxchart = boxchart(withouthaptics_baseline_q6_x, withouthaptics_baseline_gamescore);
+%     score_boxchart.BoxFaceColor = color_withouthaptics;
+%     score_boxchart.MarkerColor = color_withouthaptics;
+%     score_boxchart.MarkerSize = 3;
+% 
+%     %%%% Train
+%     score_boxchart = boxchart(withhaptics_train_q6_x, withhaptics_train_gamescore);
+%     score_boxchart.BoxFaceColor = color_withhaptics;
+%     score_boxchart.MarkerColor = color_withhaptics;
+%     score_boxchart.MarkerSize = 3;
+%     hold on
+%     score_boxchart = boxchart(withouthaptics_train_q6_x, withouthaptics_train_gamescore);
+%     score_boxchart.BoxFaceColor = color_withouthaptics;
+%     score_boxchart.MarkerColor = color_withouthaptics;
+%     score_boxchart.MarkerSize = 3;
+%     
+%     %%%% Test
+%     score_boxchart = boxchart(withhaptics_test_q6_x, withhaptics_test_gamescore);
+%     score_boxchart.BoxFaceColor = color_withhaptics;
+%     score_boxchart.MarkerColor = color_withhaptics;
+%     score_boxchart.MarkerSize = 3;
+%     hold on
+%     score_boxchart = boxchart(withouthaptics_test_q6_x, withouthaptics_test_gamescore);
+%     score_boxchart.BoxFaceColor = color_withouthaptics;
+%     score_boxchart.MarkerColor = color_withouthaptics;
+%     score_boxchart.MarkerSize = 3;
+% %     score_legend = legend("With haptics", "Without haptics", "Location", "northOutside")
+% %     score_boxchart.Parent.Legend.Units = 'points';
+% %     score_boxchart.Parent.Legend.FontSize = 9;
+% %     score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
+% %     score_boxchart.Parent.Legend.Orientation = 'horizontal';
+% 
+%     score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
+%     score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
+%     score_boxchart.Parent.FontName = 'Linux Libertine G';
+%     score_boxchart.Parent.Units = 'points';
+%     score_boxchart.Parent.FontSize = 9;
+% 
+%     score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
+%     score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
+%     score_boxchart.Parent.Subtitle.Units = 'points';
+%     score_boxchart.Parent.Subtitle.FontSize = 9;
+% 
+%     score_boxchart.Parent.YLabel.String = "Accuracy";
+%     score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
+%     score_boxchart.Parent.YLabel.FontUnits = "points";
+%     score_boxchart.Parent.YLabel.FontSize = 9;
+%     score_boxchart.MarkerSize = 3;
+%     ylim([0, 65])
+% %     StatisticalLines2(withhaptics_baseline_q6_x(1), withhaptics_test_q6_x(1) - bias2, '***', 56, 0.5, 9)
+% %     StatisticalLines2(withhaptics_test_q6_x(1) + bias2, withouthaptics_test_q6_x(1), '**', 56, 0.5, 9)
+% %     StatisticalLines2(withouthaptics_baseline_q6_x(1), withouthaptics_test_q6_x(1), '***', 60, 0.5, 9)
+% 
+% subplot(1,2,2)
+%     n_withhaptics = 11;
+%     n_withouthaptics = 11;
+%     centre = 1;
+%     bias_between_groups = 0.3;
+%     bias_between_conditions = 1.5;
+%     bias_between_questions = 0.7;
+%     color_withhaptics = [0 0.4470 0.7410];
+%     color_withouthaptics = [0.8500 0.3250 0.0980];
+%     bias2 = 0.02;
+% 
+%     withhaptics_baseline_q6_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
+%     withouthaptics_baseline_q6_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
+%     
+%     withhaptics_train_q6_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
+%     withouthaptics_train_q6_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
+%     
+%     withhaptics_test_q6_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
+%     withouthaptics_test_q6_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
+%  
+% %%%Baseline
+%     score_boxchart = boxchart(withhaptics_baseline_q6_x, with_haptics_baseline_time);
+%     score_boxchart.BoxFaceColor = color_withhaptics;
+%     score_boxchart.MarkerColor = color_withhaptics;
+%     score_boxchart.MarkerSize = 3;
+%     hold on
+%     score_boxchart = boxchart(withouthaptics_baseline_q6_x, without_haptics_baseline_time);
+%     score_boxchart.BoxFaceColor = color_withouthaptics;
+%     score_boxchart.MarkerColor = color_withouthaptics;
+%     score_boxchart.MarkerSize = 3;
+% 
+%     %%%% Train
+%     score_boxchart = boxchart(withhaptics_train_q6_x, with_haptics_train_time);
+%     score_boxchart.BoxFaceColor = color_withhaptics;
+%     score_boxchart.MarkerColor = color_withhaptics;
+%     score_boxchart.MarkerSize = 3;
+%     hold on
+%     score_boxchart = boxchart(withouthaptics_train_q6_x, without_haptics_train_time);
+%     score_boxchart.BoxFaceColor = color_withouthaptics;
+%     score_boxchart.MarkerColor = color_withouthaptics;
+%     score_boxchart.MarkerSize = 3;
+%     
+%     %%%% Test
+%     score_boxchart = boxchart(withhaptics_test_q6_x, with_haptics_test_time);
+%     score_boxchart.BoxFaceColor = color_withhaptics;
+%     score_boxchart.MarkerColor = color_withhaptics;
+%     score_boxchart.MarkerSize = 3;
+%     hold on
+%     score_boxchart = boxchart(withouthaptics_test_q6_x, without_haptics_test_time);
+%     score_boxchart.BoxFaceColor = color_withouthaptics;
+%     score_boxchart.MarkerColor = color_withouthaptics;
+%     score_boxchart.MarkerSize = 3;
+% 
+%     score_boxchart.Parent.XTick = [centre - bias_between_conditions, centre, centre + bias_between_conditions];
+%     score_boxchart.Parent.XTickLabel = {'Baseline', 'Train', 'Test'};
+%     score_boxchart.Parent.FontName = 'Linux Libertine G';
+%     score_boxchart.Parent.Units = 'points';
+%     score_boxchart.Parent.FontSize = 9;
+% 
+%     score_boxchart.Parent.XLim = [centre(1) - bias_between_conditions - bias_between_groups - score_boxchart.BoxWidth, centre(1) + bias_between_conditions + bias_between_groups + score_boxchart.BoxWidth];
+%     score_boxchart.Parent.Subtitle.FontName = 'Linux Libertine G';
+%     score_boxchart.Parent.Subtitle.Units = 'points';
+%     score_boxchart.Parent.Subtitle.FontSize = 9;
+% %     score_legend = legend("With haptics", "Without haptics", "Location", "northoutside")
+% %     score_boxchart.Parent.Legend.Units = 'points';
+% %     score_boxchart.Parent.Legend.FontSize = 9;
+% %     score_boxchart.Parent.Legend.FontName = 'Linux Libertine G';
+% %     score_boxchart.Parent.Legend.Orientation = 'horizontal';
+% %     score_boxchart.Parent.Legend.Position = [200 290 183.7500 13.5000];
+%     score_boxchart.Parent.YLabel.String = "Time [s]";
+%     score_boxchart.Parent.YLabel.FontName = 'Linux Libertine G';
+%     score_boxchart.Parent.YLabel.FontUnits = "points";
+%     score_boxchart.Parent.YLabel.FontSize = 9;
+%     score_boxchart.MarkerSize = 3;
+% 
+% %     score_boxchart.Parent.Position(2) = 70
+%     ylim([0, 2.6])
+% 
+% % Create a legend in the middle of the figure
+% hLegend = legend('With haptics', 'Without haptics', 'Location', 'best', 'Orientation','horizontal');
+% 
+% % Adjust the position of the legend
+% pos = get(hLegend, 'Position');
+% pos(1) = 0.5 - pos(3)/2; % Center the legend horizontally
+% pos(2) = 1 - pos(4);     % Place the legend at the top of the figure
+% set(hLegend, 'Position', pos);
 %%
     [p1,h,stats] = signrank(withhaptics_baseline_gamescore, withhaptics_test_gamescore, alpha=0.05/2)
 
@@ -1195,6 +1143,108 @@ NASAScoreFigure = figure;
         [p,h,stats] = anova1([withhaptics_test_gamescore, withouthaptics_test_gamescore], {'WithHapticsTest', 'WithoutHapticsTest'});
     p
 %     p = p*3
+
+%% Data extraction for delta score
+
+withhaptics_delta_score = DeltaTable(DeltaTable.Group == "WithHaptics", :).DeltaScore;
+withouthaptics_delta_score = DeltaTable(DeltaTable.Group == "WithoutHaptics", :).DeltaScore;
+
+mean_withhaptics = mean(withhaptics_delta_score);
+mean_withouthaptics = mean(withouthaptics_delta_score);
+
+std_withhaptics = std(withhaptics_delta_score);
+std_withouthaptics = std(withouthaptics_delta_score);
+% barplot for delta score
+% figure
+% close all
+DeltaScoreFigure = figure;
+    DeltaScoreFigure.Units = 'centimeters';
+    DeltaScoreFigure.Position
+    DeltaScoreFigure.Position = [15, 15, 7.5, 7.5/14.8167*11.1125];
+    DeltaScoreFigure.PaperUnits = 'centimeters';
+%     NASAScoreFigure.PaperPosition = [15, 15, 7.5, 7.5];
+
+    n_withhaptics = 11;
+    n_withouthaptics = 11;
+    centre = 1;
+    bias_between_groups = 0.3;
+    bias_between_conditions = 1.5;
+    bias_between_questions = 0.7;
+    color_withhaptics = [0 0.4470 0.7410];
+    color_withouthaptics = [0.8500 0.3250 0.0980];
+    withouthaptics_alpha = 0.2000;
+    withhaptics_alpha = 0.2000;
+    bias2 = 0.02;
+
+    withhaptics_baseline_q6_x = (centre - bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
+    withouthaptics_baseline_q6_x = (centre - bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
+%     withhaptics_train_q6_x = (centre - bias_between_groups) * ones(1, n_withhaptics);
+%     withouthaptics_train_q6_x = (centre + bias_between_groups) * ones(1, n_withouthaptics);
+%     withhaptics_test_q6_x = (centre + bias_between_conditions - bias_between_groups) * ones(1, n_withhaptics);
+%     withouthaptics_test_q6_x = (centre + bias_between_conditions + bias_between_groups) * ones(1, n_withouthaptics);
+
+
+    delta_barchart = bar(withhaptics_baseline_q6_x(1), mean_withhaptics);
+    delta_barchart.FaceColor = color_withhaptics;
+    delta_barchart.FaceAlpha = withhaptics_alpha;
+    delta_barchart.BarWidth = 0.5;
+    delta_barchart.EdgeColor = color_withhaptics;
+    delta_barchart.LineWidth = 1;
+    delta_barchart.Parent.XTick = [];
+    hold on
+    delta_barchart = bar(withouthaptics_baseline_q6_x(1), mean_withouthaptics);
+    delta_barchart.FaceColor = color_withouthaptics;
+    delta_barchart.FaceAlpha = withouthaptics_alpha;
+    delta_barchart.BarWidth = 0.5;
+    delta_barchart.EdgeColor = color_withouthaptics;
+    delta_barchart.LineWidth = 1;
+    delta_barchart.Parent.XTick = [];
+%     xlim([-.5, 0])
+
+    hold on
+    errorbar(withhaptics_baseline_q6_x(1), mean_withhaptics, std_withhaptics, 'k.', 'LineWidth', 1);
+    hold on
+    errorbar(withouthaptics_baseline_q6_x(1), mean_withouthaptics, std_withouthaptics, 'k.', 'LineWidth', 1);
+%%
+%     %%
+%     figure
+%     data = withouthaptics_delta_score;
+%     mean_ = mean(data);
+%     res_ = data - mean_;
+%     qqplot(res_)
+
+[h, p, stat] = swtest(withhaptics_test_gamescore, 0.05)
+
+%% Handedness analysis
+% close all
+% withhaptics_handedness = [6, 3, 6, 6, arman, 3, 2, 5, 0, 9, 5];
+% withouthaptics_handedness = [0, 5, 6, 0, 2, 3, chongren, 10, 6, 7, 6];
+withhaptics_handedness = [6, 3, 6, 6, 3, 3, 2, 5, 0, 9, 5]';
+withouthaptics_handedness = [0, 5, 6, 0, 2, 3, 2, 10, 6, 7, 6]';
+figure
+scatter([withhaptics_handedness; withouthaptics_handedness], [withhaptics_delta_score; withouthaptics_delta_score]);
+hold on
+scatter(withouthaptics_handedness, withouthaptics_delta_score);
+legend("With haptics", "Without haptics")
+xlim([-0.5, 10.5])
+
+WithHaptics = [withhaptics_handedness, withhaptics_delta_score];
+WithoutHaptics = [withouthaptics_handedness, withouthaptics_delta_score];
+% Assuming 'data' is your preprocessed data and 'k' is the number of clusters
+data = [WithHaptics; WithoutHaptics];
+k = 2;
+idx = kmeans(data, k);
+
+% 'idx' contains the cluster assignments for each data point
+% 'C' contains the final centroids
+[idx, C] = kmeans(data, k);
+figure
+scatter(data(:,1), data(:,2), [], idx, 'filled');
+title('Cluster Assignments');
+
+% ARI = adjustedrandindex(groundTruthLabels, idx);
+
+
 %% Analysis: DropPos data
 
 %%% Step1: Clean the data and store them in DropPosData
@@ -1583,4 +1633,5 @@ title('Error plot - MEAN');
 ylabel('Error [m]');
 xlabel('Conditions');
 
-%% Analysis: EMG data
+%% 
+difference_withhaptics = []
