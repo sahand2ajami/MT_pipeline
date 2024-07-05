@@ -3,7 +3,7 @@ clc, clear, close all
 n_withhaptics = 11;
 n_withouthaptics = 11;
 
-data_path = "D:\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline2\Questionnaire\Data";
+data_path = "D:\OneDrive - University of Waterloo\MT project\DataAnalysis\mt_pipeline\Questionnaire\Data";
 cd(data_path)
 
 % Define the path to your Excel file
@@ -452,7 +452,7 @@ without_haptics_test_tactile = without_haptics_test_tactile.Score;
 % disp('WithHapticsTest vs. WithoutHapticsTest:')
 % [p, ~, stats] = ranksum(without_haptics_test_tactile, with_haptics_test_tactile)
 
-[p,tbl,stats] = anova2([with_haptics_train_tactile, without_haptics_train_tactile]);
+[p,tbl,stats] = anova1([with_haptics_train_tactile, without_haptics_train_tactile]);
 p
 close all
 comparison = multcompare(stats)
@@ -479,7 +479,22 @@ y_lim = [-12, 12];
 
 [scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', y_label, y_lim, "", 0.5, 0.6);
 StatisticalLines(x3, x4, '**', 9, 0.5, 9)
+%%
+data = [y3', y4'];
 
+% Create a grouping variable
+group = [repmat({'y3'}, 1, length(y3)), repmat({'y4'}, 1, length(y4))];
+
+% Perform One-Way ANOVA
+[p, tbl, stats] = anova1(data, group);
+
+% Display ANOVA table
+disp('ANOVA Table:');
+disp(tbl);
+
+% Display the p-value from the ANOVA with higher precision
+format long;
+fprintf('ANOVA p-value: %e\n', p);
 %% Normality check
 close all
 data = [with_haptics_baseline_tactile; with_haptics_train_tactile; with_haptics_test_tactile]
@@ -735,10 +750,10 @@ ExternalAppearanceScoreTable.Condition = reordercats(ExternalAppearanceScoreTabl
 
 %% Final Embodiment score
 
-weight_q1 = 20;
-weight_q2 = 30;
-weight_q3 = 30;
-weight_q4 = 20;
+weight_q1 = 15;
+weight_q2 = 35;
+weight_q3 = 35;
+weight_q4 = 15;
 
 %%% Body Ownership
 withouthaptics_baseline_q1_ydata = BodyScoreTable(BodyScoreTable.Group == "WithoutHaptics" & BodyScoreTable.Condition == "Baseline", :).Score;
@@ -814,6 +829,42 @@ withhaptics_test_score = weight_q1 .* (withhaptics_test_q1_ydata + 9)./18 + ...
     weight_q2 .* (withhaptics_test_q2_ydata + 12)./24 + ...
     weight_q3 .* (withhaptics_test_q3_ydata + 12)./24 + ...
     weight_q4 .* (withhaptics_test_q4_ydata + 9)./18;
+
+%%
+%%%
+withouthaptics_baseline_score = (withouthaptics_baseline_q1_ydata./3 + ...
+    (withouthaptics_baseline_q2_ydata)./ 4 + ...
+    (withouthaptics_baseline_q3_ydata)./4 + ...
+    (withouthaptics_baseline_q4_ydata)./3)/4;
+  
+withouthaptics_train_score = (withouthaptics_train_q1_ydata./3 + ...
+    (withouthaptics_train_q2_ydata)./ 4 + ...
+    (withouthaptics_train_q3_ydata)./4 + ...
+    (withouthaptics_train_q4_ydata)./3)/4;
+
+withouthaptics_test_score = (withouthaptics_test_q1_ydata./3 + ...
+    (withouthaptics_test_q2_ydata)./ 4 + ...
+    (withouthaptics_test_q3_ydata)./4 + ...
+    (withouthaptics_test_q4_ydata)./3)/4;
+
+
+withhaptics_baseline_score =  (withhaptics_baseline_q1_ydata./3 + ...
+    (withhaptics_baseline_q2_ydata)./ 4 + ...
+    (withhaptics_baseline_q3_ydata)./4 + ...
+    (withhaptics_baseline_q4_ydata)./3)/4;
+  
+
+withhaptics_train_score = (withhaptics_train_q1_ydata./3 + ...
+    (withhaptics_train_q2_ydata)./ 4 + ...
+    (withhaptics_train_q3_ydata)./4 + ...
+    (withhaptics_train_q4_ydata)./3)/4;
+   
+
+withhaptics_test_score = (withhaptics_test_q1_ydata./3 + ...
+    (withhaptics_test_q2_ydata)./ 4 + ...
+    (withhaptics_test_q3_ydata)./4 + ...
+    (withhaptics_test_q4_ydata)./3)/4;
+
 %% Overall Embodiment Perception plot
 
 close all
@@ -830,14 +881,27 @@ y_lim = [0, 100];
 [scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
     y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', ...
     y_label, y_lim, "", 0.5, 0.6);
-StatisticalLines(x3, x4, '*', 90, 2, 9)
-
+% StatisticalLines(x3, x4, '*', 90, 2, 9)
+effect = meanEffectSize(y3,y4,Paired=false,Effect="robustcohen",Alpha=0.05)
+%%
+[h, p] = ttest2(y3, y4)
 %%
 % STAT TEST - TTEST2
-x = withouthaptics_train_score;
-y = withhaptics_train_score;
-[h,p,ci,stats] = ttest2(x,y)
+data = [y3', y4'];
 
+% Create a grouping variable
+group = [repmat({'y3'}, 1, length(y3)), repmat({'y4'}, 1, length(y4))];
+
+% Perform One-Way ANOVA
+[p, tbl, stats] = anova1(data, group);
+
+% Display ANOVA table
+disp('ANOVA Table:');
+disp(tbl);
+
+% Display the p-value from the ANOVA with higher precision
+format long;
+fprintf('ANOVA p-value: %e\n', p);
 %% Stats on Overall embodiment
 % Analyzing the normality
 % [H, pValue, W] = swtest(withouthaptics_train_score, 0.05);
@@ -1216,8 +1280,23 @@ my_title = "Physical Demand";
 [scatter_boxchart, my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, ...
     y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', ...
     y_label, y_lim, my_title, 0.5, 0.6);
-StatisticalLines(x3, x4, '*', 20, 0.5, 9)
+StatisticalLines(x3, x4, '**', 20, 0.5, 9)
+%%
+data = [y3', y4'];
 
+% Create a grouping variable
+group = [repmat({'y3'}, 1, length(y3)), repmat({'y4'}, 1, length(y4))];
+
+% Perform One-Way ANOVA
+[p, tbl, stats] = anova1(data, group);
+
+% Display ANOVA table
+disp('ANOVA Table:');
+disp(tbl);
+
+% Display the p-value from the ANOVA with higher precision
+format long;
+fprintf('ANOVA p-value: %e\n', p);
 %% Temporal Demand
 close all 
 y1 = withhaptics_baseline_q3_ydata;
@@ -1235,7 +1314,22 @@ my_title = "Temporal Demand";
     y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, '', '', '', ...
     y_label, y_lim, my_title, 0.5, 0.6);
 StatisticalLines(x3, x4, '*', 20, 0.5, 9)
+%%
+data = [y3', y4'];
 
+% Create a grouping variable
+group = [repmat({'y3'}, 1, length(y3)), repmat({'y4'}, 1, length(y4))];
+
+% Perform One-Way ANOVA
+[p, tbl, stats] = anova1(data, group);
+
+% Display ANOVA table
+disp('ANOVA Table:');
+disp(tbl);
+
+% Display the p-value from the ANOVA with higher precision
+format long;
+fprintf('ANOVA p-value: %e\n', p);
 %% Performance
 close all 
 y1 = withhaptics_baseline_q4_ydata;

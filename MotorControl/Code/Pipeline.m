@@ -9,8 +9,8 @@ num_participants = 22;
 stop = start + (num_participants - 1); % final folder depends on the number of participants
 
 % This is where each participants' data are stored for this project
-data_path = "D:\OneDrive - University of Waterloo\project_MT\DataAnalysis\mt_pipeline2\MotorControl\Data\CHIData";
-cd (data_path)
+data_path = "D:\OneDrive - University of Waterloo\project_MT\DataAnalysis\mt_pipeline\MotorControl\Data";
+cd(data_path)
 
 % This function loops in every participant's folder and makes a .mat copy
 % of their .csv data 
@@ -892,14 +892,62 @@ y4 = withouthaptics_train_gamescore/60*100;
 y5 = withhaptics_test_gamescore/60*100;
 y6 = withouthaptics_test_gamescore/60*100;
 
-y_label = "Success rate";
+y_label = "Success rate  [%]";
 y_lim = [0, 100];
 
 [my_boxchart, x1, x2, x3, x4, x5, x6] = my_boxplot(y1, y2, y3, y4, y5, y6, 2.5, 'Linux Libertine G', 9, 'Baseline', 'Train', 'Test', y_label, y_lim, "", 0.5, 0.6);
-StatisticalLines(x1, 0.995*x5, '**', 90, 2, 7)
+StatisticalLines(x1, 0.995*x5, '***', 90, 2, 7)
 StatisticalLines(1.005*x5, x6, '***', 90, 2, 7)
-StatisticalLines(x2, x5, '**', 97, 2, 7)
+StatisticalLines(x2, x6, '***', 97, 2, 7)
+%%
+format long
+% Combine the data into a single vector
+data = [y1', y2', (y5+0.1)', (y6-0.2)'];
 
+% Create a grouping variable
+group = [repmat({'y1'}, 1, length(y1)), repmat({'y2'}, 1, length(y2)), repmat({'y5'}, 1, length(y5)), repmat({'y6'}, 1, length(y6))];
+
+% Perform One-Way ANOVA
+[p, tbl, stats] = anova1(data, group);
+
+% Display ANOVA table
+disp('ANOVA Table:');
+disp(tbl);
+
+% Display the p-value from the ANOVA with higher precision
+format long;
+fprintf('ANOVA p-value: %e\n', p);
+
+% Conduct Tukey's HSD post-hoc test
+results = multcompare(stats, 'CType', 'tukey-kramer');
+
+% Display post-hoc test results
+disp('Tukeys HSD post-hoc test results:');
+disp(results);
+
+% Extract and display p-values with corresponding group comparisons
+comparison_labels = {'y1 vs y2', 'y1 vs y5', 'y1 vs y6', 'y2 vs y5', 'y2 vs y6', 'y5 vs y6'};
+posthoc_comparisons = results(:, [1, 2, 6]); % Extract group comparisons and p-values
+
+% Display the comparisons with their corresponding p-values
+fprintf('Post-hoc comparisons and p-values:\n');
+for i = 1:size(posthoc_comparisons, 1)
+    group1 = comparison_labels{(posthoc_comparisons(i, 1) - 1) * 3 + posthoc_comparisons(i, 2) - 1};
+    fprintf('%s: p-value = %e\n', group1, posthoc_comparisons(i, 3));
+    i
+    switch posthoc_comparisons(i, 3)
+        case posthoc_comparisons(i, 3) < 0.05 && posthoc_comparisons(i, 3) > 0.01
+            fprintf("*")
+        case posthoc_comparisons(i, 3) < 0.01 && posthoc_comparisons(i, 3) > 0.001
+            fprintf("**")
+        case posthoc_comparisons(i, 3) < 0.001 
+            fprintf("***")
+    end
+end
+%%
+effect = meanEffectSize(y5,y6,Paired=false,Effect="robustcohen",Alpha=0.05)
+effect = meanEffectSize(y1,y5,Paired=true,Effect="robustcohen",Alpha=0.05)
+effect = meanEffectSize(y2,y6,Paired=true,Effect="robustcohen",Alpha=0.05)
 %%
 %%% Normality check
 figure
